@@ -147,3 +147,33 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# ---------------- Proje eklemeleri ----------------
+# Gizli bilgiler
+.env
+.env.*
+!.env.example
+
+# Veri setleri ve eğitim çıktıları (repoya konmaz)
+data/
+datasets/
+ml/runs/
+ml/wandb/
+*.ckpt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Blender yedekleri
+*.blend1
+*.blend2
+*.blend@
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+desktop.ini
