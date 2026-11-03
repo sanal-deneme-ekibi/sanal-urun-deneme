@@ -9,6 +9,8 @@
 
 Kıyaslama (baseline): CLIP, SAM, rembg.
 
+Veri toplama ve etiketleme kuralları: [veri-protokolu.md](veri-protokolu.md)
+
 ## Kurallar
 
 - **Veri setleri bu klasöre konmaz** (`data/` ve `datasets/` .gitignore'da). Drive / Kaggle'da tutulur.
