@@ -4,11 +4,35 @@ FastAPI (Python). Kıyafet türü tanıma, segmentasyon, anahtar nokta, desen b�
 
 ## Kurulum ve çalıştırma
 
+### 1. Sanal ortamı kur
+
 ```bash
 cd services/ai
 python -m venv .venv
-source .venv/Scripts/activate   # Windows Git Bash
-# source .venv/bin/activate     # macOS / Linux
+```
+
+### 2. Sanal ortamı etkinleştir
+
+Komut, kullandığınız kabuğa göre değişir:
+
+| Kabuk | Komut |
+|---|---|
+| Windows cmd.exe | `.venv\Scripts\activate` |
+| Windows PowerShell | `.venv\Scripts\Activate.ps1` |
+| Git Bash (Windows) | `source .venv/Scripts/activate` |
+| macOS / Linux | `source .venv/bin/activate` |
+
+> **Komut isteminin başında `(.venv)` yazdığını görün.** Görmüyorsanız ortam
+> etkinleşmemiştir; `pip install` yapmayın, yoksa paketler sistem Python'unuza
+> kurulur ve başka projelerinizdeki sürümleri bozabilir.
+>
+> cmd.exe'de `source` komutu yoktur; o Git Bash'e aittir.
+
+Çıkmak için: `deactivate`
+
+### 3. Paketleri kur ve servisi başlat
+
+```bash
 pip install -r requirements-dev.txt
 uvicorn main:app --reload
 ```
