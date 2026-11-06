@@ -1,7 +1,8 @@
-"""Avatarın boy, göğüs, bel ve kalça ölçülerini cm cinsinden çıkarır.
+"""Avatarın boy, göğüs, bel, kalça (cm) ve kilo (kg) ölçülerini çıkarır.
 
-Mezura gibi çalışır: vücut yatay bir düzlemle kesilir, gövdeye ait kesit seçilir ve
-dışbükey zarfının çevresi ölçülür (mezura da girintilerin üzerinden geçer).
+Çevreler mezura gibi ölçülür: vücut yatay bir düzlemle kesilir, gövdeye ait kesit seçilir
+ve dışbükey zarfının çevresi alınır (mezura da girintilerin üzerinden geçer).
+Kilo, mesh'in kapladığı hacimden hesaplanır.
 
 Girdiler numpy dizileridir, bpy gerekmez:
   koseler  (N, 3) metre, +Z yukarı (Blender ekseni)
@@ -19,6 +20,7 @@ ARALIKLAR = {
 }
 ADIM_M = 0.005
 KOL_SICRAMASI = 1.15
+YOGUNLUK_KG_L = 1.0  # insan vücudu ≈ 1,0–1,06; tutarlılık için 1 alındı (kalibrasyon farkı taşır)
 
 
 def _kesit_parcalari(koseler, ucgenler, z):
@@ -87,8 +89,17 @@ def govde_kesiti(koseler, ucgenler, z):
     return None
 
 
+def hacim_litre(koseler, ucgenler):
+    """Mesh'in hacmi (L): her üçgenin orijinle oluşturduğu dört yüzlülerin işaretli toplamı.
+
+    Göz ve ağız gibi küçük açıklıklar hacmi ancak birkaç mililitre etkiler.
+    """
+    a, b, c = (koseler[ucgenler[:, i]] for i in range(3))
+    return abs(float(np.einsum("ij,ij->i", a, np.cross(b, c)).sum())) / 6 * 1000
+
+
 def olc(koseler, ucgenler):
-    """{"boy", "gogus", "bel", "kalca"} → cm (bir ondalık)."""
+    """{"boy", "gogus", "bel", "kalca"} → cm, "kilo" → kg (bir ondalık)."""
     koseler = np.asarray(koseler, dtype=np.float64)
     ucgenler = np.asarray(ucgenler)
     taban, tepe = koseler[:, 2].min(), koseler[:, 2].max()
@@ -109,4 +120,5 @@ def olc(koseler, ucgenler):
             onceki_genislik = genislik
             cevreler.append(cevre)
         sonuc[ad] = round(sec(cevreler) * 100, 1)
+    sonuc["kilo"] = round(hacim_litre(koseler, ucgenler) * YOGUNLUK_KG_L, 1)
     return sonuc
