@@ -6,4 +6,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // "npm run dev"         → her zamanki gibi http://localhost:5173
 export default defineConfig(({ mode }) => ({
   plugins: [react(), ...(mode === 'telefon' ? [basicSsl()] : [])],
+  // GLB dosyaları repo kökündeki assets/models içinde; uygulamanın oraya erişmesine izin ver
+  server: { fs: { allow: ['../..'] } },
+  assetsInclude: ['**/*.glb'],
 }))
