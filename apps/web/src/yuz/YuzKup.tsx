@@ -30,10 +30,21 @@ export default function YuzKup() {
     let kare = 0
     let iptal = false
 
+    // Sayfadan çıkılınca (ya da çıkılmışsa) kamerayı ve modeli kapat
+    const kapat = () => {
+      cancelAnimationFrame(kare)
+      akis?.getTracks().forEach((t) => t.stop())
+      landmarker?.close()
+      akis = undefined
+      landmarker = undefined
+    }
+
     async function baslat() {
       const dosyalar = await FilesetResolver.forVisionTasks(
-                'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm'
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm'
       )
+      if (iptal) return
+
       landmarker = await FaceLandmarker.createFromOptions(dosyalar, {
         baseOptions: {
           modelAssetPath:
@@ -44,15 +55,18 @@ export default function YuzKup() {
         numFaces: 1,
         outputFacialTransformationMatrixes: true,
       })
+      if (iptal) return kapat()
 
       setDurum('Kamera açılıyor...')
       akis = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user' },
       })
       const video = videoRef.current
-      if (!video || iptal) return
+      if (iptal || !video) return kapat()
+
       video.srcObject = akis
       await video.play()
+      if (iptal) return kapat()
       setDurum('Yüz aranıyor...')
 
       const m = new THREE.Matrix4()
@@ -75,19 +89,19 @@ export default function YuzKup() {
       dongu()
     }
 
-    baslat().catch((h) => setDurum('Hata: ' + (h?.message ?? h)))
+    baslat().catch((h) => {
+      if (!iptal) setDurum('Hata: ' + (h?.message ?? h))
+    })
 
     return () => {
       iptal = true
-      cancelAnimationFrame(kare)
-      akis?.getTracks().forEach((t) => t.stop())
-      landmarker?.close()
+      kapat()
     }
   }, [])
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}>
-      <div style={{ flex: 1, position: 'relative', background: '#111' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%' }}>
+      <div style={{ flex: '1 1 300px', minHeight: 280, position: 'relative', background: '#111' }}>
         {/* Ayna görüntüsü: kullanıcı kendini aynadaki gibi görsün */}
         <video
           ref={videoRef}
@@ -99,7 +113,7 @@ export default function YuzKup() {
           {durum}
         </div>
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: '1 1 300px', minHeight: 280 }}>
         <Canvas camera={{ position: [0, 0, 3] }}>
           <Kup />
         </Canvas>
