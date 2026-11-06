@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, ContactShadows } from '@react-three/drei'
 
-// Avatar GLB'si gelene kadar kullanılan basit manken (ölçüler metre, +Y yukarı)
+// Model verilmezse gösterilen basit manken (ölçüler metre, +Y yukarı)
 function YerTutucuManken() {
   const ten = '#d6b8a0'
   return (
@@ -24,13 +25,13 @@ function YerTutucuManken() {
   )
 }
 
-export default function Viewer() {
+export default function Viewer({ children }: { children?: ReactNode }) {
   return (
-    <Canvas camera={{ position: [0, 1.1, 3], fov: 40 }}>
+    <Canvas camera={{ position: [0, 1.1, 3.2], fov: 40 }}>
       <ambientLight intensity={0.5} />
       <directionalLight position={[2, 4, 3]} intensity={1.2} />
-      
-      <YerTutucuManken />
+      <directionalLight position={[-3, 2, -2]} intensity={0.4} />
+      {children ?? <YerTutucuManken />}
       <ContactShadows position={[0, 0, 0]} opacity={0.4} scale={3} blur={2} />
       {/* 360° döndürme: sadece yatayda dön, kamera vücudun ortasına baksın */}
       <OrbitControls
