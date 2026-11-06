@@ -32,7 +32,7 @@ export default function YuzKup() {
 
     async function baslat() {
       const dosyalar = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm'
+                'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm'
       )
       landmarker = await FaceLandmarker.createFromOptions(dosyalar, {
         baseOptions: {
