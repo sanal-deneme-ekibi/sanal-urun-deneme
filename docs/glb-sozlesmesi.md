@@ -7,28 +7,35 @@
 - Format: `.glb` (glTF 2.0, ikili), Draco sıkıştırma açık
 - Birim: metre · Yukarı yön: +Y (Blender dışa aktarımında "+Y Up")
 - Poz: A-pozu, iskelet (rig) yok
+- Yön: model +Z yönüne bakar (glTF "ön"ü). **Sol/sağ her zaman giyenin solu/sağıdır**:
+  giyenin solu +X tarafıdır (kameradan bakınca ekranın sağı). Dosya, nokta ve bölge
+  adlarındaki `sol`/`sag` bu kurala uyar (ör. `omuz_sol`).
 - Üçgen bütçesi: avatar ≤ 20.000, kıyafet ≤ 10.000, gözlük ≤ 5.000
 
 ## Avatar
 
 - Dosya adları: `assets/models/avatar_kadin.glb`, `assets/models/avatar_erkek.glb`
 - Mesh adı: `Avatar`
-- Vücut shape key'leri (0–1 arası):
+- Görünüm: vitrin mankeni (anatomik ayrıntılar yumuşatılmış, tek renk mat)
+- Vücut shape key'leri (0–1 arası, varsayılan 0, bu sırayla):
 
-| Shape key | Anlamı | 0 değeri | 1 değeri |
-|---|---|---|---|
-| `height` | boy | _cm_ | _cm_ |
-| `chest` | göğüs çevresi | _cm_ | _cm_ |
-| `waist` | bel çevresi | _cm_ | _cm_ |
-| `hip` | kalça çevresi | _cm_ | _cm_ |
+| Shape key | Anlamı | Ölçü | 0 değeri | 1 değeri (yalnız bu key) |
+|---|---|---|---|---|
+| `height` | boy | `boy` (cm) | 145,6 | 188,6 |
+| `chest` | göğüs çevresi | `gogus` (cm) | 67,8 | 97,7 |
+| `waist` | bel çevresi | `bel` (cm) | 48,3 | 71,2 |
+| `hip` | kalça çevresi | `kalca` (cm) | 78,2 | 101,0 |
+| `weight` | genel dolgunluk (kollar, bacaklar, gövde) | `kilo` (kg) | 30,0 | 55,9 |
 
-Gerçek cm değerleri ölçüm betiğinin kalibrasyon tablosundan gelir: `assets/models/avatar_kadin.calib.json`
+Değerler `avatar_kadin` içindir. Key'ler birbirini etkiler (ör. `weight` bütün çevreleri,
+`height` kiloyu büyütür); bütün etkiler kalibrasyon tablosundadır:
+`assets/models/avatar_kadin.calib.json`. Kilo, mesh hacminden 1 kg/L ile hesaplanır.
 
 ## Kıyafet şablonları
 
 - Dosya adları: `assets/models/sablon_<tur>.glb` → `tisort`, `pantolon`, `gomlek`, `elbise`, `etek`
 - Mesh adı: `Garment`
-- Avatarla **aynı adlı** vücut shape key'leri: `height`, `chest`, `waist`, `hip`
+- Avatarla **aynı adlı** vücut shape key'leri: `height`, `chest`, `waist`, `hip`, `weight`
 - Ürün ölçüsü shape key'leri: `length` (boy), `width` (en), `sleeve` (kol; yoksa eklenmez)
 - Kalibrasyon: `assets/models/sablon_<tur>.calib.json`
 
