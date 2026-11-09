@@ -171,6 +171,11 @@ function olcuCozucu(hedef: Olculer, kalib: Kalibrasyon): CozucuSonucu;
 `kilo` kullanıcıdan gelmemişse (`measurements.kilo_kg` boş) hedefe konmaz; çözücü kalan dört
 ölçüden `weight` dahil bütün ağırlıkları bulur.
 
+**Arayüz şu an kiloyu hedef olarak vermiyor.** Avatar aynı anda hem çevreleri hem kiloyu
+tutturamıyor: kilo hedefe eklendiğinde çevre hatası 0,0 cm'den 0,5–1,5 cm'ye çıkıyor, kilo
+yine de 7–14 kg sapıyor. Kıyafet uygunluğu çevrelere bağlı olduğu için çevreler önceliklidir.
+Kilo yine de sözleşmede: kalibrasyon dosyası taşıyor ve çözücü verildiğinde kullanıyor.
+
 ### Çıktı
 
 ```ts
@@ -194,9 +199,12 @@ küçük bir yineleyici çözüm (projected gradient) yeterlidir; dış kütüph
 
 ### Sınır durumları
 
-- Kullanıcının ölçüsü avatarın kapsadığı aralığın dışındaysa ağırlık 0 veya 1'e dayanır.
-  O key `sinirda` listesine girer ve arayüz "bu ölçü avatarın sınırında" uyarısı gösterir;
-  hesap yine de sürer.
+- Kullanıcının ölçüsü avatarın kapsadığı aralığın dışındaysa ağırlık 0 veya 1'e dayanır ve
+  o key `sinirda` listesine girer. Hesap yine de sürer.
+- **Arayüz uyarıyı `sinirda`'ya değil `fark`'a bakarak gösterir.** Bir ağırlığın sınıra
+  dayanması tek başına sorun değil: key'ler birbirinin yerini tutabildiği için çözücü
+  ölçüyü başka bir key'le yakalayabilir. Ölçünün gerçekten tutturulamadığını `fark`
+  söyler. `sinirda` tanı amaçlıdır — hangi key'in manevra alanı kalmadığını gösterir.
 - `fark` ölçü başına ayrı döner, çünkü 3 cm'lik bel hatası ile 3 cm'lik boy hatası aynı şey
   değildir. Raporlanan ölçüt `ortalamaHataCm`'dir (ölçü doğruluğu testi, #19).
 - Çözücü `kalib.surum` değerini kontrol eder; beklemediği bir sürümde hata verir.
