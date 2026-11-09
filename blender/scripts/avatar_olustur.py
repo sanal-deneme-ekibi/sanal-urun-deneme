@@ -54,21 +54,35 @@ TABAN = {
         "measure-bust-circ": -0.5,
         "measure-waist-circ": -0.8,
         "measure-hips-circ": -0.6,
+        # Manken görünümü: meme uçları düzleştirilir
+        "nipple-point": -1.0,
+        "nipple-size": -1.0,
     },
 }
 
-# Her key'in 1 değeri: tabanın üzerine yazılan ayarlar. Tek bir ölçü hedefini fazla
-# zorlamak doğal olmayan şekiller verdiği için kilo ve göğüs boyutu makrolarıyla karıştırıldı.
+# Her key'in 1 değeri: tabanın üzerine yazılan ayarlar. "olcek" verilirse key, tabandan
+# o ayara olan farkın o kadar katıdır (MPFB makrosunun sınırının ötesine geçmek için).
+# "fark_yumusat" verilirse bu fark o kadar tekrar yumuşatılır: büyütülen kilo hedefindeki
+# topaklar (selülit benzeri) gider, hacim artışı kalır.
+# Genel dolgunluk weight'te; diğer key'ler yalnızca kendi bölgesini değiştirir.
 KEYLER = {
     "height": {"makro": {"height": 0.72}},  # ≈ 190 cm
-    "chest": {"makro": {"cupsize": 0.9}, "hedefler": {"measure-bust-circ": 1.0}},
-    "waist": {"makro": {"weight": 1.0}, "hedefler": {"measure-waist-circ": 1.2}},
-    "hip": {"hedefler": {"measure-hips-circ": 1.2}},
+    "chest": {"makro": {"cupsize": 0.75}, "hedefler": {"measure-bust-circ": 1.0}},
+    "waist": {"hedefler": {"measure-waist-circ": 1.5}},
+    "hip": {"hedefler": {"measure-hips-circ": 1.0}},
+    "weight": {"makro": {"weight": 1.0}, "olcek": 3.0, "fark_yumusat": 40},
 }
 
 # Kalibrasyon sözleşmesindeki adlar: key → kendi ölçüsü
-KEY_OLCU = {"height": "boy", "chest": "gogus", "waist": "bel", "hip": "kalca"}
-ORNEK_SAYISI = 8
+KEY_OLCU = {"height": "boy", "chest": "gogus", "waist": "bel", "hip": "kalca", "weight": "kilo"}
+ORNEK_SAYISI = 10
+
+# Manken görünümü: bu bölgelerdeki anatomik ayrıntılar Laplace yumuşatmasıyla silinir.
+# merkez taban vücutta bulunur; aynı köşeler bütün vücutlarda aynı şekilde yumuşatılır.
+YUMUSATMA = {
+    "kasik": {"yaricap_m": 0.07, "tekrar": 40},
+    "yuz": {"yaricap_m": 0.08, "tekrar": 6},
+}
 
 
 def sahneyi_temizle():
@@ -113,6 +127,43 @@ def koseler(mesh):
     dizi = np.empty(len(mesh.vertices) * 3)
     mesh.vertices.foreach_get("co", dizi)
     return dizi.reshape(-1, 3)
+
+
+def kenarlar(mesh):
+    dizi = np.empty(len(mesh.edges) * 2, dtype=np.int64)
+    mesh.edges.foreach_get("vertices", dizi)
+    return dizi.reshape(-1, 2)
+
+
+def yumusatma_bolgeleri(k):
+    """Taban vücutta her bölge için (köşe ağırlıkları, tekrar) döner. Ağırlık merkezde 1, kenarda 0."""
+    boy = k[:, 2].max()
+    orta = np.abs(k[:, 0]) < 0.004
+    # Kasık: orta çizgide, gövdenin en alt noktası
+    govde = orta & (k[:, 2] > 0.40 * boy) & (k[:, 2] < 0.56 * boy)
+    kasik = k[np.flatnonzero(govde)[np.argmin(k[govde, 2])]]
+    # Yüz: başın orta çizgisinde en öndeki nokta (burun ucu); vücut -Y yönüne bakar
+    bas = orta & (k[:, 2] > 0.88 * boy)
+    yuz = k[np.flatnonzero(bas)[np.argmin(k[bas, 1])]]
+
+    bolgeler = []
+    for merkez, ayar in ((kasik, YUMUSATMA["kasik"]), (yuz, YUMUSATMA["yuz"])):
+        t = np.clip(1 - np.linalg.norm(k - merkez, axis=1) / ayar["yaricap_m"], 0, 1)
+        bolgeler.append((t * t * (3 - 2 * t), ayar["tekrar"]))
+    return bolgeler
+
+
+def yumusat(k, kenar, bolgeler):
+    """Her köşeyi komşularının ortalamasına, bölge ağırlığı kadar yaklaştırır."""
+    k = k.copy()
+    derece = np.bincount(kenar.ravel(), minlength=len(k))[:, None]
+    for agirlik, tekrar in bolgeler:
+        for _ in range(tekrar):
+            toplam = np.zeros_like(k)
+            np.add.at(toplam, kenar[:, 0], k[kenar[:, 1]])
+            np.add.at(toplam, kenar[:, 1], k[kenar[:, 0]])
+            k += 0.5 * agirlik[:, None] * (toplam / np.maximum(derece, 1) - k)
+    return k
 
 
 def ucgenler(mesh):
@@ -177,13 +228,13 @@ def kalibrasyon(taban_k, deltalar, sade_ucgen):
         etki[key] = {o: round(tam[o] - taban[o], 1) for o in taban}
 
     rastgele = random.Random(42)
-    ornekler, hatalar = [], []
+    ornekler, hatalar = [], {o: [] for o in taban}
     for _ in range(ORNEK_SAYISI):
         agirliklar = {key: round(rastgele.random(), 2) for key in KEYLER}
         olculen = olc(agirliklar)
         for o in taban:
             tahmin = taban[o] + sum(etki[key][o] * agirliklar[key] for key in KEYLER)
-            hatalar.append(abs(tahmin - olculen[o]))
+            hatalar[o].append(abs(tahmin - olculen[o]))
         ornekler.append({"agirliklar": agirliklar, "olculen": olculen})
 
     return {
@@ -192,12 +243,13 @@ def kalibrasyon(taban_k, deltalar, sade_ucgen):
         "betik": "blender/scripts/avatar_olustur.py",
         "tarih": date.today().isoformat(),
         "birim": "cm",
+        "birim_kilo": "kg",
         "keyler": list(KEYLER),
         "olcumler": list(KEY_OLCU.values()),
         "taban": taban,
         "etki": etki,
         "ornekler": ornekler,
-    }, float(np.mean(hatalar))
+    }, {o: round(float(np.mean(h)), 2) for o, h in hatalar.items()}
 
 
 def disa_aktar(nesne):
@@ -233,7 +285,10 @@ def main():
 
     print("[1/5] Taban vücut üretiliyor")
     tam_taban_mesh = vucut_olustur(TABAN)
-    tam_taban = koseler(tam_taban_mesh)
+    tam_kenar = kenarlar(tam_taban_mesh)
+    bolgeler = yumusatma_bolgeleri(koseler(tam_taban_mesh))
+    tam_taban = yumusat(koseler(tam_taban_mesh), tam_kenar, bolgeler)
+    tam_taban_mesh.vertices.foreach_set("co", tam_taban.ravel())
     tam_ucgen = ucgenler(tam_taban_mesh)
     print(f"      tam çözünürlük: {len(tam_taban)} köşe, {len(tam_ucgen)} üçgen")
 
@@ -249,8 +304,13 @@ def main():
     deltalar = {}
     for key, ek in KEYLER.items():
         hedef_mesh = vucut_olustur(ayar_birlestir(ek))
-        hedef = bagi_uygula(bag, sade_taban, tam_taban, koseler(hedef_mesh), tam_ucgen)
+        tam_hedef = yumusat(koseler(hedef_mesh), tam_kenar, bolgeler)
         bpy.data.meshes.remove(hedef_mesh)
+        fark = tam_hedef - tam_taban
+        if ek.get("fark_yumusat"):
+            fark = yumusat(fark, tam_kenar, [(np.ones(len(fark)), ek["fark_yumusat"])])
+        tam_hedef = tam_taban + ek.get("olcek", 1.0) * fark
+        hedef = bagi_uygula(bag, sade_taban, tam_taban, tam_hedef, tam_ucgen)
         deltalar[key] = hedef - sade_taban
         anahtar = nesne.shape_key_add(name=key, from_mix=False)
         anahtar.data.foreach_set("co", hedef.ravel())
@@ -262,8 +322,9 @@ def main():
     KALIB_YOLU.write_text(json.dumps(kalib, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"      taban: {kalib['taban']}")
     for key, o in KEY_OLCU.items():
-        print(f"      {key:6s} 0 → 1: {kalib['taban'][o]} → {kalib['taban'][o] + kalib['etki'][key][o]:.1f} cm  ({kalib['etki'][key]})")
-    print(f"      doğrusal model ortalama hatası: {hata:.2f} cm")
+        birim = "kg" if o == "kilo" else "cm"
+        print(f"      {key:6s} 0 → 1: {kalib['taban'][o]} → {kalib['taban'][o] + kalib['etki'][key][o]:.1f} {birim}  ({kalib['etki'][key]})")
+    print(f"      doğrusal model ortalama hatası (ölçü başına): {hata}")
 
     print("[5/5] GLB dışa aktarılıyor")
     malzeme_ekle(nesne)
