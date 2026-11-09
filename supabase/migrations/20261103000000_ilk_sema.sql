@@ -20,6 +20,9 @@ create table if not exists public.measurements (
   gogus_cm    numeric(5, 1) not null check (gogus_cm > 0),
   bel_cm      numeric(5, 1) not null check (bel_cm > 0),
   kalca_cm    numeric(5, 1) not null check (kalca_cm > 0),
+  -- Kilo isteğe bağlıdır: hassas bir bilgi ve kullanıcı girmek zorunda değil. Boşsa ölçü
+  -- çözücü kalan dört ölçüden weight key'ini de çözer (docs/glb-sozlesmesi.md).
+  kilo_kg     numeric(5, 1) check (kilo_kg > 0),
   created_at  timestamptz not null default now()
 );
 
