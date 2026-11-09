@@ -47,10 +47,18 @@ Her tür içinde en az %30'u manken/insan üzerinde, en az %30'u düz (katlanmı
 
 ### Toplanmaz
 
-- İnsan yüzünün tanınabildiği görseller — yüz görünüyorsa görsel kırpılır
 - Filigranlı (watermark) görseller
 - Aynı ürünün farklı açılardan 2'den fazla fotoğrafı (set şişer, çeşitlilik artmaz)
 - 5 tür dışındaki ürünler (ayakkabı, çanta, mont, iç giyim)
+
+### İnsan yüzü
+
+Yüz görünen görsel **atılmaz, yüz bulanıklaştırılır**. Kırpma yapılmaz: yakadan kesilen bir
+tişörtte `yaka_orta` anahtar noktası kaybolur ve görsel Model 3 için kullanılamaz hâle gelir.
+
+Bulanıklaştırma `ml/scripts/yuz_bulanik.py` ile toplu yapılır (OpenCV yüz bulma + Gaussian).
+Betiğin kaçırdığı yüzler etiketleme sırasında görülürse elle bulanıklaştırılır. Yüzü
+bulanıklaştırılmış görsel `ham/` klasöründe orijinalinin yerine geçer; orijinal saklanmaz.
 
 ### Yasal ve etik sınır
 
@@ -104,15 +112,28 @@ Repoda yalnızca indirme ve hazırlama betikleri bulunur (`ml/scripts/`).
 
 ### beden-tablolari.csv
 
-| Sütun | Örnek |
-|---|---|
-| `urun_id` | `tisort_tr01_0042` |
-| `beden` | `M` |
-| `boy_cm` | `70` |
-| `en_cm` | `52` |
-| `kol_cm` | `21` |
+| Sütun | Örnek | Hangi türlerde |
+|---|---|---|
+| `urun_id` | `tisort_tr01_0042` | hepsi |
+| `beden` | `M` | hepsi |
+| `boy_cm` | `70` | hepsi (ürünün boyu) |
+| `en_cm` | `52` | `tisort`, `gomlek`, `elbise` (göğüs genişliği) |
+| `kol_cm` | `21` | `tisort`, `gomlek`, `elbise` |
+| `bel_cm` | `38` | `pantolon`, `etek`, `elbise` |
+| `kalca_cm` | `52` | `pantolon`, `etek`, `elbise` |
+| `ic_bacak_cm` | `78` | `pantolon` |
 
-Sütun adları Supabase'deki `size_charts` tablosuyla aynı, böylece doğrudan aktarılır.
+Türle ilgisi olmayan sütun boş bırakılır. Sütun adları Supabase'deki `size_charts` tablosuyla
+aynı, böylece doğrudan aktarılır.
+
+**Ölçüler düz serili genişliktir, çevre değildir.** E-ticaret beden tabloları ürünü düz sererek
+ölçer: `en_cm` koltuk altından koltuk altına, `bel_cm` ve `kalca_cm` ise ilgili hizada kenardan
+kenaradır. Vücut ölçüleri (`measurements` tablosu) ise çevredir. Uygunluk hesabı ürün ölçüsünü
+**2 ile çarpıp** vücut çevresiyle karşılaştırır. `boy_cm`, `kol_cm` ve `ic_bacak_cm` uzunluktur,
+çarpılmaz.
+
+Ürün sayfası çevre veriyorsa (bazı siteler verir) ikiye bölünüp düz genişliğe çevrilir ve
+`kaynak.csv`'ye not düşülür.
 
 ---
 
@@ -126,18 +147,38 @@ Her görsele tam bir tür etiketi. Görselde birden fazla ürün varsa (örn. ti
 
 | Etiket | Karşılığı |
 |---|---|
-| `tisort` | kısa kollu, yakasız üst |
-| `gomlek` | düğmeli, yakalı üst |
+| `tisort` | yakasız veya kısa patlı üst; kol uzunluğu fark etmez |
+| `gomlek` | boydan boya düğme sırası **ve** yakası olan üst |
 | `elbise` | tek parça, üst + alt birleşik |
 | `pantolon` | iki paçalı alt |
 | `etek` | tek parçalı alt |
 
+Üst giyimde ayrım tek kurala bağlıdır: **boydan boya düğme sırası + yaka varsa `gomlek`, yoksa
+`tisort`.** Kol uzunluğu, kumaş ve örgü bu kararı etkilemez.
+
 Sınırda kalan durumlar:
 
-- **Uzun kollu yakasız üst** → `tisort`
-- **Tulum** → sete girmez
-- **Şort** → `pantolon`
-- **Elbise + ceket** → yalnızca elbise etiketlenir, ceket atlanır
+| Ürün | Tür | Neden |
+|---|---|---|
+| Uzun kollu yakasız üst | `tisort` | kol uzunluğu ayrım ölçütü değil |
+| Polo yaka | `tisort` | patı boydan boya değil, kısa |
+| Kazak, sweatshirt | `tisort` | düğme ve yaka yok |
+| Bluz | düğme + yaka varsa `gomlek`, yoksa `tisort` | aynı kural |
+| Şort | `pantolon` | iki paça |
+| Tulum | sete girmez | üst + alt birleşik ama elbise değil |
+| Elbise + ceket | yalnızca elbise | ceket 5 türün dışında |
+| Hırka, ceket, mont | sete girmez | dış giyim kapsam dışı |
+
+Kurala rağmen tereddüt eden görsel **etiketlenmez**, `ham/belirsiz/` klasörüne konur ve haftalık
+toplantıda üçü birlikte karara bağlar; çıkan karar bu tabloya eklenir.
+
+**Model 1'in gördüğü girdi kırpılmış üründür**, görselin tamamı değil. Kırpma, maskenin
+sınırlayıcı kutusudur (%5 pay bırakılır). Tek ürünlü görsellerde bu neredeyse görselin tamamına
+eşittir; çok ürünlü görsellerde her maske ayrı bir eğitim örneği olur. Böylece bir manken
+fotoğrafı hem `tisort` hem `pantolon` örneği verir ve iki sınıf birbirine karışmaz.
+
+Kırpmaları `ml/scripts/kirp.py` maskelerden üretir; elle kırpma yapılmaz. Çalışma zamanında
+kullanıcı tek ürün yüklediği için görselin tamamı zaten o ürünün kırpılmış hâlidir.
 
 ### 4.2 Maske (segmentasyon — Model 2)
 
@@ -188,12 +229,23 @@ Görünmeyen nokta (örn. kol arkada kalmış) `occluded` işaretlenir, silinmez
 - Bölme **ürün bazında** yapılır, görsel bazında değil: aynı ürünün iki fotoğrafı farklı bölümlere düşmemeli, yoksa test sonucu olduğundan iyi çıkar.
 - `test` bölümüne eğitim sırasında **hiç bakılmaz**.
 - Bölme `ml/scripts/bol.py` ile sabit `seed` kullanılarak yapılır; sonuç tekrarlanabilir olmalı.
+- Bölme **tür ve görünüm ikilisine göre katmanlıdır** (stratified): `tisort`+`duz`, `tisort`+`manken`,
+  `tisort`+`insan`, `pantolon`+`duz`… her kutu kendi içinde %70/15/15 bölünür. Düz bölme, az sayıda
+  olan kombinasyonları (örn. `etek`+`insan`) tek bir bölüme yığabilir ve test sonucunu yanıltır.
+- `bol.py` bölme sonrası her kutunun bölüm başına sayısını yazdırır; bir kutuda test payı sıfırsa
+  uyarı verir.
 
 ---
 
 ## 6. Dışa aktarma
 
-- CVAT'tan format: **COCO 1.0** (maske ve anahtar nokta aynı formatta taşınır)
+- CVAT'tan format: **COCO 1.0**. Skeleton (anahtar nokta) bu formatta çıkmazsa
+  **COCO Keypoints 1.0** kullanılır; CVAT sürümüne göre değişiyor.
+- İlk 50 görsel etiketlenir etiketlenmez **deneme dışa aktarma** yapılır: maske ve 7 nokta aynı
+  dosyada geliyor mu, nokta sırası korunuyor mu. Bu denenmeden toplu etiketlemeye geçilmez;
+  yanlış formatla 1000 görsel etiketlenirse hepsi yeniden dışa aktarılır.
+- Maske ve anahtar nokta ayrı dosyalara düşerse `ml/scripts/birlestir.py` ikisini `urun_id`
+  üzerinden birleştirir.
 - Dışa aktarılan dosya: `etiketli/<bolum>/annotations.json`
 - Her dışa aktarma sonrası `ml/scripts/dogrula.py` çalıştırılır: tür adları listeye uyuyor mu, her tişört maskesinin 7 noktası var mı, poligonlar kapalı mı.
 
@@ -214,8 +266,21 @@ Görünmeyen nokta (örn. kol arkada kalmış) `occluded` işaretlenir, silinmez
 |---|---|
 | DeepFashion2 başvurusu (#10) | C |
 | Bu belge ve etiket şeması | C |
-| CVAT projesinin kurulması | C |
-| Görsel toplama | A, B, C (tür başına paylaşılır) |
+| CVAT projesinin kurulması ve deneme dışa aktarma | C |
 | Etiketleme | A, B, C |
 | Kendi kıyafetlerimizin ölçülmesi | A, B, C |
-| Doğrulama betikleri | C |
+| Betikler (`kirp.py`, `bol.py`, `dogrula.py`, `yuz_bulanik.py`) | C |
+
+### Görsel toplamada tür paylaşımı
+
+Herkes kendi türünün hem görselini hem beden tablosunu toplar; böylece eksik sütun kimde
+kalıyor belli olur.
+
+| Kim | Türler | Hedef |
+|---|---|---|
+| A | `tisort` | 200–300 |
+| B | `pantolon`, `etek` | 300–500 |
+| C | `gomlek`, `elbise` | 300–500 |
+
+Bir tür hedefine erken ulaşırsa fazlası en geride kalan türe kaydırılır; haftalık toplantıda
+sayılara bakılır.
