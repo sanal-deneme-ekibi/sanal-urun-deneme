@@ -39,15 +39,28 @@ create table if not exists public.products (
 
 create index if not exists products_owner_idx on public.products (owner_id);
 
--- Ürüne ait beden tablosu (cm)
+-- Ürüne ait beden tablosu (cm).
+-- Ürün ölçüleri DÜZ SERİLİ GENİŞLİKTİR, çevre değildir: en_cm koltuk altından koltuk altına,
+-- bel_cm ve kalca_cm ilgili hizada kenardan kenaradır. measurements tablosundaki vücut
+-- ölçüleri ise çevredir; uygunluk hesabı ürün ölçüsünü 2 ile çarpıp karşılaştırır.
+-- boy_cm, kol_cm ve ic_bacak_cm uzunluktur, çarpılmaz.
+-- Türle ilgisi olmayan sütun boş kalır: kol_cm yalnızca üst giyimde, ic_bacak_cm yalnızca
+-- pantolonda, bel_cm ve kalca_cm alt giyim ile elbisede dolar.
 create table if not exists public.size_charts (
-  id          uuid primary key default gen_random_uuid(),
-  product_id  uuid not null references public.products (id) on delete cascade,
-  beden       text not null,
-  boy_cm      numeric(5, 1) check (boy_cm > 0),
-  en_cm       numeric(5, 1) check (en_cm > 0),
-  kol_cm      numeric(5, 1) check (kol_cm > 0),
-  unique (product_id, beden)
+  id           uuid primary key default gen_random_uuid(),
+  product_id   uuid not null references public.products (id) on delete cascade,
+  beden        text not null,
+  boy_cm       numeric(5, 1) check (boy_cm > 0),
+  en_cm        numeric(5, 1) check (en_cm > 0),
+  kol_cm       numeric(5, 1) check (kol_cm > 0),
+  bel_cm       numeric(5, 1) check (bel_cm > 0),
+  kalca_cm     numeric(5, 1) check (kalca_cm > 0),
+  ic_bacak_cm  numeric(5, 1) check (ic_bacak_cm > 0),
+  unique (product_id, beden),
+  -- Her bedende en az bir ölçü dolu olmalı; tamamen boş satır işe yaramaz.
+  constraint size_charts_en_az_bir_olcu check (
+    num_nonnulls(boy_cm, en_cm, kol_cm, bel_cm, kalca_cm, ic_bacak_cm) > 0
+  )
 );
 
 -- Favoriler
