@@ -1,0 +1,4 @@
+# Veri hazırlama betiklerinin bağımlılıkları (ml/scripts/).
+# Eğitim bağımlılıkları ayrıdır; notebook'lar Kaggle / Colab'da çalışır.
+opencv-python==4.10.0.84
+pillow==11.0.0
