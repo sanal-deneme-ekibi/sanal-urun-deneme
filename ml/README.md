@@ -9,6 +9,8 @@
 
 Kıyaslama (baseline): CLIP, SAM, rembg.
 
+Veri toplama ve etiketleme kuralları: [veri-protokolu.md](veri-protokolu.md)
+
 ## Veri hazırlama betikleri (`scripts/`)
 
 Kurallar `veri-protokolu.md`'de; betikler o kuralları uygular.
