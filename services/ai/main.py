@@ -81,7 +81,21 @@ def _tahmin_et(icerik: bytes) -> tuple[str, float, bool]:
     return TURLER[0], 0.0, False
 
 
-@app.post("/tur", response_model=TurYaniti, summary="Görseldeki kıyafetin türü")
+# 400 yanıtını OpenAPI'ye de yazıyoruz; yoksa /docs sayfasında "Undocumented" görünüyor ve
+# arayüzü yazan kişi hangi hataların gelebileceğini oradan göremiyor.
+HATA_YANITLARI = {
+    400: {
+        "description": "Geçersiz dosya: desteklenmeyen içerik türü, boş dosya, boyut aşımı ya da bozuk görsel",
+        "content": {
+            "application/json": {
+                "example": {"detail": "Yalnızca JPEG ve PNG kabul edilir (gelen: text/plain)."}
+            }
+        },
+    }
+}
+
+
+@app.post("/tur", response_model=TurYaniti, responses=HATA_YANITLARI, summary="Görseldeki kıyafetin türü")
 async def tur(gorsel: Annotated[UploadFile, File(description="JPEG veya PNG, en çok 5 MB")]) -> TurYaniti:
     icerik = await gorsel.read()
     _gorseli_dogrula(gorsel, icerik)
