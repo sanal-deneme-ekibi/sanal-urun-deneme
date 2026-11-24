@@ -223,6 +223,30 @@ Payların cm cinsinden eşikleri ayrı issue'da belirlenecek.
 | sağ yarı (u 0.5–1, v 0.27–1) | arka |
 | alt şerit (v 0–0.25) | kollar / paçalar |
 
+Tablodaki v, Blender'ın UV ekseninde (v yukarı). GLB'de dışa aktarıcı v'yi ters çevirir
+(glTF: 0,0 sol üst köşe), yani GLB'deki `TEXCOORD_0` için gövde v 0–0,73, kollar v 0,75–1'dir.
+
+Tişörtte (`sablon_tisort.glb`) yönler:
+
+- Gövde: u = sağ yan (0) → ön orta (0,25) → sol yan (0,5) → arka orta (0,75) → sağ yan (1).
+  Ön, karşıdan bakınca göründüğü gibi; arka, arkadan bakınca göründüğü gibi durur.
+  v etekten (0,27) yakaya (1) çıkar.
+- Kollar: sağ kol u 0–0,5, sol kol u 0,5–1. Her kolda u = koltuk altı → ön → üst → arka;
+  v omuzdan (0,25) manşete (0) iner.
+
+## Kıyafet şablonunda vücut key'lerinin etkisi (öneri)
+
+Şablonun vücut key'leri kıyafetin ölçülerini de değiştirir: daha büyük göğüslü bir vücuttaki
+tişört de daha geniştir. Bu yüzden `sablon_tisort.calib.json`, sözleşmedeki alanlara ek olarak
+`govde_etki` taşır: vücut key'i 0'dan 1'e giderken kıyafet ölçüsünün değişimi (cm).
+Ürün key'leri çözülürken avatardan gelen vücut ağırlıklarının bu etkisi önce eklenir:
+
+```
+olcu = taban[olcu] + Σ govde_etki[vkey][olcu] × vucut_agirligi[vkey] + Σ etki[key][olcu] × agirlik[key]
+```
+
+Karara bağlanınca bu bölüm "Kıyafet şablonu kalibrasyonu"na taşınır.
+
 ## Anahtar noktalar (yapay zekâ ↔ şablon)
 
 Tişört için 7 nokta, sırası sabit:

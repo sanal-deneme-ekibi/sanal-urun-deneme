@@ -1,0 +1,44 @@
+{
+  "surum": 1,
+  "model": "sablon_tisort",
+  "uv_ekseni": "glTF: (0,0) sol üst köşe, v aşağı doğru (GLB'deki TEXCOORD_0 ile aynı)",
+  "sira": [
+    "yaka_orta",
+    "omuz_sol",
+    "omuz_sag",
+    "kol_sol",
+    "kol_sag",
+    "etek_sol",
+    "etek_sag"
+  ],
+  "uv": {
+    "yaka_orta": [
+      0.25,
+      0.0
+    ],
+    "omuz_sol": [
+      0.5,
+      0.0392
+    ],
+    "omuz_sag": [
+      0.0,
+      0.0392
+    ],
+    "kol_sol": [
+      0.625,
+      1.0
+    ],
+    "kol_sag": [
+      0.125,
+      1.0
+    ],
+    "etek_sol": [
+      0.5,
+      0.73
+    ],
+    "etek_sag": [
+      0.0,
+      0.73
+    ]
+  }
+}

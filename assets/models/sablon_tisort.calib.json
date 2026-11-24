@@ -1,0 +1,140 @@
+{
+  "surum": 1,
+  "model": "sablon_tisort",
+  "betik": "blender/scripts/sablon_tisort.py",
+  "tarih": "2026-11-24",
+  "birim": "cm",
+  "keyler": [
+    "length",
+    "width",
+    "sleeve"
+  ],
+  "olcumler": [
+    "boy",
+    "en",
+    "kol"
+  ],
+  "taban": {
+    "boy": 37.2,
+    "en": 35.4,
+    "kol": 11.6
+  },
+  "etki": {
+    "length": {
+      "boy": 16.8,
+      "en": 0.0,
+      "kol": 0.0
+    },
+    "width": {
+      "boy": 0.0,
+      "en": 13.0,
+      "kol": 0.0
+    },
+    "sleeve": {
+      "boy": 0.0,
+      "en": 0.0,
+      "kol": 36.4
+    }
+  },
+  "ornekler": [
+    {
+      "agirliklar": {
+        "length": 0.64,
+        "width": 0.03,
+        "sleeve": 0.28
+      },
+      "olculen": {
+        "boy": 48.0,
+        "en": 35.7,
+        "kol": 21.8
+      }
+    },
+    {
+      "agirliklar": {
+        "length": 0.22,
+        "width": 0.74,
+        "sleeve": 0.68
+      },
+      "olculen": {
+        "boy": 40.9,
+        "en": 45.0,
+        "kol": 36.4
+      }
+    },
+    {
+      "agirliklar": {
+        "length": 0.89,
+        "width": 0.09,
+        "sleeve": 0.42
+      },
+      "olculen": {
+        "boy": 52.1,
+        "en": 36.5,
+        "kol": 26.9
+      }
+    },
+    {
+      "agirliklar": {
+        "length": 0.03,
+        "width": 0.22,
+        "sleeve": 0.51
+      },
+      "olculen": {
+        "boy": 37.8,
+        "en": 38.2,
+        "kol": 30.2
+      }
+    },
+    {
+      "agirliklar": {
+        "length": 0.03,
+        "width": 0.2,
+        "sleeve": 0.65
+      },
+      "olculen": {
+        "boy": 37.8,
+        "en": 38.0,
+        "kol": 35.3
+      }
+    },
+    {
+      "agirliklar": {
+        "length": 0.54,
+        "width": 0.22,
+        "sleeve": 0.59
+      },
+      "olculen": {
+        "boy": 46.3,
+        "en": 38.2,
+        "kol": 33.1
+      }
+    }
+  ],
+  "govde_etki": {
+    "height": {
+      "boy": 9.2,
+      "en": 7.0,
+      "kol": 3.5
+    },
+    "chest": {
+      "boy": 0.8,
+      "en": 14.9,
+      "kol": 0.0
+    },
+    "waist": {
+      "boy": 0.0,
+      "en": 0.0,
+      "kol": 0.0
+    },
+    "hip": {
+      "boy": 0.0,
+      "en": 0.0,
+      "kol": 0.0
+    },
+    "weight": {
+      "boy": 3.3,
+      "en": 10.6,
+      "kol": 0.0
+    }
+  }
+}
