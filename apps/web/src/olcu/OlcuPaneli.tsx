@@ -1,16 +1,17 @@
 import { useState } from 'react'
-import { KAYDIRICI_ARALIGI, OLCU_ADLARI, OLCU_ETIKETLERI, OLCUNUN_KEYI } from './kalibrasyon'
-import type { OlcuAdi, Olculer } from './kalibrasyon'
+import { KAYDIRICI_ARALIGI, OLCU_ADLARI, OLCU_BIRIMI, OLCU_ETIKETLERI, OLCUNUN_KEYI } from './kalibrasyon'
+import type { HedefOlculer, OlcuAdi } from './kalibrasyon'
 import type { CozucuSonucu } from './cozucu'
 
 type Props = {
-  olculer: Olculer
+  olculer: HedefOlculer
   sonuc: CozucuSonucu
   degisti: (ad: OlcuAdi, cm: number) => void
 }
 
-// 1 cm'den küçük farklar gözle görülmez; uyarı göstermiyoruz
-const UYARI_ESIGI_CM = 1
+// Bu farkın altındaki sapmalar gözle görülmez; uyarı göstermiyoruz.
+// Kilo doğrusal değil (hacim ≈ boy × çevre²), eşiği sözleşmeyle aynı: 4 kg.
+const UYARI_ESIGI: Record<OlcuAdi, number> = { boy: 1, gogus: 1, bel: 1, kalca: 1, kilo: 4 }
 
 export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
   const [teknik, setTeknik] = useState(false)
@@ -20,21 +21,26 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
       <h2 style={{ margin: 0, fontSize: 20 }}>Ölçülerim</h2>
 
       {OLCU_ADLARI.map((ad) => {
+        const deger = olculer[ad]
+        if (deger === undefined) return null // kilo girilmemiş olabilir
         const { min, max } = KAYDIRICI_ARALIGI[ad]
+        const birim = OLCU_BIRIMI[ad]
         const key = OLCUNUN_KEYI[ad]
-        const gosterilemiyor = Math.abs(sonuc.fark[ad]) >= UYARI_ESIGI_CM
+        const gosterilemiyor = Math.abs(sonuc.fark[ad]) >= UYARI_ESIGI[ad]
         return (
           <label key={ad} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>{OLCU_ETIKETLERI[ad]}</span>
-              <b>{olculer[ad]} cm</b>
+              <b>
+                {deger} {birim}
+              </b>
             </span>
             <input
               type="range"
               min={min}
               max={max}
               step={1}
-              value={olculer[ad]}
+              value={deger}
               onChange={(e) => degisti(ad, Number(e.target.value))}
             />
             {gosterilemiyor && (
@@ -50,13 +56,16 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
                   padding: '6px 10px',
                 }}
               >
-                Avatar bu ölçüyü tam gösteremiyor: {olculer[ad]} cm yerine{' '}
-                <b>{Math.round(sonuc.ulasilan[ad])} cm</b> görünüyor.
+                Avatar bu ölçüyü tam gösteremiyor: {deger} {birim} yerine{' '}
+                <b>
+                  {Math.round(sonuc.ulasilan[ad])} {birim}
+                </b>{' '}
+                görünüyor.
               </span>
             )}
             {teknik && (
               <small style={{ color: '#666', fontFamily: 'monospace' }}>
-                {key} = {sonuc.agirliklar[key].toFixed(2)} · avatar {sonuc.ulasilan[ad].toFixed(1)} cm
+                {key} = {sonuc.agirliklar[key].toFixed(2)} · avatar {sonuc.ulasilan[ad].toFixed(1)} {birim}
               </small>
             )}
           </label>
