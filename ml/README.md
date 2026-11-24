@@ -21,6 +21,7 @@ pip install -r ml/scripts/requirements.txt
 
 | Betik | Ne yapar | Ne zaman |
 |---|---|---|
+| `topla.py` | Elle kaydedilen görselleri adlandırır, `kaynak.csv` ve `beden-tablolari.csv`'yi doldurur, kopyaları ve küçük görselleri eler | toplama sırasında |
 | `yuz_bulanik.py` | Yüzleri bulanıklaştırır, görseli yerinde değiştirir | toplamadan hemen sonra |
 | `kirp.py` | Maskenin kutusundan %5 paylı kırpma üretir (Model 1 girdisi) | etiketlemeden sonra |
 | `bol.py` | Tür + görünüm katmanlı %70/15/15 bölme, sabit seed | etiketlemeden sonra |
@@ -29,6 +30,12 @@ pip install -r ml/scripts/requirements.txt
 Tipik sıra:
 
 ```bash
+python ml/scripts/topla.py <veri> --sablon       # bir kez: klasörler ve boş tablolar
+# görselleri <veri>/gelen/'e kaydet, satırlarını <veri>/gelen/giris.csv'ye yaz
+python ml/scripts/topla.py <veri> --tur tisort --toplayan tugce --dene
+python ml/scripts/topla.py <veri> --tur tisort --toplayan tugce
+python ml/scripts/topla.py <veri> --durum        # türlere göre sayılar ve eksikler
+
 python ml/scripts/yuz_bulanik.py ham/ --dene     # önce ne yapacağına bak
 python ml/scripts/yuz_bulanik.py ham/
 

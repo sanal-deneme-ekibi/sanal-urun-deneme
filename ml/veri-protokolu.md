@@ -109,6 +109,11 @@ Repoda yalnızca indirme ve hazırlama betikleri bulunur (`ml/scripts/`).
 | `url` | ürün sayfasının adresi |
 | `tarih` | `2026-11-05` |
 | `toplayan` | `zeynep` |
+| `gorunum` | `duz` · `manken` · `insan` (isteğe bağlı; %30 oranlarını toplarken izlemek için) |
+| `not` | `sitede çevre verilmişti, ikiye bölündü` (isteğe bağlı) |
+
+`ml/scripts/topla.py` bu tabloyu, `beden-tablolari.csv`'yi ve site kısaltmalarını
+(`siteler.csv`: `tr01` ↔ alan adı) toplarken kendisi doldurur.
 
 ### beden-tablolari.csv
 
