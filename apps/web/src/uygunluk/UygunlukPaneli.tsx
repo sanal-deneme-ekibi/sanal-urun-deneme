@@ -97,7 +97,19 @@ export default function UygunlukPaneli({ vucut }: Props) {
         <table style={{ borderCollapse: 'collapse', fontSize: 14, width: '100%' }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '4px 6px', color: '#444' }}>Beden</th>
+              {/* Tablo yana kaydığında hangi satırın hangi beden olduğu kaybolmasın. */}
+              <th
+                style={{
+                  textAlign: 'left',
+                  padding: '4px 6px',
+                  color: '#444',
+                  position: 'sticky',
+                  left: 0,
+                  background: '#fff',
+                }}
+              >
+                Beden
+              </th>
               {sutunlar.map((s) => (
                 <th key={s} style={{ textAlign: 'left', padding: '4px 6px', color: '#444', fontWeight: 500 }}>
                   {SUTUN_ETIKETLERI[s]}
@@ -112,7 +124,17 @@ export default function UygunlukPaneli({ vucut }: Props) {
               const secili = oneri?.beden === satir.beden
               return (
                 <tr key={satir.beden} style={{ background: secili ? '#f8fafc' : undefined }}>
-                  <td style={{ padding: '4px 6px', fontWeight: secili ? 700 : 400 }}>{satir.beden}</td>
+                  <td
+                    style={{
+                      padding: '4px 6px',
+                      fontWeight: secili ? 700 : 400,
+                      position: 'sticky',
+                      left: 0,
+                      background: secili ? '#f8fafc' : '#fff',
+                    }}
+                  >
+                    {satir.beden}
+                  </td>
                   {sutunlar.map((sutun) => (
                     <td key={sutun} style={{ padding: '4px 6px' }}>
                       <input
