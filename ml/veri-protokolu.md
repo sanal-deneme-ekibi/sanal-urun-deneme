@@ -200,7 +200,13 @@ Nitelik (attribute):
 
 - CVAT şekli: **Skeleton** (7 nokta)
 - Yalnızca `tisort` için (1. dönem). Diğer türler 2. dönemde eklenir.
-- Nokta sırası GLB sözleşmesiyle **birebir aynı olmalı**, yoksa desen bükme yanlış yere oturur:
+- **Noktalar isimle eşleştirilir, sırayla değil.** Dışa aktarma dosyası nokta adlarını da
+  taşıdığı için eğitim ve çıkarım kodu noktayı adına bakarak bulur; "ikinci eleman sol
+  omuzdur" gibi konuma dayalı varsayım yapılmaz. CVAT, iskeleti çizerken kullanılan noktalama
+  sırasını yazıyor ve bu aşağıdaki sırayla aynı olmak zorunda değil. `dogrula.py` yedi ismin
+  tam olarak bulunduğunu denetler; sıra farklıysa yalnızca uyarır.
+- Aşağıdaki sıra sözleşmenin kanonik sırasıdır; `docs/glb-sozlesmesi.md` ile aynıdır ve
+  dosyadan okunan adlar bu listeye eşlenir:
 
 | # | Ad | Nerede |
 |---|---|---|
