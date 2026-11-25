@@ -3,6 +3,7 @@ import { Html } from '@react-three/drei'
 import Viewer from '../viewer/Viewer'
 import Avatar from '../avatar/Avatar'
 import OlcuPaneli from './OlcuPaneli'
+import UygunlukPaneli from '../uygunluk/UygunlukPaneli'
 import { olcuCozucu } from './cozucu'
 import { AVATAR_KALIBRASYON } from './kalibrasyon'
 import type { HedefOlculer } from './kalibrasyon'
@@ -29,6 +30,10 @@ export default function OlculerSayfasi() {
           olculer={olculer}
           sonuc={sonuc}
           degisti={(ad, cm) => setOlculer((eski) => ({ ...eski, [ad]: cm }))}
+        />
+        {/* Beden önerisi, kullanıcının yazdığı hedefi değil avatarın ulaştığı ölçüyü kullanır. */}
+        <UygunlukPaneli
+          vucut={{ gogus: sonuc.ulasilan.gogus, bel: sonuc.ulasilan.bel, kalca: sonuc.ulasilan.kalca }}
         />
       </div>
     </div>
