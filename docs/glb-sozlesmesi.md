@@ -21,17 +21,18 @@
 
 | Shape key | Anlamı | Ölçü | Kadın: 0 → 1 (yalnız bu key) | Erkek: 0 → 1 |
 |---|---|---|---|---|
-| `height` | boy | `boy` (cm) | 137,5 → 180,5 | 151,4 → 184,5 |
-| `chest` | göğüs çevresi (erkekte sırt/kanat ve omuz genişliği) | `gogus` (cm) | 66,9 → 97,6 | 92,2 → 108,6 |
-| `waist` | bel çevresi | `bel` (cm) | 48,3 → 71,4 | 58,1 → 80,5 |
-| `hip` | kalça çevresi | `kalca` (cm) | 78,9 → 101,1 | 80,7 → 102,6 |
-| `weight` | genel dolgunluk (kollar, bacaklar, gövde) | `kilo` (kg) | 28,3 → 52,5 | 43,2 → 64,5 |
-| `arm_length` | kol boyu (omuz başından bileğe) | `kol_boyu` (cm) | 39,5 → 55,2 | 46,0 → 59,2 |
-| `leg_length` | bacak boyu (kasıktan yere) | `ic_bacak` (cm) | 58,3 → 77,2 | 67,6 → 86,5 |
+| `height` | boy | `boy` (cm) | 133,5 → 176,5 | 147,3 → 180,5 |
+| `chest` | göğüs çevresi (erkekte sırt/kanat ve omuz genişliği) | `gogus` (cm) | 67,4 → 97,6 | 86,1 → 101,7 |
+| `waist` | bel çevresi | `bel` (cm) | 48,5 → 75,3 | 58,5 → 84,7 |
+| `hip` | kalça çevresi | `kalca` (cm) | 76,2 → 101,4 | 77,9 → 102,3 |
+| `weight` | genel dolgunluk (kollar, bacaklar, gövde) | `kilo` (kg) | 23,6 → 56,6 | 41,5 → 70,7 |
+| `arm_length` | kol boyu (omuz başından bileğe) | `kol_boyu` (cm) | 40,0 → 55,1 | 45,8 → 59,0 |
+| `leg_length` | bacak boyu (kasıktan yere) | `ic_bacak` (cm) | 54,4 → 82,8 | 63,7 → 92,0 |
 
 Key'ler birbirini etkiler (ör. `weight` bütün çevreleri, `height` kiloyu, kol ve bacağı
 büyütür); bütün etkiler kalibrasyon tablolarındadır: `assets/models/avatar_<model>.calib.json`.
-Kilo, mesh hacminden 1 kg/L ile hesaplanır.
+Kilo, mesh hacminden modelin yoğunluğuyla hesaplanır (kadın 1,06, erkek 1,12 kg/L; ANSUR II'deki gerçek
+kişilerle ayarlandı, #34). Yoğunluk kalibrasyon dosyasında `yogunluk_kg_l` alanında durur.
 
 - `arm_length` ve `leg_length` boydan bağımsızdır: aynı boyda kolu ya da bacağı uzun insanlar için.
 - Erkekte `chest` göğsü öne büyütmez; sırtın kanat kasını (latissimus dorsi), V gövdeyi ve omuz
@@ -59,10 +60,12 @@ girdisidir.
 
 ### Nasıl üretilir
 
-Her key 0'dan 1'e 0,1 adımlarla taranır, diğer key'ler 0'da bırakılır; her adımda avatar
-yatay düzlemle kesilip çevre ölçülür, kilo da hacimden hesaplanır. Key'ler birbirini
-etkilediği için (göğsü büyütmek beli de bir miktar büyütür, `weight` bütün çevreleri
-büyütür) her taramada **bütün ölçüler** kaydedilir.
+Avatar; taban, her key tek başına 1 ve 40 rastgele karışımda kurulup ölçülür (yatay kesitlerle
+çevreler, hacimden kilo). Her ölçüde **bütün ölçüler** kaydedilir, çünkü key'ler birbirini etkiler
+(`weight` bütün çevreleri büyütür). `taban` ve `etki` bu ölçümlere **en küçük kareler** uyumuyla
+bulunur; key'leri tek tek 0→1 götürmek karışımlarda göğsü sistematik olarak 1–2 cm fazla tahmin
+ediyordu, çünkü key'lerin etkileri tam toplanmıyor (#34). Bu yüzden `taban`, bütün key'ler 0'dayken
+ölçülen değerden birkaç birim farklı olabilir: o, ölçüm değil uyumun sabit terimidir.
 
 ### Biçim
 
@@ -76,25 +79,26 @@ Aşağıdaki değerler `assets/models/avatar_kadin.calib.json` dosyasından, kı
   "tarih": "2026-11-27",
   "birim": "cm",
   "birim_kilo": "kg",
+  "yogunluk_kg_l": 1.06,
   "keyler": ["height", "chest", "waist", "hip", "weight", "arm_length", "leg_length"],
   "olcumler": ["boy", "gogus", "bel", "kalca", "kilo", "kol_boyu", "ic_bacak"],
 
-  "taban": { "boy": 137.5, "gogus": 66.9, "bel": 48.3, "kalca": 78.9, "kilo": 28.3, "kol_boyu": 39.5, "ic_bacak": 58.3 },
+  "taban": { "boy": 133.5, "gogus": 67.4, "bel": 48.5, "kalca": 76.2, "kilo": 23.6, "kol_boyu": 40.0, "ic_bacak": 54.4 },
 
   "etki": {
-    "height": { "boy": 43.0, "gogus": 14.1, "bel": 11.4, "kalca": 15.2, "kilo": 25.8, "kol_boyu": 15.2, "ic_bacak": 25.7 },
-    "chest": { "boy": 0.0, "gogus": 30.7, "bel": 0.4, "kalca": 0.0, "kilo": 5.9, "kol_boyu": -0.6, "ic_bacak": 0.0 },
-    "waist": { "boy": 0.0, "gogus": 2.0, "bel": 23.1, "kalca": 0.3, "kilo": 4.8, "kol_boyu": 0.0, "ic_bacak": 0.0 },
-    "hip": { "boy": 0.0, "gogus": 0.0, "bel": 0.1, "kalca": 22.2, "kilo": 4.3, "kol_boyu": 0.0, "ic_bacak": 0.0 },
-    "weight": { "boy": 0.0, "gogus": 21.0, "bel": 27.1, "kalca": 29.8, "kilo": 24.2, "kol_boyu": 0.5, "ic_bacak": -1.3 },
-    "arm_length": { "boy": 0.0, "gogus": 0.0, "bel": 0.0, "kalca": 0.0, "kilo": 0.9, "kol_boyu": 15.7, "ic_bacak": 0.0 },
-    "leg_length": { "boy": 19.2, "gogus": 0.0, "bel": 0.0, "kalca": -0.4, "kilo": 3.3, "kol_boyu": -0.1, "ic_bacak": 18.9 }
+    "height": { "boy": 43.0, "gogus": 13.6, "bel": 11.9, "kalca": 14.6, "kilo": 34.6, "kol_boyu": 14.9, "ic_bacak": 25.7 },
+    "chest": { "boy": 0.0, "gogus": 30.2, "bel": 1.2, "kalca": -0.5, "kilo": 8.8, "kol_boyu": -1.0, "ic_bacak": -0.0 },
+    "waist": { "boy": 0.0, "gogus": 1.5, "bel": 26.8, "kalca": 1.3, "kilo": 7.6, "kol_boyu": -0.1, "ic_bacak": -0.0 },
+    "hip": { "boy": -0.0, "gogus": -0.6, "bel": -0.1, "kalca": 25.2, "kilo": 7.2, "kol_boyu": 0.2, "ic_bacak": 0.0 },
+    "weight": { "boy": 0.0, "gogus": 20.1, "bel": 26.4, "kalca": 29.7, "kilo": 33.0, "kol_boyu": -2.0, "ic_bacak": -1.0 },
+    "arm_length": { "boy": 0.0, "gogus": -0.3, "bel": -0.2, "kalca": -0.5, "kilo": 1.7, "kol_boyu": 15.1, "ic_bacak": -0.0 },
+    "leg_length": { "boy": 28.7, "gogus": -0.3, "bel": 0.2, "kalca": -0.9, "kilo": 7.3, "kol_boyu": -0.2, "ic_bacak": 28.4 }
   },
 
   "ornekler": [
     {
       "agirliklar": { "height": 0.64, "chest": 0.03, "waist": 0.28, "hip": 0.22, "weight": 0.74, "arm_length": 0.68, "leg_length": 0.89 },
-      "olculen":    { "boy": 182.1, "gogus": 92.7, "bel": 81.7, "kalca": 115.1, "kilo": 77.7, "kol_boyu": 58.5, "ic_bacak": 90.7 }
+      "olculen":    { "boy": 186.6, "gogus": 92.9, "bel": 83.0, "kalca": 112.4, "kilo": 83.6, "kol_boyu": 58.5, "ic_bacak": 95.4 }
     }
   ]
 }
@@ -104,8 +108,9 @@ Aşağıdaki değerler `assets/models/avatar_kadin.calib.json` dosyasından, kı
 |---|---|
 | `birim` | çevre ve uzunluk ölçülerinin birimi (`cm`) |
 | `birim_kilo` | `kilo` ölçüsünün birimi (`kg`); diğerlerinden farklı olduğu için ayrı yazılır |
-| `taban` | bütün key'ler 0 iken ölçülen değerler |
-| `etki[key][olcu]` | o key 0'dan 1'e giderken o ölçünün değişimi |
+| `yogunluk_kg_l` | hacimden kiloya çeviren yoğunluk (kg/L) |
+| `taban` | doğrusal modelin sabit terimi (bütün key'ler 0 iken beklenen ölçü) |
+| `etki[key][olcu]` | o key 0'dan 1'e giderken o ölçünün beklenen değişimi |
 | `ornekler` | karışık ağırlıklarla alınmış ham ölçümler; doğrusal yaklaşımın hatasını raporlamak için |
 
 Model şu doğrusal varsayıma dayanır:
@@ -127,15 +132,15 @@ demektir; o zaman `ornekler` genişletilir ve çözücü ara değerleri tablodan
 biçim `surum: 2` ile değişir).
 
 Sapma tek örnekten değil, bütün `ornekler` üzerinden ortalanarak ölçülür.
-12 örnekte bugünkü ortalama sapmalar (cm; kilo kg):
+Uyumda kullanılmayan 12 örnekte bugünkü ortalama sapmalar (cm; kilo kg); hepsi eşiğin altında:
 
 | Model | boy | göğüs | bel | kalça | kol_boyu | ic_bacak | kilo |
 |---|---|---|---|---|---|---|---|
-| `avatar_kadin` | 0,03 | **1,07** | 0,2 | 0,28 | **1,51** | 0,06 | **5,57** |
-| `avatar_erkek` | 0,02 | 0,74 | 0,74 | 0,59 | 0,86 | 0,03 | **4,12** |
+| `avatar_kadin` | 0,02 | 0,36 | 0,28 | 0,4 | 0,37 | 0,04 | 1,78 |
+| `avatar_erkek` | 0,02 | 0,46 | 0,67 | 0,54 | 0,34 | 0,03 | 1,22 |
 
-Kalın değerler eşiği geçiyor. Kol ve bacak key'leriyle birlikte key'ler arası etkileşim arttı
-(ör. boy × kol, boy × kilo); kilo için `surum: 2` (tablo) ya da kilo düzeltmesi (#34) gerekiyor.
+Gerçek insanlarla sınama (ANSUR II, 20 kişi, çözücü → avatar → ölçüm):
+`ml/results/olcu-dogrulugu/rapor.md`.
 
 ### Kurallar
 
@@ -242,7 +247,7 @@ küçük bir yineleyici çözüm (projected gradient) yeterlidir; dış kütüph
   ölçüyü başka bir key'le yakalayabilir. Ölçünün gerçekten tutturulamadığını `fark`
   söyler. `sinirda` tanı amaçlıdır — hangi key'in manevra alanı kalmadığını gösterir.
 - `fark` ölçü başına ayrı döner, çünkü 3 cm'lik bel hatası ile 3 cm'lik boy hatası aynı şey
-  değildir. Raporlanan ölçüt `ortalamaHataCm`'dir (ölçü doğruluğu testi, #19).
+  değildir. Raporlanan ölçüt `ortalamaHataCm`'dir (ölçü doğruluğu testi, #34).
 - Çözücü `kalib.surum` değerini kontrol eder; beklemediği bir sürümde hata verir.
 
 ### Uygunluk payı

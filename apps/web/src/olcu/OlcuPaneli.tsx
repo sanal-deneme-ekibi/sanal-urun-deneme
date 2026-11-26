@@ -11,7 +11,7 @@ type Props = {
 
 // Bu farkın altındaki sapmalar gözle görülmez; uyarı göstermiyoruz.
 // Kilo doğrusal değil (hacim ≈ boy × çevre²), eşiği sözleşmeyle aynı: 4 kg.
-const UYARI_ESIGI: Record<OlcuAdi, number> = { boy: 1, gogus: 1, bel: 1, kalca: 1, kilo: 4 }
+const UYARI_ESIGI: Record<OlcuAdi, number> = { boy: 1, gogus: 1, bel: 1, kalca: 1, kilo: 4, kol_boyu: 1, ic_bacak: 1 }
 
 export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
   const [teknik, setTeknik] = useState(false)

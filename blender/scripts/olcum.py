@@ -24,7 +24,7 @@ ARALIKLAR = {
 ADIM_M = 0.005
 KOL_SICRAMASI = 1.15
 OMUZ_BASI_ORANI = 0.26  # omuz başı, koltuk altından gövde boyunun (kasık–koltuk) ~%26'sı yukarıda
-YOGUNLUK_KG_L = 1.0  # insan vücudu ≈ 1,0–1,06; tutarlılık için 1 alındı (kalibrasyon farkı taşır)
+YOGUNLUK_KG_L = 1.0  # varsayılan; avatarlar kendi yoğunluğunu verir (ANSUR II ile ayarlı, #34)
 
 
 def _kesit_parcalari(koseler, ucgenler, z):
@@ -176,7 +176,7 @@ def kol_boyu(koseler, ucgenler, isr=None):
     return float(np.mean(boylar))
 
 
-def olc(koseler, ucgenler):
+def olc(koseler, ucgenler, yogunluk=YOGUNLUK_KG_L):
     """{"boy", "gogus", "bel", "kalca", "kol_boyu", "ic_bacak"} → cm, "kilo" → kg (bir ondalık)."""
     koseler = np.asarray(koseler, dtype=np.float64)
     ucgenler = np.asarray(ucgenler)
@@ -198,7 +198,7 @@ def olc(koseler, ucgenler):
             onceki_genislik = genislik
             cevreler.append(cevre)
         sonuc[ad] = round(sec(cevreler) * 100, 1)
-    sonuc["kilo"] = round(hacim_litre(koseler, ucgenler) * YOGUNLUK_KG_L, 1)
+    sonuc["kilo"] = round(hacim_litre(koseler, ucgenler) * yogunluk, 1)
     sonuc["kol_boyu"] = round(kol_boyu(koseler, ucgenler, isr) * 100, 1)
     sonuc["ic_bacak"] = round(float(isr["kasik"] - isr["taban"]) * 100, 1)
     return sonuc

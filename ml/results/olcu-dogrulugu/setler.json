@@ -1,0 +1,306 @@
+{
+  "kaynak": "ANSUR II (2012), https://www.openlab.psu.edu/ansur2/",
+  "birim": "cm (kilo kg)",
+  "setler": [
+    {
+      "id": "kadin_p05",
+      "model": "kadin",
+      "aciklama": "genel beden %5",
+      "ansur_id": "29014",
+      "olculer": {
+        "boy": 162.8,
+        "gogus": 78.0,
+        "bel": 67.2,
+        "kalca": 92.5,
+        "ic_bacak": 78.9,
+        "kol_boyu": 56.4,
+        "kilo": 51.0
+      }
+    },
+    {
+      "id": "kadin_p25",
+      "model": "kadin",
+      "aciklama": "genel beden %25",
+      "ansur_id": "13558",
+      "olculer": {
+        "boy": 167.7,
+        "gogus": 88.9,
+        "bel": 74.6,
+        "kalca": 93.5,
+        "ic_bacak": 82.5,
+        "kol_boyu": 60.0,
+        "kilo": 57.1
+      }
+    },
+    {
+      "id": "kadin_p50",
+      "model": "kadin",
+      "aciklama": "genel beden %50",
+      "ansur_id": "18298",
+      "olculer": {
+        "boy": 158.7,
+        "gogus": 101.1,
+        "bel": 89.5,
+        "kalca": 97.3,
+        "ic_bacak": 74.0,
+        "kol_boyu": 53.1,
+        "kilo": 63.1
+      }
+    },
+    {
+      "id": "kadin_p75",
+      "model": "kadin",
+      "aciklama": "genel beden %75",
+      "ansur_id": "25435",
+      "olculer": {
+        "boy": 175.4,
+        "gogus": 95.3,
+        "bel": 86.8,
+        "kalca": 101.8,
+        "ic_bacak": 86.3,
+        "kol_boyu": 59.7,
+        "kilo": 74.5
+      }
+    },
+    {
+      "id": "kadin_p95",
+      "model": "kadin",
+      "aciklama": "genel beden %95",
+      "ansur_id": "17562",
+      "olculer": {
+        "boy": 174.5,
+        "gogus": 105.0,
+        "bel": 100.3,
+        "kalca": 111.4,
+        "ic_bacak": 84.3,
+        "kol_boyu": 58.8,
+        "kilo": 83.5
+      }
+    },
+    {
+      "id": "kadin_uzun_zayif",
+      "model": "kadin",
+      "aciklama": "uzun ve zayıf",
+      "ansur_id": "24783",
+      "olculer": {
+        "boy": 165.7,
+        "gogus": 89.6,
+        "bel": 71.0,
+        "kalca": 89.4,
+        "ic_bacak": 79.9,
+        "kol_boyu": 53.6,
+        "kilo": 51.0
+      }
+    },
+    {
+      "id": "kadin_kisa_dolu",
+      "model": "kadin",
+      "aciklama": "kısa ve dolu",
+      "ansur_id": "17499",
+      "olculer": {
+        "boy": 161.1,
+        "gogus": 106.6,
+        "bel": 104.6,
+        "kalca": 111.4,
+        "ic_bacak": 73.8,
+        "kol_boyu": 53.3,
+        "kilo": 82.9
+      }
+    },
+    {
+      "id": "kadin_armut",
+      "model": "kadin",
+      "aciklama": "armut (kalça bele göre geniş)",
+      "ansur_id": "16751",
+      "olculer": {
+        "boy": 169.8,
+        "gogus": 90.8,
+        "bel": 81.8,
+        "kalca": 106.8,
+        "ic_bacak": 79.7,
+        "kol_boyu": 54.8,
+        "kilo": 69.6
+      }
+    },
+    {
+      "id": "kadin_elma",
+      "model": "kadin",
+      "aciklama": "elma (bel kalçaya göre geniş)",
+      "ansur_id": "14812",
+      "olculer": {
+        "boy": 160.9,
+        "gogus": 99.7,
+        "bel": 107.6,
+        "kalca": 110.8,
+        "ic_bacak": 75.7,
+        "kol_boyu": 53.7,
+        "kilo": 73.3
+      }
+    },
+    {
+      "id": "kadin_uzun_bacak",
+      "model": "kadin",
+      "aciklama": "uzun bacaklı",
+      "ansur_id": "20663",
+      "olculer": {
+        "boy": 152.3,
+        "gogus": 84.3,
+        "bel": 74.3,
+        "kalca": 91.2,
+        "ic_bacak": 75.0,
+        "kol_boyu": 50.8,
+        "kilo": 48.0
+      }
+    },
+    {
+      "id": "erkek_p05",
+      "model": "erkek",
+      "aciklama": "genel beden %5",
+      "ansur_id": "27602",
+      "olculer": {
+        "boy": 170.0,
+        "gogus": 96.8,
+        "bel": 74.2,
+        "kalca": 90.4,
+        "ic_bacak": 77.0,
+        "kol_boyu": 54.9,
+        "kilo": 68.2
+      }
+    },
+    {
+      "id": "erkek_p25",
+      "model": "erkek",
+      "aciklama": "genel beden %25",
+      "ansur_id": "16877",
+      "olculer": {
+        "boy": 176.3,
+        "gogus": 99.4,
+        "bel": 85.9,
+        "kalca": 95.1,
+        "ic_bacak": 83.2,
+        "kol_boyu": 61.7,
+        "kilo": 72.9
+      }
+    },
+    {
+      "id": "erkek_p50",
+      "model": "erkek",
+      "aciklama": "genel beden %50",
+      "ansur_id": "12064",
+      "olculer": {
+        "boy": 164.6,
+        "gogus": 109.5,
+        "bel": 95.1,
+        "kalca": 109.9,
+        "ic_bacak": 77.6,
+        "kol_boyu": 58.4,
+        "kilo": 86.5
+      }
+    },
+    {
+      "id": "erkek_p75",
+      "model": "erkek",
+      "aciklama": "genel beden %75",
+      "ansur_id": "13869",
+      "olculer": {
+        "boy": 172.2,
+        "gogus": 112.9,
+        "bel": 103.9,
+        "kalca": 109.1,
+        "ic_bacak": 82.5,
+        "kol_boyu": 61.5,
+        "kilo": 95.8
+      }
+    },
+    {
+      "id": "erkek_p95",
+      "model": "erkek",
+      "aciklama": "genel beden %95",
+      "ansur_id": "13724",
+      "olculer": {
+        "boy": 179.2,
+        "gogus": 121.7,
+        "bel": 110.0,
+        "kalca": 115.8,
+        "ic_bacak": 81.2,
+        "kol_boyu": 59.3,
+        "kilo": 108.2
+      }
+    },
+    {
+      "id": "erkek_uzun_zayif",
+      "model": "erkek",
+      "aciklama": "uzun ve zayıf",
+      "ansur_id": "28910",
+      "olculer": {
+        "boy": 177.8,
+        "gogus": 93.0,
+        "bel": 74.5,
+        "kalca": 88.6,
+        "ic_bacak": 86.8,
+        "kol_boyu": 57.8,
+        "kilo": 63.2
+      }
+    },
+    {
+      "id": "erkek_kisa_dolu",
+      "model": "erkek",
+      "aciklama": "kısa ve dolu",
+      "ansur_id": "29179",
+      "olculer": {
+        "boy": 170.3,
+        "gogus": 114.4,
+        "bel": 108.2,
+        "kalca": 110.6,
+        "ic_bacak": 83.2,
+        "kol_boyu": 57.3,
+        "kilo": 95.8
+      }
+    },
+    {
+      "id": "erkek_armut",
+      "model": "erkek",
+      "aciklama": "armut (kalça bele göre geniş)",
+      "ansur_id": "29010",
+      "olculer": {
+        "boy": 175.7,
+        "gogus": 97.7,
+        "bel": 87.3,
+        "kalca": 103.5,
+        "ic_bacak": 82.7,
+        "kol_boyu": 59.5,
+        "kilo": 79.7
+      }
+    },
+    {
+      "id": "erkek_elma",
+      "model": "erkek",
+      "aciklama": "elma (bel kalçaya göre geniş)",
+      "ansur_id": "20573",
+      "olculer": {
+        "boy": 174.8,
+        "gogus": 110.2,
+        "bel": 94.6,
+        "kalca": 96.0,
+        "ic_bacak": 88.3,
+        "kol_boyu": 61.7,
+        "kilo": 84.0
+      }
+    },
+    {
+      "id": "erkek_uzun_bacak",
+      "model": "erkek",
+      "aciklama": "uzun bacaklı",
+      "ansur_id": "24201",
+      "olculer": {
+        "boy": 173.5,
+        "gogus": 108.9,
+        "bel": 99.1,
+        "kalca": 108.7,
+        "ic_bacak": 87.4,
+        "kol_boyu": 66.2,
+        "kilo": 95.9
+      }
+    }
+  ]
+}

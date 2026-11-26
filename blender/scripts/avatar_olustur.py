@@ -46,23 +46,25 @@ UCGEN_BUTCESI = 19_000  # sözleşme sınırı 20.000; sadeleştirme tam tutmad�
 # uzunluğu boydan ayrı key'lerdir: aynı boyda kolu ya da bacağı uzun insanlar için.
 # yumusatma (manken görünümü): bu bölgelerdeki anatomik ayrıntılar Laplace yumuşatmasıyla silinir;
 #   merkez taban vücutta bulunur, aynı köşeler bütün vücutlarda aynı şekilde yumuşatılır.
+# Aralıklar ANSUR II'deki gerçek kişileri kapsayacak şekilde ayarlandı (#34): bel geniş, kalça dar
+# kadınlar ve kısa bacaklı / dar göğüslü erkekler eskiden avatarın sınırında kalıyordu.
 ORTAK_HEDEFLER = {
     "measure-waist-circ": -0.8,
-    "measure-hips-circ": -0.6,
+    "measure-hips-circ": -1.0,
     # Manken görünümü: meme uçları düzleştirilir
     "nipple-point": -1.0,
     "nipple-size": -1.0,
     "measure-upperarm-length": -0.7,
     "measure-lowerarm-length": -0.7,
-    "upperlegs-height": -0.6,
-    "lowerlegs-height": -0.6,
+    "upperlegs-height": -0.9,
+    "lowerlegs-height": -0.9,
 }
 ORTAK_KEYLER = {
-    "waist": {"hedefler": {"measure-waist-circ": 1.5}},
+    "waist": {"hedefler": {"measure-waist-circ": 2.0}},
     "hip": {"hedefler": {"measure-hips-circ": 1.0}},
     "weight": {"makro": {"weight": 1.0}, "olcek": 3.0, "fark_yumusat": 40},
     "arm_length": {"hedefler": {"measure-upperarm-length": 0.7, "measure-lowerarm-length": 0.7}},
-    "leg_length": {"hedefler": {"upperlegs-height": 0.6, "lowerlegs-height": 0.6}},
+    "leg_length": {"hedefler": {"upperlegs-height": 0.9, "lowerlegs-height": 0.9}},
 }
 MODELLER = {
     "kadin": {
@@ -78,13 +80,14 @@ MODELLER = {
             **ORTAK_KEYLER,
         },
         "yumusatma": {"kasik": {"yaricap_m": 0.07, "tekrar": 40}, "yuz": {"yaricap_m": 0.08, "tekrar": 6}},
+        "yogunluk": 1.06,
     },
     "erkek": {
         "taban": {
             "makro": {"gender": 1.0, "age": 0.5, "muscle": 0.5, "weight": 0.0, "proportions": 0.5,
                       "height": 0.3,  # ≈ 159 cm
                       "cupsize": 0.5, "firmness": 0.5},
-            "hedefler": {**ORTAK_HEDEFLER, "torso-muscle-dorsi": -0.3},
+            "hedefler": {**ORTAK_HEDEFLER, "torso-muscle-dorsi": -0.3, "measure-bust-circ": -0.4},
         },
         "keyler": {
             "height": {"makro": {"height": 0.65}},  # ≈ 193 cm
@@ -96,22 +99,26 @@ MODELLER = {
             **ORTAK_KEYLER,
         },
         "yumusatma": {"kasik": {"yaricap_m": 0.09, "tekrar": 60}, "yuz": {"yaricap_m": 0.08, "tekrar": 6}},
+        "yogunluk": 1.12,
     },
 }
+# yogunluk (kg/L): avatar hacminden kiloya çeviri. ANSUR II'deki 10'ar gerçek kişiyle ayarlandı
+# (#34, ml/results/olcu-dogrulugu): 1 kg/L ile avatar kadında %6, erkekte %12 hafif çıkıyordu.
 
 # Kalibrasyon sözleşmesindeki adlar: key → kendi ölçüsü
 KEY_OLCU = {"height": "boy", "chest": "gogus", "waist": "bel", "hip": "kalca", "weight": "kilo",
             "arm_length": "kol_boyu", "leg_length": "ic_bacak"}
-ORNEK_SAYISI = 12
+ORNEK_SAYISI = 12  # doğrusal modelin hatasını ölçmek için, uyumda kullanılmayan örnekler
+UYUM_SAYISI = 40  # taban ve etkiyi bulan en küçük kareler uyumundaki rastgele karışımlar
 
 
 def model_sec(ad):
     """Betiğin geri kalanının kullandığı model ayarlarını seçer."""
-    global MODEL, GLB_YOLU, KALIB_YOLU, TABAN, KEYLER, YUMUSATMA
+    global MODEL, GLB_YOLU, KALIB_YOLU, TABAN, KEYLER, YUMUSATMA, YOGUNLUK
     MODEL = f"avatar_{ad}"
     GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
     KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
-    TABAN, KEYLER, YUMUSATMA = (MODELLER[ad][k] for k in ("taban", "keyler", "yumusatma"))
+    TABAN, KEYLER, YUMUSATMA, YOGUNLUK = (MODELLER[ad][k] for k in ("taban", "keyler", "yumusatma", "yogunluk"))
 
 
 model_sec("kadin")
@@ -247,17 +254,29 @@ def malzeme_ekle(nesne):
 
 
 def kalibrasyon(taban_k, deltalar, sade_ucgen):
-    """Sözleşmedeki biçimde: taban + etki + karışık ağırlıklı örnekler."""
+    """Sözleşmedeki biçimde: taban + etki + karışık ağırlıklı örnekler.
+
+    taban ve etki, key'leri tek tek 0→1 götürerek değil, taban + her key tek başına + UYUM_SAYISI
+    rastgele karışım üzerinde en küçük kareler uyumuyla bulunur. Key'ler birlikte açılınca etkileri
+    tam toplanmıyor (ör. göğüs çevresi en geniş yerden ölçülür); tek tek ölçülen etkiler karışımlarda
+    göğsü sistematik olarak 1–2 cm fazla tahmin ediyordu (#34). Hata, uyumda kullanılmayan
+    ORNEK_SAYISI karışımla ölçülür.
+    """
     def olc(agirliklar):
         k = taban_k + sum(agirliklar[key] * deltalar[key] for key in KEYLER)
-        return olcum.olc(k, sade_ucgen)
+        return olcum.olc(k, sade_ucgen, YOGUNLUK)
 
     sifir = {key: 0.0 for key in KEYLER}
-    taban = olc(sifir)
-    etki = {}
-    for key in KEYLER:
-        tam = olc({**sifir, key: 1.0})
-        etki[key] = {o: round(tam[o] - taban[o], 1) for o in taban}
+    rastgele = random.Random(7)
+    uyum = [sifir] + [{**sifir, key: 1.0} for key in KEYLER]
+    uyum += [{key: rastgele.random() for key in KEYLER} for _ in range(UYUM_SAYISI)]
+    olculer = [olc(a) for a in uyum]
+    X = np.array([[1.0] + [a[key] for key in KEYLER] for a in uyum])
+    adlar = list(olculer[0])
+    katsayi = np.linalg.lstsq(X, np.array([[o[ad] for ad in adlar] for o in olculer]), rcond=None)[0]
+    taban = {ad: round(float(katsayi[0, j]), 1) for j, ad in enumerate(adlar)}
+    etki = {key: {ad: round(float(katsayi[i + 1, j]), 1) for j, ad in enumerate(adlar)}
+            for i, key in enumerate(KEYLER)}
 
     rastgele = random.Random(42)
     ornekler, hatalar = [], {o: [] for o in taban}
@@ -276,6 +295,7 @@ def kalibrasyon(taban_k, deltalar, sade_ucgen):
         "tarih": date.today().isoformat(),
         "birim": "cm",
         "birim_kilo": "kg",
+        "yogunluk_kg_l": YOGUNLUK,
         "keyler": list(KEYLER),
         "olcumler": list(KEY_OLCU.values()),
         "taban": taban,
