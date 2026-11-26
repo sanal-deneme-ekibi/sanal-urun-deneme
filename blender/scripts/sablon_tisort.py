@@ -36,7 +36,7 @@ GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
 KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
 NOKTA_YOLU = REPO / "assets" / "models" / f"{MODEL}.keypoints.json"
 
-VUCUT_KEYLER = ["height", "chest", "waist", "hip", "weight"]
+VUCUT_KEYLER = ["height", "chest", "waist", "hip", "weight", "arm_length", "leg_length"]
 
 # Ürün key'leri: (0 değeri, 1 değeri)
 URUN = {

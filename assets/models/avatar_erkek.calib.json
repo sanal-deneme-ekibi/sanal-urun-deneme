@@ -1,0 +1,342 @@
+{
+  "surum": 1,
+  "model": "avatar_erkek",
+  "betik": "blender/scripts/avatar_olustur.py",
+  "tarih": "2026-11-27",
+  "birim": "cm",
+  "birim_kilo": "kg",
+  "keyler": [
+    "height",
+    "chest",
+    "waist",
+    "hip",
+    "weight",
+    "arm_length",
+    "leg_length"
+  ],
+  "olcumler": [
+    "boy",
+    "gogus",
+    "bel",
+    "kalca",
+    "kilo",
+    "kol_boyu",
+    "ic_bacak"
+  ],
+  "taban": {
+    "boy": 151.4,
+    "gogus": 92.2,
+    "bel": 58.1,
+    "kalca": 80.7,
+    "kilo": 43.2,
+    "kol_boyu": 46.0,
+    "ic_bacak": 67.6
+  },
+  "etki": {
+    "height": {
+      "boy": 33.1,
+      "gogus": 11.0,
+      "bel": 8.9,
+      "kalca": 11.2,
+      "kilo": 23.9,
+      "kol_boyu": 10.4,
+      "ic_bacak": 20.0
+    },
+    "chest": {
+      "boy": 0.0,
+      "gogus": 16.4,
+      "bel": -0.3,
+      "kalca": 0.0,
+      "kilo": 3.8,
+      "kol_boyu": -0.6,
+      "ic_bacak": 0.0
+    },
+    "waist": {
+      "boy": 0.0,
+      "gogus": 0.0,
+      "bel": 22.4,
+      "kalca": 0.0,
+      "kilo": 5.4,
+      "kol_boyu": 0.0,
+      "ic_bacak": 0.0
+    },
+    "hip": {
+      "boy": 0.0,
+      "gogus": 0.0,
+      "bel": 0.4,
+      "kalca": 21.9,
+      "kilo": 4.0,
+      "kol_boyu": 0.0,
+      "ic_bacak": 0.0
+    },
+    "weight": {
+      "boy": 0.0,
+      "gogus": 9.1,
+      "bel": 32.6,
+      "kalca": 23.1,
+      "kilo": 21.3,
+      "kol_boyu": 0.2,
+      "ic_bacak": 0.1
+    },
+    "arm_length": {
+      "boy": 0.0,
+      "gogus": 0.1,
+      "bel": 0.0,
+      "kalca": 0.0,
+      "kilo": 1.2,
+      "kol_boyu": 13.2,
+      "ic_bacak": 0.0
+    },
+    "leg_length": {
+      "boy": 19.1,
+      "gogus": 0.3,
+      "bel": 0.0,
+      "kalca": -0.6,
+      "kilo": 4.3,
+      "kol_boyu": -0.8,
+      "ic_bacak": 18.9
+    }
+  },
+  "ornekler": [
+    {
+      "agirliklar": {
+        "height": 0.64,
+        "chest": 0.03,
+        "waist": 0.28,
+        "hip": 0.22,
+        "weight": 0.74,
+        "arm_length": 0.68,
+        "leg_length": 0.89
+      },
+      "olculen": {
+        "boy": 189.6,
+        "gogus": 106.2,
+        "bel": 95.1,
+        "kalca": 108.5,
+        "kilo": 88.0,
+        "kol_boyu": 60.6,
+        "ic_bacak": 97.3
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.09,
+        "chest": 0.42,
+        "waist": 0.03,
+        "hip": 0.22,
+        "weight": 0.51,
+        "arm_length": 0.03,
+        "leg_length": 0.2
+      },
+      "olculen": {
+        "boy": 158.2,
+        "gogus": 104.1,
+        "bel": 76.9,
+        "kalca": 97.1,
+        "kilo": 59.7,
+        "kol_boyu": 46.9,
+        "ic_bacak": 73.2
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.65,
+        "chest": 0.54,
+        "waist": 0.22,
+        "hip": 0.59,
+        "weight": 0.81,
+        "arm_length": 0.01,
+        "leg_length": 0.81
+      },
+      "olculen": {
+        "boy": 188.4,
+        "gogus": 114.7,
+        "bel": 96.3,
+        "kalca": 119.2,
+        "kilo": 92.9,
+        "kol_boyu": 51.6,
+        "ic_bacak": 95.9
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.7,
+        "chest": 0.34,
+        "waist": 0.16,
+        "hip": 0.96,
+        "weight": 0.34,
+        "arm_length": 0.09,
+        "leg_length": 0.1
+      },
+      "olculen": {
+        "boy": 176.5,
+        "gogus": 108.3,
+        "bel": 79.5,
+        "kalca": 117.8,
+        "kilo": 76.5,
+        "kol_boyu": 53.9,
+        "ic_bacak": 83.5
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.85,
+        "chest": 0.6,
+        "waist": 0.81,
+        "hip": 0.73,
+        "weight": 0.54,
+        "arm_length": 0.97,
+        "leg_length": 0.38
+      },
+      "olculen": {
+        "boy": 186.8,
+        "gogus": 116.2,
+        "bel": 103.0,
+        "kalca": 118.7,
+        "kilo": 96.5,
+        "kol_boyu": 66.2,
+        "ic_bacak": 91.8
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.55,
+        "chest": 0.83,
+        "waist": 0.62,
+        "hip": 0.86,
+        "weight": 0.58,
+        "arm_length": 0.7,
+        "leg_length": 0.05
+      },
+      "olculen": {
+        "boy": 170.6,
+        "gogus": 116.6,
+        "bel": 97.0,
+        "kalca": 119.3,
+        "kilo": 85.0,
+        "kol_boyu": 59.2,
+        "ic_bacak": 79.6
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.23,
+        "chest": 0.29,
+        "waist": 0.08,
+        "hip": 0.23,
+        "weight": 0.1,
+        "arm_length": 0.28,
+        "leg_length": 0.64
+      },
+      "olculen": {
+        "boy": 171.2,
+        "gogus": 100.0,
+        "bel": 65.4,
+        "kalca": 89.4,
+        "kilo": 56.2,
+        "kol_boyu": 50.9,
+        "ic_bacak": 84.3
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.36,
+        "chest": 0.37,
+        "waist": 0.21,
+        "hip": 0.27,
+        "weight": 0.94,
+        "arm_length": 0.65,
+        "leg_length": 0.61
+      },
+      "olculen": {
+        "boy": 175.0,
+        "gogus": 109.9,
+        "bel": 97.2,
+        "kalca": 111.1,
+        "kilo": 84.2,
+        "kol_boyu": 56.0,
+        "ic_bacak": 86.4
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.17,
+        "chest": 0.73,
+        "waist": 0.16,
+        "hip": 0.38,
+        "weight": 0.99,
+        "arm_length": 0.64,
+        "leg_length": 0.56
+      },
+      "olculen": {
+        "boy": 167.7,
+        "gogus": 113.7,
+        "bel": 96.2,
+        "kalca": 112.8,
+        "kilo": 81.0,
+        "kol_boyu": 53.3,
+        "ic_bacak": 81.6
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.68,
+        "chest": 0.84,
+        "waist": 0.78,
+        "hip": 0.23,
+        "weight": 0.03,
+        "arm_length": 0.32,
+        "leg_length": 0.27
+      },
+      "olculen": {
+        "boy": 179.1,
+        "gogus": 113.5,
+        "bel": 83.0,
+        "kalca": 93.1,
+        "kilo": 71.5,
+        "kol_boyu": 55.9,
+        "ic_bacak": 86.3
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.21,
+        "chest": 0.94,
+        "waist": 0.88,
+        "hip": 0.31,
+        "weight": 0.66,
+        "arm_length": 0.4,
+        "leg_length": 0.91
+      },
+      "olculen": {
+        "boy": 175.7,
+        "gogus": 115.0,
+        "bel": 102.0,
+        "kalca": 103.7,
+        "kilo": 80.7,
+        "kol_boyu": 51.1,
+        "ic_bacak": 89.0
+      }
+    },
+    {
+      "agirliklar": {
+        "height": 0.46,
+        "chest": 0.26,
+        "waist": 0.25,
+        "hip": 0.56,
+        "weight": 0.26,
+        "arm_length": 0.58,
+        "leg_length": 0.9
+      },
+      "olculen": {
+        "boy": 183.8,
+        "gogus": 103.9,
+        "bel": 76.8,
+        "kalca": 103.3,
+        "kilo": 70.8,
+        "kol_boyu": 57.9,
+        "ic_bacak": 93.8
+      }
+    }
+  ]
+}

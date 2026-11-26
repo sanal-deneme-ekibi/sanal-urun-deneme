@@ -19,23 +19,32 @@
 - Görünüm: vitrin mankeni (anatomik ayrıntılar yumuşatılmış, tek renk mat)
 - Vücut shape key'leri (0–1 arası, varsayılan 0, bu sırayla):
 
-| Shape key | Anlamı | Ölçü | 0 değeri | 1 değeri (yalnız bu key) |
+| Shape key | Anlamı | Ölçü | Kadın: 0 → 1 (yalnız bu key) | Erkek: 0 → 1 |
 |---|---|---|---|---|
-| `height` | boy | `boy` (cm) | 145,6 | 188,6 |
-| `chest` | göğüs çevresi | `gogus` (cm) | 67,8 | 97,7 |
-| `waist` | bel çevresi | `bel` (cm) | 48,3 | 71,2 |
-| `hip` | kalça çevresi | `kalca` (cm) | 78,2 | 101,0 |
-| `weight` | genel dolgunluk (kollar, bacaklar, gövde) | `kilo` (kg) | 30,0 | 55,9 |
+| `height` | boy | `boy` (cm) | 137,5 → 180,5 | 151,4 → 184,5 |
+| `chest` | göğüs çevresi (erkekte sırt/kanat ve omuz genişliği) | `gogus` (cm) | 66,9 → 97,6 | 92,2 → 108,6 |
+| `waist` | bel çevresi | `bel` (cm) | 48,3 → 71,4 | 58,1 → 80,5 |
+| `hip` | kalça çevresi | `kalca` (cm) | 78,9 → 101,1 | 80,7 → 102,6 |
+| `weight` | genel dolgunluk (kollar, bacaklar, gövde) | `kilo` (kg) | 28,3 → 52,5 | 43,2 → 64,5 |
+| `arm_length` | kol boyu (omuz başından bileğe) | `kol_boyu` (cm) | 39,5 → 55,2 | 46,0 → 59,2 |
+| `leg_length` | bacak boyu (kasıktan yere) | `ic_bacak` (cm) | 58,3 → 77,2 | 67,6 → 86,5 |
 
-Değerler `avatar_kadin` içindir. Key'ler birbirini etkiler (ör. `weight` bütün çevreleri,
-`height` kiloyu büyütür); bütün etkiler kalibrasyon tablosundadır:
-`assets/models/avatar_kadin.calib.json`. Kilo, mesh hacminden 1 kg/L ile hesaplanır.
+Key'ler birbirini etkiler (ör. `weight` bütün çevreleri, `height` kiloyu, kol ve bacağı
+büyütür); bütün etkiler kalibrasyon tablolarındadır: `assets/models/avatar_<model>.calib.json`.
+Kilo, mesh hacminden 1 kg/L ile hesaplanır.
+
+- `arm_length` ve `leg_length` boydan bağımsızdır: aynı boyda kolu ya da bacağı uzun insanlar için.
+- Erkekte `chest` göğsü öne büyütmez; sırtın kanat kasını (latissimus dorsi), V gövdeyi ve omuz
+  genişliğini büyütür. Kadında göğüs boyutu ve göğüs çevresiyle büyür.
+- Çevreler kasık ile koltuk altı arasına göre tanımlı yüksekliklerde ölçülür; böylece bacak ve
+  kol uzunluğu değişince göğüs/bel/kalça ölçüsü kaymaz.
 
 ## Kıyafet şablonları
 
 - Dosya adları: `assets/models/sablon_<tur>.glb` → `tisort`, `pantolon`, `gomlek`, `elbise`, `etek`
 - Mesh adı: `Garment`
-- Avatarla **aynı adlı** vücut shape key'leri: `height`, `chest`, `waist`, `hip`, `weight`
+- Avatarla **aynı adlı** vücut shape key'leri: `height`, `chest`, `waist`, `hip`, `weight`,
+  `arm_length`, `leg_length`
 - Ürün ölçüsü shape key'leri: `length` (boy), `width` (en), `sleeve` (kol; yoksa eklenmez)
 - Kalibrasyon: `assets/models/sablon_<tur>.calib.json`
 
@@ -50,7 +59,7 @@ girdisidir.
 Her key 0'dan 1'e 0,1 adımlarla taranır, diğer key'ler 0'da bırakılır; her adımda avatar
 yatay düzlemle kesilip çevre ölçülür, kilo da hacimden hesaplanır. Key'ler birbirini
 etkilediği için (göğsü büyütmek beli de bir miktar büyütür, `weight` bütün çevreleri
-büyütür) her taramada **beş ölçünün hepsi** kaydedilir.
+büyütür) her taramada **bütün ölçüler** kaydedilir.
 
 ### Biçim
 
@@ -61,26 +70,28 @@ Aşağıdaki değerler `assets/models/avatar_kadin.calib.json` dosyasından, kı
   "surum": 1,
   "model": "avatar_kadin",
   "betik": "blender/scripts/avatar_olustur.py",
-  "tarih": "2026-11-06",
+  "tarih": "2026-11-27",
   "birim": "cm",
   "birim_kilo": "kg",
-  "keyler": ["height", "chest", "waist", "hip", "weight"],
-  "olcumler": ["boy", "gogus", "bel", "kalca", "kilo"],
+  "keyler": ["height", "chest", "waist", "hip", "weight", "arm_length", "leg_length"],
+  "olcumler": ["boy", "gogus", "bel", "kalca", "kilo", "kol_boyu", "ic_bacak"],
 
-  "taban": { "boy": 145.6, "gogus": 67.8, "bel": 48.3, "kalca": 78.2, "kilo": 30.0 },
+  "taban": { "boy": 137.5, "gogus": 66.9, "bel": 48.3, "kalca": 78.9, "kilo": 28.3, "kol_boyu": 39.5, "ic_bacak": 58.3 },
 
   "etki": {
-    "height": { "boy": 43.0, "gogus": 13.2, "bel": 11.4, "kalca": 15.6, "kilo": 26.6 },
-    "chest":  { "boy":  0.0, "gogus": 29.9, "bel":  0.5, "kalca":  0.0, "kilo":  5.9 },
-    "waist":  { "boy":  0.0, "gogus":  0.0, "bel": 22.9, "kalca":  1.0, "kilo":  4.7 },
-    "hip":    { "boy":  0.0, "gogus":  0.0, "bel":  0.0, "kalca": 22.8, "kilo":  4.5 },
-    "weight": { "boy":  0.0, "gogus": 20.1, "bel": 27.1, "kalca": 30.1, "kilo": 25.9 }
+    "height": { "boy": 43.0, "gogus": 14.1, "bel": 11.4, "kalca": 15.2, "kilo": 25.8, "kol_boyu": 15.2, "ic_bacak": 25.7 },
+    "chest": { "boy": 0.0, "gogus": 30.7, "bel": 0.4, "kalca": 0.0, "kilo": 5.9, "kol_boyu": -0.6, "ic_bacak": 0.0 },
+    "waist": { "boy": 0.0, "gogus": 2.0, "bel": 23.1, "kalca": 0.3, "kilo": 4.8, "kol_boyu": 0.0, "ic_bacak": 0.0 },
+    "hip": { "boy": 0.0, "gogus": 0.0, "bel": 0.1, "kalca": 22.2, "kilo": 4.3, "kol_boyu": 0.0, "ic_bacak": 0.0 },
+    "weight": { "boy": 0.0, "gogus": 21.0, "bel": 27.1, "kalca": 29.8, "kilo": 24.2, "kol_boyu": 0.5, "ic_bacak": -1.3 },
+    "arm_length": { "boy": 0.0, "gogus": 0.0, "bel": 0.0, "kalca": 0.0, "kilo": 0.9, "kol_boyu": 15.7, "ic_bacak": 0.0 },
+    "leg_length": { "boy": 19.2, "gogus": 0.0, "bel": 0.0, "kalca": -0.4, "kilo": 3.3, "kol_boyu": -0.1, "ic_bacak": 18.9 }
   },
 
   "ornekler": [
     {
-      "agirliklar": { "height": 0.64, "chest": 0.03, "waist": 0.28, "hip": 0.22, "weight": 0.74 },
-      "olculen":    { "boy": 173.1, "gogus": 92.5, "bel": 81.7, "kalca": 115.0, "kilo": 74.0 }
+      "agirliklar": { "height": 0.64, "chest": 0.03, "waist": 0.28, "hip": 0.22, "weight": 0.74, "arm_length": 0.68, "leg_length": 0.89 },
+      "olculen":    { "boy": 182.1, "gogus": 92.7, "bel": 81.7, "kalca": 115.1, "kilo": 77.7, "kol_boyu": 58.5, "ic_bacak": 90.7 }
     }
   ]
 }
@@ -105,7 +116,7 @@ olcu = taban[olcu] + Σ  etki[key][olcu] × agirlik[key]
 
 | Ölçü | Eşik | Neden |
 |---|---|---|
-| `boy`, `gogus`, `bel`, `kalca` | 1 cm | çevreler shape key'lerle neredeyse doğrusal değişir |
+| `boy`, `gogus`, `bel`, `kalca`, `kol_boyu`, `ic_bacak` | 1 cm | uzunluk ve çevreler shape key'lerle neredeyse doğrusal değişir |
 | `kilo` | 4 kg | hacim kabaca boy × çevre² ile büyür, doğrusal değil |
 
 Bir ölçünün ortalama sapması kendi eşiğini geçerse doğrusal model o ölçü için yetmiyor
@@ -113,14 +124,21 @@ demektir; o zaman `ornekler` genişletilir ve çözücü ara değerleri tablodan
 biçim `surum: 2` ile değişir).
 
 Sapma tek örnekten değil, bütün `ornekler` üzerinden ortalanarak ölçülür.
-`avatar_kadin` için 10 örnekte bugünkü değerler: boy 0,03 · göğüs 0,4 · bel 0,2 ·
-kalça 0,6 cm, kilo 3,6 kg. Hepsi kendi eşiğinin altında.
+12 örnekte bugünkü ortalama sapmalar (cm; kilo kg):
+
+| Model | boy | göğüs | bel | kalça | kol_boyu | ic_bacak | kilo |
+|---|---|---|---|---|---|---|---|
+| `avatar_kadin` | 0,03 | **1,07** | 0,2 | 0,28 | **1,51** | 0,06 | **5,57** |
+| `avatar_erkek` | 0,02 | 0,74 | 0,74 | 0,59 | 0,86 | 0,03 | **4,12** |
+
+Kalın değerler eşiği geçiyor. Kol ve bacak key'leriyle birlikte key'ler arası etkileşim arttı
+(ör. boy × kol, boy × kilo); kilo için `surum: 2` (tablo) ya da kilo düzeltmesi (#34) gerekiyor.
 
 ### Kurallar
 
 - Alan ve key adları buradaki yazımla **birebir** aynıdır; ölçü adları Türkçe
-  (`boy`, `gogus`, `bel`, `kalca`, `kilo`), key adları İngilizce
-  (`height`, `chest`, `waist`, `hip`, `weight`).
+  (`boy`, `gogus`, `bel`, `kalca`, `kilo`, `kol_boyu`, `ic_bacak`), key adları İngilizce
+  (`height`, `chest`, `waist`, `hip`, `weight`, `arm_length`, `leg_length`).
 - Ölçü adları Supabase'deki `measurements` tablosunun sütunlarıyla eşleşir:
 
   | Ölçü | Sütun |
@@ -130,9 +148,13 @@ kalça 0,6 cm, kilo 3,6 kg. Hepsi kendi eşiğinin altında.
   | `bel` | `bel_cm` |
   | `kalca` | `kalca_cm` |
   | `kilo` | `kilo_kg` |
+  | `kol_boyu` | `kol_boyu_cm` |
+  | `ic_bacak` | `ic_bacak_cm` |
 
   `kilo_kg` boş bırakılabilir: kilo hassas bir bilgi ve kullanıcı girmek zorunda değil. Boşsa
-  çözücüye `kilo` hedefi verilmez, `weight` key'i diğer ölçülerden çözülür.
+  çözücüye `kilo` hedefi verilmez, `weight` key'i diğer ölçülerden çözülür. `kol_boyu_cm` ve
+  `ic_bacak_cm` de boş bırakılabilir (çoğu kullanıcı bilmez); boşsa `arm_length` ve `leg_length`
+  diğer ölçülerden çözülür.
 - Sayılar en fazla bir ondalık basamakla yazılır.
 - `avatar_erkek.calib.json` aynı biçimdedir, yalnızca sayılar değişir.
 - Yukarıdaki **Avatar** bölümündeki tablonun "0 değeri" sütunu `taban`, "1 değeri" sütunu
@@ -170,8 +192,8 @@ Kullanıcının cm cinsinden ölçülerini shape key ağırlıklarına çevirir.
 ### Girdi
 
 ```ts
-type OlcuAdi = 'boy' | 'gogus' | 'bel' | 'kalca' | 'kilo';
-type KeyAdi  = 'height' | 'chest' | 'waist' | 'hip' | 'weight';
+type OlcuAdi = 'boy' | 'gogus' | 'bel' | 'kalca' | 'kilo' | 'kol_boyu' | 'ic_bacak';
+type KeyAdi  = 'height' | 'chest' | 'waist' | 'hip' | 'weight' | 'arm_length' | 'leg_length';
 
 type Olculer    = Record<OlcuAdi, number>;  // boy/gogus/bel/kalca cm, kilo kg
 type Agirliklar = Record<KeyAdi, number>;   // 0–1
@@ -205,7 +227,7 @@ karıştırılmaz, `fark.kilo`'dan ayrı okunur.
 ### Yöntem
 
 Sınırlı en küçük kareler: `agirliklar` 0–1 aralığında kalmak koşuluyla
-`Σ (ulasilan − hedef)²` en küçüklenir. Beş bilinmeyen ve en çok beş denklem olduğu için
+`Σ (ulasilan − hedef)²` en küçüklenir. Yedi bilinmeyen ve en çok yedi denklem olduğu için
 küçük bir yineleyici çözüm (projected gradient) yeterlidir; dış kütüphane gerekmez.
 
 ### Sınır durumları

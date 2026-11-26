@@ -1,17 +1,18 @@
-"""Kadın avatarını MPFB ile üretir: assets/models/avatar_kadin.glb ve .calib.json
+"""Avatarları MPFB ile üretir: assets/models/avatar_<model>.glb ve .calib.json
 
 Çalıştırma (repo kökünden; Blender açık olmasa da olur):
-    blender --background --python blender/scripts/avatar_olustur.py
+    blender --background --python blender/scripts/avatar_olustur.py             # kadın
+    blender --background --python blender/scripts/avatar_olustur.py -- erkek    # erkek
 
 Yöntem:
-  1. MPFB ile beş vücut üretilir: taban (bütün key'ler 0) ve her key için o ölçünün
+  1. MPFB ile vücutlar üretilir: taban (bütün key'ler 0) ve her key için o ölçünün
      en büyük hali (o key 1, diğerleri 0).
   2. Taban vücut ≤ 20.000 üçgene sadeleştirilir. Sade mesh'in her köşesi tam çözünürlüklü
      yüzeydeki bir üçgene bağlanır (MakeHuman proxy'leri gibi).
-  3. Aynı bağ diğer dört vücuda uygulanır; böylece hepsi aynı topolojide shape key olur.
+  3. Aynı bağ diğer vücutlara uygulanır; böylece hepsi aynı topolojide shape key olur.
   4. Sade mesh ölçülür, kalibrasyon dosyası yazılır, GLB dışa aktarılır.
 
-Kurallar docs/glb-sozlesmesi.md içinde. Ayarlar aşağıdaki TABAN ve KEYLER sözlüklerinde.
+Kurallar docs/glb-sozlesmesi.md içinde. Ayarlar aşağıdaki MODELLER sözlüğünde.
 """
 
 import json
@@ -33,56 +34,87 @@ sys.path.insert(0, str(BETIK_KLASORU))
 import olcum  # noqa: E402
 from bl_ext.blender_org.mpfb.services import HumanService, TargetService  # noqa: E402
 
-MODEL = "avatar_kadin"
-GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
-KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
 UCGEN_BUTCESI = 19_000  # sözleşme sınırı 20.000; sadeleştirme tam tutmadığı için pay bırakıldı
 
-# Taban vücut: MPFB makroları (0–1) ve ölçü hedefleri (eksi = küçült, artı = büyüt)
-TABAN = {
-    "makro": {
-        "gender": 0.0,  # 0 kadın
-        "age": 0.5,  # 25 yaş
-        "muscle": 0.5,
-        "weight": 0.0,
-        "proportions": 0.5,
-        "height": 0.3,  # MPFB'de 0 cüce, 1 dev; 0.3 ≈ 145 cm
-        "cupsize": 0.3,
-        "firmness": 0.5,
-    },
-    "hedefler": {
-        "measure-bust-circ": -0.5,
-        "measure-waist-circ": -0.8,
-        "measure-hips-circ": -0.6,
-        # Manken görünümü: meme uçları düzleştirilir
-        "nipple-point": -1.0,
-        "nipple-size": -1.0,
-    },
+# Her model: taban vücut ve key'ler.
+# taban: MPFB makroları (0–1) ve ölçü hedefleri (eksi = küçült, artı = büyüt).
+# keyler: her key'in 1 değeri, tabanın üzerine yazılan ayarlar. "olcek" verilirse key, tabandan
+#   o ayara olan farkın o kadar katıdır (MPFB makrosunun sınırının ötesine geçmek için).
+#   "fark_yumusat" verilirse bu fark o kadar tekrar yumuşatılır: büyütülen kilo hedefindeki
+#   topaklar (selülit benzeri) gider, hacim artışı kalır.
+# Genel dolgunluk weight'te; diğer key'ler yalnızca kendi bölgesini değiştirir. Kol ve bacak
+# uzunluğu boydan ayrı key'lerdir: aynı boyda kolu ya da bacağı uzun insanlar için.
+# yumusatma (manken görünümü): bu bölgelerdeki anatomik ayrıntılar Laplace yumuşatmasıyla silinir;
+#   merkez taban vücutta bulunur, aynı köşeler bütün vücutlarda aynı şekilde yumuşatılır.
+ORTAK_HEDEFLER = {
+    "measure-waist-circ": -0.8,
+    "measure-hips-circ": -0.6,
+    # Manken görünümü: meme uçları düzleştirilir
+    "nipple-point": -1.0,
+    "nipple-size": -1.0,
+    "measure-upperarm-length": -0.7,
+    "measure-lowerarm-length": -0.7,
+    "upperlegs-height": -0.6,
+    "lowerlegs-height": -0.6,
 }
-
-# Her key'in 1 değeri: tabanın üzerine yazılan ayarlar. "olcek" verilirse key, tabandan
-# o ayara olan farkın o kadar katıdır (MPFB makrosunun sınırının ötesine geçmek için).
-# "fark_yumusat" verilirse bu fark o kadar tekrar yumuşatılır: büyütülen kilo hedefindeki
-# topaklar (selülit benzeri) gider, hacim artışı kalır.
-# Genel dolgunluk weight'te; diğer key'ler yalnızca kendi bölgesini değiştirir.
-KEYLER = {
-    "height": {"makro": {"height": 0.72}},  # ≈ 190 cm
-    "chest": {"makro": {"cupsize": 0.75}, "hedefler": {"measure-bust-circ": 1.0}},
+ORTAK_KEYLER = {
     "waist": {"hedefler": {"measure-waist-circ": 1.5}},
     "hip": {"hedefler": {"measure-hips-circ": 1.0}},
     "weight": {"makro": {"weight": 1.0}, "olcek": 3.0, "fark_yumusat": 40},
+    "arm_length": {"hedefler": {"measure-upperarm-length": 0.7, "measure-lowerarm-length": 0.7}},
+    "leg_length": {"hedefler": {"upperlegs-height": 0.6, "lowerlegs-height": 0.6}},
+}
+MODELLER = {
+    "kadin": {
+        "taban": {
+            "makro": {"gender": 0.0, "age": 0.5, "muscle": 0.5, "weight": 0.0, "proportions": 0.5,
+                      "height": 0.3,  # MPFB'de 0 cüce, 1 dev; 0.3 ≈ 145 cm
+                      "cupsize": 0.3, "firmness": 0.5},
+            "hedefler": {**ORTAK_HEDEFLER, "measure-bust-circ": -0.5},
+        },
+        "keyler": {
+            "height": {"makro": {"height": 0.72}},  # ≈ 190 cm
+            "chest": {"makro": {"cupsize": 0.75}, "hedefler": {"measure-bust-circ": 1.0}},
+            **ORTAK_KEYLER,
+        },
+        "yumusatma": {"kasik": {"yaricap_m": 0.07, "tekrar": 40}, "yuz": {"yaricap_m": 0.08, "tekrar": 6}},
+    },
+    "erkek": {
+        "taban": {
+            "makro": {"gender": 1.0, "age": 0.5, "muscle": 0.5, "weight": 0.0, "proportions": 0.5,
+                      "height": 0.3,  # ≈ 159 cm
+                      "cupsize": 0.5, "firmness": 0.5},
+            "hedefler": {**ORTAK_HEDEFLER, "torso-muscle-dorsi": -0.3},
+        },
+        "keyler": {
+            "height": {"makro": {"height": 0.65}},  # ≈ 193 cm
+            # Erkekte göğüs öne değil yana ve sırta büyür: sırtın kanat kası (latissimus dorsi),
+            # V gövde, omuz genişliği ve hafif göğüs kası birlikte (göğüs çevresi hedefi öne
+            # çıkıntı verdiği için kullanılmaz)
+            "chest": {"hedefler": {"torso-muscle-dorsi": 0.9, "torso-vshape": 0.6, "torso-muscle-pectoral": 0.5,
+                                   "measure-shoulder-dist": 0.6}},
+            **ORTAK_KEYLER,
+        },
+        "yumusatma": {"kasik": {"yaricap_m": 0.09, "tekrar": 60}, "yuz": {"yaricap_m": 0.08, "tekrar": 6}},
+    },
 }
 
 # Kalibrasyon sözleşmesindeki adlar: key → kendi ölçüsü
-KEY_OLCU = {"height": "boy", "chest": "gogus", "waist": "bel", "hip": "kalca", "weight": "kilo"}
-ORNEK_SAYISI = 10
+KEY_OLCU = {"height": "boy", "chest": "gogus", "waist": "bel", "hip": "kalca", "weight": "kilo",
+            "arm_length": "kol_boyu", "leg_length": "ic_bacak"}
+ORNEK_SAYISI = 12
 
-# Manken görünümü: bu bölgelerdeki anatomik ayrıntılar Laplace yumuşatmasıyla silinir.
-# merkez taban vücutta bulunur; aynı köşeler bütün vücutlarda aynı şekilde yumuşatılır.
-YUMUSATMA = {
-    "kasik": {"yaricap_m": 0.07, "tekrar": 40},
-    "yuz": {"yaricap_m": 0.08, "tekrar": 6},
-}
+
+def model_sec(ad):
+    """Betiğin geri kalanının kullandığı model ayarlarını seçer."""
+    global MODEL, GLB_YOLU, KALIB_YOLU, TABAN, KEYLER, YUMUSATMA
+    MODEL = f"avatar_{ad}"
+    GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
+    KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
+    TABAN, KEYLER, YUMUSATMA = (MODELLER[ad][k] for k in ("taban", "keyler", "yumusatma"))
+
+
+model_sec("kadin")
 
 
 def sahneyi_temizle():
@@ -282,6 +314,7 @@ def disa_aktar(nesne):
 
 def main():
     sahneyi_temizle()
+    print(f"Model: {MODEL}")
 
     print("[1/5] Taban vücut üretiliyor")
     tam_taban_mesh = vucut_olustur(TABAN)
@@ -333,4 +366,5 @@ def main():
 
 
 if __name__ == "__main__":
+    model_sec(sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else "kadin")
     main()
