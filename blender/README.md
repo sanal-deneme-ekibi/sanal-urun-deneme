@@ -19,14 +19,15 @@ Vücut aralıkları betiğin başındaki `TABAN` ve `KEYLER` ayarlarındadır; d
 
 ## Tişört şablonunu üretmek
 
-Avatardan sonra çalıştırılır; `avatar_kadin.glb`'yi okur, MPFB gerekmez.
+Avatardan sonra çalıştırılır; `avatar_<model>.glb`'yi okur, MPFB gerekmez.
 
 ```bash
-blender --background --python blender/scripts/sablon_tisort.py
+blender --background --python blender/scripts/sablon_tisort.py             # kadın
+blender --background --python blender/scripts/sablon_tisort.py -- erkek    # erkek
 ```
 
-Yaklaşık 30 saniyede `assets/models/sablon_tisort.glb`, `.calib.json` ve `.keypoints.json`
-üretilir. Tişört, avatarın gövde ve kol kesitlerinden örülür; bu yüzden avatarla aynı 5 vücut
+Yaklaşık 30 saniyede `assets/models/sablon_tisort_<model>.glb`, `.calib.json` ve `.keypoints.json`
+üretilir. Tişört, avatarın gövde ve kol kesitlerinden örülür; bu yüzden avatarla aynı 7 vücut
 key'ini taşır. Ürün key'lerinin aralıkları (`length`, `width`, `sleeve`) betiğin başındaki
 `URUN` ayarındadır.
 

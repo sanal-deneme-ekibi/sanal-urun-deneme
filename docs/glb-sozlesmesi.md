@@ -41,12 +41,15 @@ Kilo, mesh hacminden 1 kg/L ile hesaplanır.
 
 ## Kıyafet şablonları
 
-- Dosya adları: `assets/models/sablon_<tur>.glb` → `tisort`, `pantolon`, `gomlek`, `elbise`, `etek`
+- Dosya adları: `assets/models/sablon_<tur>_<model>.glb` → tür `tisort`, `pantolon`, `gomlek`,
+  `elbise`, `etek`; model `kadin` veya `erkek` (ör. `sablon_tisort_erkek.glb`). Her şablon kendi
+  avatarının üzerine kurulur ve o avatarın vücut key'lerini taşır; kadın avatarına `_kadin`,
+  erkek avatarına `_erkek` şablonu giydirilir. UV düzeni ve anahtar noktalar ikisinde aynıdır.
 - Mesh adı: `Garment`
 - Avatarla **aynı adlı** vücut shape key'leri: `height`, `chest`, `waist`, `hip`, `weight`,
   `arm_length`, `leg_length`
 - Ürün ölçüsü shape key'leri: `length` (boy), `width` (en), `sleeve` (kol; yoksa eklenmez)
-- Kalibrasyon: `assets/models/sablon_<tur>.calib.json`
+- Kalibrasyon: `assets/models/sablon_<tur>_<model>.calib.json`
 
 ## Kalibrasyon dosyası biçimi
 
@@ -162,7 +165,7 @@ Kalın değerler eşiği geçiyor. Kol ve bacak key'leriyle birlikte key'ler ara
 
 ### Kıyafet şablonu kalibrasyonu
 
-`sablon_<tur>.calib.json` aynı yapıyı kullanır, yalnızca adlar değişir:
+`sablon_<tur>_<model>.calib.json` aynı yapıyı kullanır, yalnızca adlar değişir:
 
 - `keyler`: `["length", "width", "sleeve"]` (kolsuz türlerde `sleeve` yok)
 - `olcumler`: `["boy", "en", "kol"]` — Supabase'deki `size_charts` sütunlarıyla aynı
@@ -259,7 +262,7 @@ Payların cm cinsinden eşikleri ayrı issue'da belirlenecek.
 Tablodaki v, Blender'ın UV ekseninde (v yukarı). GLB'de dışa aktarıcı v'yi ters çevirir
 (glTF: 0,0 sol üst köşe), yani GLB'deki `TEXCOORD_0` için gövde v 0–0,73, kollar v 0,75–1'dir.
 
-Tişörtte (`sablon_tisort.glb`) yönler:
+Tişörtte (`sablon_tisort_kadin.glb`, `sablon_tisort_erkek.glb`) yönler:
 
 - Gövde: u = sağ yan (0) → ön orta (0,25) → sol yan (0,5) → arka orta (0,75) → sağ yan (1).
   Ön, karşıdan bakınca göründüğü gibi; arka, arkadan bakınca göründüğü gibi durur.
@@ -271,10 +274,10 @@ Tişörtte (`sablon_tisort.glb`) yönler:
 
 Tişört için 7 nokta. Kanonik sıra:
 `0 yaka_orta, 1 omuz_sol, 2 omuz_sag, 3 kol_sol, 4 kol_sag, 5 etek_sol, 6 etek_sag`
-Her noktanın şablonun UV'sindeki karşılığı `sablon_<tur>.keypoints.json` dosyasında tutulur.
+Her noktanın şablonun UV'sindeki karşılığı `sablon_<tur>_<model>.keypoints.json` dosyasında tutulur.
 
 **Noktalar isimle eşleştirilir, dizideki sırayla değil.** Yukarıdaki sıra bu belgenin ve
-`sablon_<tur>.keypoints.json`'un kanonik sırasıdır, ama etiket dosyasından okunan noktalar
+`sablon_<tur>_<model>.keypoints.json`'un kanonik sırasıdır, ama etiket dosyasından okunan noktalar
 adlarına bakılarak eşlenir. Sebebi: CVAT dışa aktarmada iskeleti çizerken kullanılan noktalama
 sırasını yazıyor ve bu sıra buradakiyle aynı olmak zorunda değil — nitekim değil. Adlar
 dosyada da taşındığı için isimle eşleştirmek hem çalışıyor hem de konuma dayalı varsayımdan
