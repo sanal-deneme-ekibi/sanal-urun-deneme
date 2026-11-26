@@ -144,8 +144,19 @@ kalça 0,6 cm, kilo 3,6 kg. Hepsi kendi eşiğinin altında.
 
 - `keyler`: `["length", "width", "sleeve"]` (kolsuz türlerde `sleeve` yok)
 - `olcumler`: `["boy", "en", "kol"]` — Supabase'deki `size_charts` sütunlarıyla aynı
-- Şablonun vücut key'leri (`height`, `chest`, `waist`, `hip`, `weight`) burada **yer almaz**;
+- Şablonun vücut key'leri (`height`, `chest`, `waist`, `hip`, `weight`) `keyler`'de **yer almaz**;
   onlar avatardan çözülen ağırlıklarla doğrudan aynı değere set edilir, yeniden çözülmez.
+- Ama vücut key'leri kıyafetin ölçüsünü de değiştirir (daha büyük göğüslü vücuttaki tişört de
+  daha geniştir). Bu etki `govde_etki` alanında taşınır: vücut key'i 0'dan 1'e giderken kıyafet
+  ölçüsünün değişimi (cm). Ürün key'leri çözülürken önce taban vücuda göre kaydırılır:
+
+  ```
+  taban_efektif[olcu] = taban[olcu] + Σ govde_etki[vkey][olcu] × vucut_agirligi[vkey]
+  olcu = taban_efektif[olcu] + Σ etki[key][olcu] × agirlik[key]
+  ```
+
+  Ölçüm (#41): 27 durumda ortalama hata vücut etkisi yok sayılınca 6,8 cm, bu formülle 3,2 cm.
+  `en` için vücut key'lerinin toplam etkisi (32,5 cm) `width` key'inin aralığının 2,5 katı.
 
 Pantolon ve etek için bu üç key yetmiyor: beden tablosunda `bel_cm`, `kalca_cm` ve
 `ic_bacak_cm` da var. `sablon_pantolon` için `waist`, `hip`, `inseam` key'leri gerekiyor.
@@ -233,19 +244,6 @@ Tişörtte (`sablon_tisort.glb`) yönler:
   v etekten (0,27) yakaya (1) çıkar.
 - Kollar: sağ kol u 0–0,5, sol kol u 0,5–1. Her kolda u = koltuk altı → ön → üst → arka;
   v omuzdan (0,25) manşete (0) iner.
-
-## Kıyafet şablonunda vücut key'lerinin etkisi (öneri)
-
-Şablonun vücut key'leri kıyafetin ölçülerini de değiştirir: daha büyük göğüslü bir vücuttaki
-tişört de daha geniştir. Bu yüzden `sablon_tisort.calib.json`, sözleşmedeki alanlara ek olarak
-`govde_etki` taşır: vücut key'i 0'dan 1'e giderken kıyafet ölçüsünün değişimi (cm).
-Ürün key'leri çözülürken avatardan gelen vücut ağırlıklarının bu etkisi önce eklenir:
-
-```
-olcu = taban[olcu] + Σ govde_etki[vkey][olcu] × vucut_agirligi[vkey] + Σ etki[key][olcu] × agirlik[key]
-```
-
-Karara bağlanınca bu bölüm "Kıyafet şablonu kalibrasyonu"na taşınır.
 
 ## Anahtar noktalar (yapay zekâ ↔ şablon)
 

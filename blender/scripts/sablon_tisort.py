@@ -40,7 +40,7 @@ VUCUT_KEYLER = ["height", "chest", "waist", "hip", "weight"]
 
 # Ürün key'leri: (0 değeri, 1 değeri)
 URUN = {
-    # Etek hizası: 0 = bel hizası (kısa), 1 = kasık hizası (uzun); arası doğrusal
+    # Etek hizası: 0 = bel hizası (kısa), 1 = kasığın URUN_ETEK_KASIK_ALTI × boy altı (uzun)
     "length": (0.0, 1.0),
     # Göğüs çevresine eklenen bolluk payı (cm): 0 = dar, 1 = çok bol
     "width": (4.0, 30.0),
@@ -48,6 +48,8 @@ URUN = {
     "sleeve": (0.08, 0.33),
 }
 URUN_OLCU = {"length": "boy", "width": "en", "sleeve": "kol"}
+# length 1'de etek kasığın bu kadar (boyun oranı) altında: ince vücutta ~72 cm tişört boyu
+URUN_ETEK_KASIK_ALTI = 0.13
 
 GOVDE_SATIR = 40
 GOVDE_CEYREK = 16  # gövde halkası 4 çeyrek × 16 nokta
@@ -221,7 +223,8 @@ def govde_payi(z, isr, pay_cm):
 
 
 def govde_halkasi(k, u, z, isr, pay_cm, gogus_xy):
-    xy = kirp(govde_kesiti(k, u, z), isr["x_sinir"])
+    # Kasığın altında gövde iki bacağa ayrılır; uzun tişört kalçadan düz iner
+    xy = kirp(govde_kesiti(k, u, max(z, isr["kasik"] + 0.01)), isr["x_sinir"])
     if z < isr["gogus"]:
         xy = np.vstack([xy, gogus_xy])  # kumaş göğüsten düz iner
     cokgen = ote(olcum.zarf(xy), govde_payi(z, isr, pay_cm))
@@ -229,10 +232,10 @@ def govde_halkasi(k, u, z, isr, pay_cm, gogus_xy):
 
 
 def etek_hizasi(isr, length):
-    """Etek yüksekliği: 0 = bel hizası, 1 = kasığın hemen üstü (kasık–koltuk arası oranla)."""
-    bel_orani = 0.42  # bel, kasıkla koltuk altı arasının yaklaşık bu oranında
-    oran = bel_orani + length * (0.02 - bel_orani)
-    return isr["kasik"] + oran * (isr["koltuk"] - isr["kasik"])
+    """Etek yüksekliği: 0 = bel hizası, 1 = uyluk ortası (gerçek uzun tişörtlerin boyu)."""
+    bel = isr["kasik"] + 0.42 * (isr["koltuk"] - isr["kasik"])  # bel, kasık–koltuk arasının bu oranında
+    uyluk = isr["kasik"] - URUN_ETEK_KASIK_ALTI * isr["boy"]
+    return bel + length * (uyluk - bel)
 
 
 def govde(k, u, isr, urun):
@@ -529,12 +532,13 @@ def main():
         "taban": taban_olcu,
         "etki": etki,
         "ornekler": ornekler,
-        # Sözleşmede yok, öneri: vücut key'leri şablonun ölçülerini de değiştirir
+        # Vücut key'lerinin şablon ölçülerine etkisi (sözleşme: Kıyafet şablonu kalibrasyonu)
         "govde_etki": govde_etki,
     }
     KALIB_YOLU.write_text(json.dumps(kalib, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     hata = {o: round(float(np.mean(h)), 2) for o, h in hatalar.items()}
-    print(f"      doğrusal model ortalama hatası: {hata}")
+    en_buyuk = {o: round(float(np.max(h)), 2) for o, h in hatalar.items()}
+    print(f"      doğrusal model hatası: ortalama {hata} · en büyük {en_buyuk}")
 
     noktalar = {
         "surum": 1,

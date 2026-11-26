@@ -2,7 +2,7 @@
   "surum": 1,
   "model": "sablon_tisort",
   "betik": "blender/scripts/sablon_tisort.py",
-  "tarih": "2026-11-24",
+  "tarih": "2026-11-27",
   "birim": "cm",
   "keyler": [
     "length",
@@ -21,7 +21,7 @@
   },
   "etki": {
     "length": {
-      "boy": 16.8,
+      "boy": 36.5,
       "en": 0.0,
       "kol": 0.0
     },
@@ -44,7 +44,7 @@
         "sleeve": 0.28
       },
       "olculen": {
-        "boy": 48.0,
+        "boy": 60.6,
         "en": 35.7,
         "kol": 21.8
       }
@@ -56,7 +56,7 @@
         "sleeve": 0.68
       },
       "olculen": {
-        "boy": 40.9,
+        "boy": 45.3,
         "en": 45.0,
         "kol": 36.4
       }
@@ -68,7 +68,7 @@
         "sleeve": 0.42
       },
       "olculen": {
-        "boy": 52.1,
+        "boy": 69.7,
         "en": 36.5,
         "kol": 26.9
       }
@@ -80,7 +80,7 @@
         "sleeve": 0.51
       },
       "olculen": {
-        "boy": 37.8,
+        "boy": 38.3,
         "en": 38.2,
         "kol": 30.2
       }
@@ -92,7 +92,7 @@
         "sleeve": 0.65
       },
       "olculen": {
-        "boy": 37.8,
+        "boy": 38.3,
         "en": 38.0,
         "kol": 35.3
       }
@@ -104,7 +104,7 @@
         "sleeve": 0.59
       },
       "olculen": {
-        "boy": 46.3,
+        "boy": 57.0,
         "en": 38.2,
         "kol": 33.1
       }
