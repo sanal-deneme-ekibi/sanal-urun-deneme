@@ -1,7 +1,8 @@
-"""Tişört şablonunu avatarın üzerine kurar: assets/models/sablon_tisort.glb, .calib.json, .keypoints.json
+"""Tişört şablonunu avatarın üzerine kurar: assets/models/sablon_tisort_<model>.glb, .calib.json, .keypoints.json
 
-Çalıştırma (repo kökünden; avatar_kadin.glb hazır olmalı):
-    blender --background --python blender/scripts/sablon_tisort.py
+Çalıştırma (repo kökünden; avatar_<model>.glb hazır olmalı):
+    blender --background --python blender/scripts/sablon_tisort.py             # kadın
+    blender --background --python blender/scripts/sablon_tisort.py -- erkek    # erkek
 
 Yöntem:
   1. Avatar GLB'si okunur; tabanı ve 5 vücut key'i ayrı ayrı vücut olarak alınır.
@@ -30,11 +31,17 @@ sys.path.insert(0, str(BETIK_KLASORU))
 
 import olcum  # noqa: E402
 
-MODEL = "sablon_tisort"
-AVATAR_YOLU = REPO / "assets" / "models" / "avatar_kadin.glb"
-GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
-KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
-NOKTA_YOLU = REPO / "assets" / "models" / f"{MODEL}.keypoints.json"
+def model_sec(ad):
+    """Şablonun kurulacağı avatarı (kadin / erkek) ve çıktı dosyalarını seçer."""
+    global MODEL, AVATAR_YOLU, GLB_YOLU, KALIB_YOLU, NOKTA_YOLU
+    MODEL = f"sablon_tisort_{ad}"
+    AVATAR_YOLU = REPO / "assets" / "models" / f"avatar_{ad}.glb"
+    GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
+    KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
+    NOKTA_YOLU = REPO / "assets" / "models" / f"{MODEL}.keypoints.json"
+
+
+model_sec("kadin")
 
 VUCUT_KEYLER = ["height", "chest", "waist", "hip", "weight", "arm_length", "leg_length"]
 
@@ -57,7 +64,7 @@ KOL_SATIR = 14
 KOL_CEYREK = 8
 KOL_BINDIRME_M = 0.04  # kol, kol yuvasını kapatmak için gövdenin içinden başlar
 KOL_REF_M = 0.14  # bu noktaya kadar kol kesiti sabit alınır (omuzda kesit gövdeye karışır)
-EN_AZ_PAY_M = 0.006  # kumaş ile ten arası en az boşluk
+EN_AZ_PAY_M = 0.008  # kumaş ile ten arası sabit boşluk; key'ler karışınca göğüs dışarı taşmasın
 KOL_EN_AZ_PAY_M = 0.012  # kol ekseni dirsekte kıvrıldığı için kolda daha geniş tutulur
 ORNEK_SAYISI = 6
 
@@ -193,9 +200,19 @@ def isaretler(k, u):
     z_bel = min(np.arange(0.58 * boy, 0.66 * boy, adim), key=lambda z: olcum.cevre(olcum.zarf(govde_kesiti(k, u, z))))
     z_gogus = max(np.arange(z_koltuk - 0.12, z_koltuk, adim), key=kirpik_cevre)
 
-    # Yaka: boyun çevresinin 1,3 katına inilen ilk yükseklik
-    boyun = min(kirpik_cevre(z) for z in np.arange(0.84 * boy, 0.88 * boy, adim))
-    z_ust = next(z for z in np.arange(z_koltuk + 0.03, 0.9 * boy, adim) if kirpik_cevre(z) <= 1.3 * boyun)
+    # Yaka: boyundan aşağı inilir, çevre boyunun 1,3 katını geçtiği yerde (omuz başlar) durulur.
+    # Boyun, koltuk altı ile tepe arasının %42–52'sinde aranır (bacak boyundan bağımsız). Aşağıdan
+    # yukarı arayınca erkeğin kalın boynu ve trapezinde yaka göğse iniyordu.
+    def koltuk_ustu(oran):
+        return z_koltuk + oran * (boy - z_koltuk)
+
+    boyun_z = np.arange(koltuk_ustu(0.42), koltuk_ustu(0.52), adim)
+    boyun = min(kirpik_cevre(z) for z in boyun_z)
+    z_ust = boyun_z[0]
+    for z in np.arange(boyun_z[0], z_koltuk + 0.03, -adim):
+        if kirpik_cevre(z) > 1.3 * boyun:
+            break
+        z_ust = z
 
     # Omuz dikişi: kesitin kol yuvası sınırına hâlâ uzandığı en yüksek yer
     z_omuz = z_koltuk
@@ -215,11 +232,14 @@ GOVDE_YONLER = [(-1, 0), (0, -1), (1, 0), (0, 1)]  # sağ yan → ön orta → s
 
 
 def govde_payi(z, isr, pay_cm):
-    """Halkanın dışa ötelenme miktarı (m); koltuk altından yakaya doğru azalır."""
+    """Halkanın dışa ötelenme miktarı (m): sabit ten boşluğu + koltuk altından yakaya azalan bolluk.
+
+    Boşluk sınır (max) değil toplam olarak eklenir; böylece width key'i doğrusal kalır.
+    """
     e = pay_cm / 100 / (2 * np.pi)
     if z > isr["koltuk"]:
         e *= 1 - 0.85 * min(1.0, (z - isr["koltuk"]) / (isr["ust"] - isr["koltuk"]))
-    return max(EN_AZ_PAY_M, e)
+    return EN_AZ_PAY_M + e
 
 
 def govde_halkasi(k, u, z, isr, pay_cm, gogus_xy):
@@ -571,4 +591,5 @@ def main():
 
 
 if __name__ == "__main__":
+    model_sec(sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else "kadin")
     main()

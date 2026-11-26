@@ -1,6 +1,6 @@
 {
   "surum": 1,
-  "model": "sablon_tisort",
+  "model": "sablon_tisort_kadin",
   "uv_ekseni": "glTF: (0,0) sol üst köşe, v aşağı doğru (GLB'deki TEXCOORD_0 ile aynı)",
   "sira": [
     "yaka_orta",
@@ -18,11 +18,11 @@
     ],
     "omuz_sol": [
       0.5,
-      0.0393
+      0.0421
     ],
     "omuz_sag": [
       0.0,
-      0.0393
+      0.0421
     ],
     "kol_sol": [
       0.625,

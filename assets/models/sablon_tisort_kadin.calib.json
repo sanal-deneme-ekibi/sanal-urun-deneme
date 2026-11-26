@@ -1,6 +1,6 @@
 {
   "surum": 1,
-  "model": "sablon_tisort",
+  "model": "sablon_tisort_kadin",
   "betik": "blender/scripts/sablon_tisort.py",
   "tarih": "2026-11-27",
   "birim": "cm",
@@ -15,19 +15,19 @@
     "kol"
   ],
   "taban": {
-    "boy": 37.2,
-    "en": 35.3,
+    "boy": 37.3,
+    "en": 37.9,
     "kol": 11.0
   },
   "etki": {
     "length": {
-      "boy": 35.3,
+      "boy": 35.4,
       "en": 0.0,
       "kol": 0.0
     },
     "width": {
       "boy": 0.0,
-      "en": 13.1,
+      "en": 13.0,
       "kol": 0.0
     },
     "sleeve": {
@@ -44,8 +44,8 @@
         "sleeve": 0.28
       },
       "olculen": {
-        "boy": 59.8,
-        "en": 35.7,
+        "boy": 59.9,
+        "en": 38.3,
         "kol": 20.6
       }
     },
@@ -56,8 +56,8 @@
         "sleeve": 0.68
       },
       "olculen": {
-        "boy": 44.9,
-        "en": 45.0,
+        "boy": 45.1,
+        "en": 47.5,
         "kol": 34.4
       }
     },
@@ -68,8 +68,8 @@
         "sleeve": 0.42
       },
       "olculen": {
-        "boy": 68.6,
-        "en": 36.5,
+        "boy": 68.8,
+        "en": 39.0,
         "kol": 25.4
       }
     },
@@ -80,8 +80,8 @@
         "sleeve": 0.51
       },
       "olculen": {
-        "boy": 38.2,
-        "en": 38.2,
+        "boy": 38.4,
+        "en": 40.7,
         "kol": 28.5
       }
     },
@@ -92,8 +92,8 @@
         "sleeve": 0.65
       },
       "olculen": {
-        "boy": 38.2,
-        "en": 38.0,
+        "boy": 38.4,
+        "en": 40.5,
         "kol": 33.4
       }
     },
@@ -104,21 +104,21 @@
         "sleeve": 0.59
       },
       "olculen": {
-        "boy": 56.2,
-        "en": 38.2,
+        "boy": 56.4,
+        "en": 40.7,
         "kol": 31.3
       }
     }
   ],
   "govde_etki": {
     "height": {
-      "boy": 8.6,
-      "en": 7.1,
+      "boy": 8.5,
+      "en": 7.0,
       "kol": 3.4
     },
     "chest": {
-      "boy": 0.7,
-      "en": 14.9,
+      "boy": 0.4,
+      "en": 14.8,
       "kol": 0.0
     },
     "waist": {
@@ -132,8 +132,8 @@
       "kol": 0.0
     },
     "weight": {
-      "boy": 3.2,
-      "en": 10.8,
+      "boy": 3.1,
+      "en": 10.7,
       "kol": 0.0
     },
     "arm_length": {
@@ -142,8 +142,8 @@
       "kol": 0.0
     },
     "leg_length": {
-      "boy": 0.5,
-      "en": 0.1,
+      "boy": 0.2,
+      "en": 0.0,
       "kol": 1.5
     }
   }
