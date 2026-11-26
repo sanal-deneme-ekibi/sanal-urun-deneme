@@ -86,9 +86,15 @@ const SUTUN_ETIKET: Record<OlcuDegerlendirmesi['sutun'], string> = {
 
 const AGIRLIK: Record<Durum, number> = { dar: 0, uygun: 1, bol: 2 }
 
+// Eşiğe tam oturan paylar kayan nokta gürültüsüne kurban gitmesin diye küçük bir tolerans.
+// Çözücü 92 cm hedefi için 91,9999999 üretebiliyor; pay 3,9999999 çıkıp eşiğin altına düşünce
+// kullanıcı sebepsiz yere bir üst bedene yönlendiriliyordu. Tolerans mm'nin binde biri
+// mertebesinde, gerçek bir ölçü farkını yutmaz.
+const TOLERANS_CM = 1e-6
+
 export function durumBul(payCm: number): Durum {
-  if (payCm < ESIKLER.dar) return 'dar'
-  if (payCm > ESIKLER.bol) return 'bol'
+  if (payCm < ESIKLER.dar - TOLERANS_CM) return 'dar'
+  if (payCm > ESIKLER.bol + TOLERANS_CM) return 'bol'
   return 'uygun'
 }
 
@@ -139,11 +145,15 @@ export function enUygunBeden(
   const orta = (ESIKLER.dar + ESIKLER.bol) / 2
   const sapma = (s: UygunlukSonucu) => s.olculer.reduce((t, o) => t + Math.abs(o.payCm - orta), 0) / s.olculer.length
 
+  // Beraberlikte tabloda önce gelen beden kazanır. İki beden ortadan eşit uzaklıktaysa
+  // (ör. payları 4 ve 12 cm, orta 8) karşılaştırmayı kayan nokta gürültüsüne bırakmak
+  // kullanıcıya bir gün M bir gün L göstermek demek; küçük bedeni seçmek hem kararlı
+  // hem de giyimde daha beklenen davranış. Tablolar küçükten büyüğe sıralı varsayılır.
   return sonuclar.reduce((en, s) => {
     const enUygunMu = en.durum === 'uygun'
     const sUygunMu = s.durum === 'uygun'
     if (sUygunMu !== enUygunMu) return sUygunMu ? s : en
-    return sapma(s) < sapma(en) ? s : en
+    return sapma(s) < sapma(en) - TOLERANS_CM ? s : en
   })
 }
 

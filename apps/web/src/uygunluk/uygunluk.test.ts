@@ -18,6 +18,30 @@ describe('durumBul', () => {
     expect(durumBul(ESIKLER.bol)).toBe('uygun')
     expect(durumBul(ESIKLER.bol + 0.1)).toBe('bol')
   })
+
+  it('eşiğe tam oturan pay kayan nokta gürültüsünden etkilenmez', () => {
+    // Çözücünün ulaştığı ölçü 92 yerine 91,9999999 olabiliyor; pay eşiğin kıl payı altına
+    // düşüp kullanıcıyı sebepsiz bir üst bedene yönlendiriyordu.
+    expect(durumBul(ESIKLER.dar - 1e-9)).toBe('uygun')
+    expect(durumBul(ESIKLER.bol + 1e-9)).toBe('uygun')
+    // Gerçek bir fark hâlâ yakalanmalı.
+    expect(durumBul(ESIKLER.dar - 0.01)).toBe('dar')
+    expect(durumBul(ESIKLER.bol + 0.01)).toBe('bol')
+  })
+})
+
+describe('eşit uzaklıktaki bedenler', () => {
+  it('beraberlikte küçük beden seçilir ve sonuç kararlıdır', () => {
+    // Göğüs 92 → M'nin payı 4, L'nin payı 12; ikisi de ortadan (8) tam 4 cm uzakta.
+    const bedenler: BedenSatiri[] = [
+      { beden: 'M', en_cm: 48 },
+      { beden: 'L', en_cm: 52 },
+    ]
+    expect(enUygunBeden('tisort', bedenler, VUCUT)?.beden).toBe('M')
+    // Ölçüdeki mikroskobik gürültü sonucu değiştirmemeli.
+    const gurultulu: VucutOlculeri = { ...VUCUT, gogus: VUCUT.gogus + 1e-9 }
+    expect(enUygunBeden('tisort', bedenler, gurultulu)?.beden).toBe('M')
+  })
 })
 
 describe('tişört', () => {

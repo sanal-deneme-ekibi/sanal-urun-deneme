@@ -26,6 +26,9 @@ from pathlib import Path
 
 TURLER = {"tisort", "pantolon", "gomlek", "elbise", "etek"}
 NOKTALAR = ["yaka_orta", "omuz_sol", "omuz_sag", "kol_sol", "kol_sag", "etek_sol", "etek_sag"]
+# Dışa aktarmada noktalar İSİMLE eşleştirilir, sırayla değil: CVAT sıra olarak iskeleti
+# çizerken kullanılan noktalama sırasını yazıyor ve bu sözleşmedeki sırayla aynı olmak zorunda değil.
+# Denetlenen şey yedi ismin tam olarak bulunması; sıra farklıysa uyarı verilir, hata değil.
 NOKTALI_TURLER = {"tisort"}  # 1. dönem; diğerleri 2. dönemde eklenir
 GORUNUMLER = {"duz", "manken", "insan"}
 KIRPIK = {"evet", "hayir"}
@@ -48,11 +51,18 @@ def denetle(veri: dict) -> tuple[list[str], list[str]]:
     # Skeleton noktalarının adları categories içinde taşınır.
     for kategori in veri.get("categories", []):
         if kategori["name"] in NOKTALI_TURLER and "keypoints" in kategori:
-            if list(kategori["keypoints"]) != NOKTALAR:
-                hatalar.append(
-                    f"{kategori['name']}: nokta sırası sözleşmeyle aynı değil.\n"
-                    f"       beklenen: {NOKTALAR}\n"
-                    f"       gelen   : {list(kategori['keypoints'])}"
+            gelen = list(kategori["keypoints"])
+            eksik_nokta = [n for n in NOKTALAR if n not in gelen]
+            fazla_nokta = [n for n in gelen if n not in NOKTALAR]
+            if eksik_nokta:
+                hatalar.append(f"{kategori['name']}: eksik anahtar nokta: {', '.join(eksik_nokta)}")
+            if fazla_nokta:
+                hatalar.append(f"{kategori['name']}: tanınmayan anahtar nokta: {', '.join(fazla_nokta)}")
+            if not eksik_nokta and not fazla_nokta and gelen != NOKTALAR:
+                uyarilar.append(
+                    f"{kategori['name']}: nokta sırası sözleşmedekinden farklı. "
+                    "Sorun değil, noktalar isimle eşleştirilir; ama eğitim kodu sırayla değil "
+                    f"isimle okumalı.\n        sözleşme: {NOKTALAR}\n        dosya   : {gelen}"
                 )
 
     gorsel_tur = Counter()
