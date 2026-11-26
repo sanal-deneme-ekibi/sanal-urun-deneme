@@ -1,5 +1,5 @@
 # Veri hazırlama betiklerinin bağımlılıkları (ml/scripts/).
 # Eğitim bağımlılıkları ayrıdır; notebook'lar Kaggle / Colab'da çalışır.
 opencv-python==4.10.0.84
-# 11.0.0 Python 3.14 için hazır paket sunmuyor; betiklerin kullandığı open/convert/crop/save her sürümde aynı
-pillow>=11.0
+# 11.0.0'ın Python 3.14 paketi yok, 11.3'ün var; 12 API değiştirebileceği için üst sınır
+pillow>=11.3,<12

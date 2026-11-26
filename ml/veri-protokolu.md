@@ -113,7 +113,7 @@ Repoda yalnızca indirme ve hazırlama betikleri bulunur (`ml/scripts/`).
 | `not` | `sitede çevre verilmişti, ikiye bölündü` (isteğe bağlı) |
 
 `ml/scripts/topla.py` bu tabloyu, `beden-tablolari.csv`'yi ve site kısaltmalarını
-(`siteler.csv`: `tr01` ↔ alan adı) toplarken kendisi doldurur.
+(`siteler-<toplayan>.csv`: `tr01` ↔ alan adı, kişi başına ayrı dosya) toplarken kendisi doldurur.
 
 ### beden-tablolari.csv
 

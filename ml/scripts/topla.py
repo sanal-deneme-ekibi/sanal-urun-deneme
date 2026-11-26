@@ -13,7 +13,7 @@ Akış:
   3. Çalıştır:
        python ml/scripts/topla.py <veri> --tur tisort --toplayan tugce --dene   # önce bak
        python ml/scripts/topla.py <veri> --tur tisort --toplayan tugce
-     → ham/<tur>/<tur>_<site>_<sira>.jpg, kaynak.csv, beden-tablolari.csv, siteler.csv;
+     → ham/<tur>/<tur>_<site>_<sira>.jpg, kaynak.csv, beden-tablolari.csv, siteler-<toplayan>.csv;
        işlenen dosyalar ve satırlar gelen/islendi/ altına taşınır, hatalı satırlar giris.csv'de kalır.
   4. Durum: python ml/scripts/topla.py <veri> --durum
 
@@ -36,6 +36,8 @@ try:
     from PIL import Image
 except ImportError:  # pragma: no cover
     sys.exit("Pillow gerekli: pip install -r ml/scripts/requirements.txt")
+
+from bol import urun_anahtari  # aynı ürünün fotoğraflarını bol.py ile aynı kuralla eşleştirmek için
 
 TURLER = ("tisort", "pantolon", "gomlek", "elbise", "etek")
 HEDEF = {"tisort": (200, 300), "pantolon": (200, 300), "gomlek": (150, 250), "elbise": (150, 250), "etek": (100, 200)}
@@ -117,11 +119,6 @@ def site_kodu(siteler: list[dict], url: str) -> str:
     return kod
 
 
-def urun_anahtari(dosya: str) -> str:
-    """tisort_tr01_0042-2.jpg → tisort_tr01_0042"""
-    return Path(dosya).stem.split("-")[0]
-
-
 def beden_satiri(satir: dict, tur: str, urun_id: str) -> tuple[dict | None, list[str], str]:
     """giris satırından beden-tablolari satırı; (satır, uyarılar, kaynak notu)."""
     if not satir["beden"]:
@@ -130,7 +127,13 @@ def beden_satiri(satir: dict, tur: str, urun_id: str) -> tuple[dict | None, list
     cikti = {"urun_id": urun_id, "beden": satir["beden"].upper()}
     cevre = satir.get("cevre", "").lower() in ("evet", "e", "1", "x")
     for sutun in OLCULER:
-        deger = sayi(satir.get(sutun, ""))
+        # Excel'de "abc" gibi bir yazım hatası bütün çalışmayı düşürmesin; ölçü boş sayılır
+        try:
+            deger = sayi(satir.get(sutun, ""))
+        except ValueError:
+            uyarilar.append(f"{sutun}='{satir.get(sutun, '').strip()}' sayı değil, boş sayıldı")
+            cikti[sutun] = ""
+            continue
         if deger is None:
             cikti[sutun] = ""
             continue
@@ -160,7 +163,9 @@ def isle(kok: Path, tur: str, toplayan: str, dene: bool) -> int:
         print(f"{giris_yolu} boş ya da yok. Şablonu oluşturmak için: --sablon")
         return 0
 
-    siteler = csv_oku(kok / "siteler.csv")
+    # Site kodları kişi başına ayrı dosyada: Drive'da iki kişi aynı anda yazınca biri kaybolmasın
+    siteler_yolu = kok / f"siteler-{toplayan}.csv"
+    siteler = csv_oku(siteler_yolu)
     kaynak = csv_oku(kok / "kaynak.csv")
     bedenler = csv_oku(kok / "beden-tablolari.csv")
     ham = kok / "ham" / tur
@@ -264,7 +269,7 @@ def isle(kok: Path, tur: str, toplayan: str, dene: bool) -> int:
         print("--dene açıktı, hiçbir dosya değiştirilmedi.")
         return 0
 
-    csv_yaz(kok / "siteler.csv", ["kod", "alan_adi"], siteler)
+    csv_yaz(siteler_yolu, ["kod", "alan_adi"], siteler)
     csv_yaz(kok / "kaynak.csv", KAYNAK_SUTUNLARI, kaynak)
     csv_yaz(kok / "beden-tablolari.csv", BEDEN_SUTUNLARI, bedenler)
     islendi = gelen / "islendi"
@@ -321,8 +326,7 @@ def sablon(kok: Path) -> int:
     giris = kok / "gelen" / "giris.csv"
     if not giris.exists():
         csv_yaz(giris, GIRIS_SUTUNLARI, [], excel=True)
-    for ad, sutunlar in (("kaynak.csv", KAYNAK_SUTUNLARI), ("beden-tablolari.csv", BEDEN_SUTUNLARI),
-                         ("siteler.csv", ["kod", "alan_adi"])):
+    for ad, sutunlar in (("kaynak.csv", KAYNAK_SUTUNLARI), ("beden-tablolari.csv", BEDEN_SUTUNLARI)):
         if not (kok / ad).exists():
             csv_yaz(kok / ad, sutunlar, [])
     print(f"Klasörler ve boş tablolar hazır: {kok}")
