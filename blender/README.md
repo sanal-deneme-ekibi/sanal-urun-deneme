@@ -9,10 +9,11 @@ Gerekenler: Blender 5.2, MPFB eklentisi (Get Extensions → "MPFB") ve MakeHuman
 varlık paketi (MPFB paneli → Load pack from zip).
 
 ```bash
-blender --background --python blender/scripts/avatar_olustur.py
+blender --background --python blender/scripts/avatar_olustur.py             # kadın
+blender --background --python blender/scripts/avatar_olustur.py -- erkek    # erkek
 ```
 
-Yaklaşık 10 saniyede `assets/models/avatar_kadin.glb` ve `avatar_kadin.calib.json` üretilir.
+Yaklaşık 20 saniyede `assets/models/avatar_<model>.glb` ve `avatar_<model>.calib.json` üretilir.
 Vücut aralıkları betiğin başındaki `TABAN` ve `KEYLER` ayarlarındadır; değiştirince yeniden
 çalıştırmak yeterli. Ölçüm (boy, göğüs, bel, kalça) `scripts/olcum.py` içindedir.
 
