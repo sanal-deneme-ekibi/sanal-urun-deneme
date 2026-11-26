@@ -57,11 +57,11 @@ def _kesit_parcalari(koseler, ucgenler, z):
     return [np.array(g) for g in gruplar.values()]
 
 
-def _zarf_cevresi(xy):
-    """Dışbükey zarfın çevresi (monotone chain)."""
+def zarf(xy):
+    """Dışbükey zarfın köşeleri, saat yönünün tersine (monotone chain); 3'ten az noktada boş."""
     p = sorted(map(tuple, xy))
     if len(p) < 3:
-        return 0.0
+        return np.empty((0, 2))
 
     def yarim(noktalar):
         zincir = []
@@ -74,8 +74,18 @@ def _zarf_cevresi(xy):
             zincir.append(q)
         return zincir
 
-    zarf = np.array(yarim(p)[:-1] + yarim(p[::-1])[:-1])
-    return float(np.linalg.norm(zarf - np.roll(zarf, 1, axis=0), axis=1).sum())
+    return np.array(yarim(p)[:-1] + yarim(p[::-1])[:-1])
+
+
+def cevre(cokgen):
+    """Kapalı çokgenin çevresi."""
+    if len(cokgen) < 3:
+        return 0.0
+    return float(np.linalg.norm(cokgen - np.roll(cokgen, 1, axis=0), axis=1).sum())
+
+
+def _zarf_cevresi(xy):
+    return cevre(zarf(xy))
 
 
 def govde_kesiti(koseler, ucgenler, z):

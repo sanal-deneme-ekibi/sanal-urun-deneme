@@ -144,8 +144,19 @@ kalça 0,6 cm, kilo 3,6 kg. Hepsi kendi eşiğinin altında.
 
 - `keyler`: `["length", "width", "sleeve"]` (kolsuz türlerde `sleeve` yok)
 - `olcumler`: `["boy", "en", "kol"]` — Supabase'deki `size_charts` sütunlarıyla aynı
-- Şablonun vücut key'leri (`height`, `chest`, `waist`, `hip`, `weight`) burada **yer almaz**;
+- Şablonun vücut key'leri (`height`, `chest`, `waist`, `hip`, `weight`) `keyler`'de **yer almaz**;
   onlar avatardan çözülen ağırlıklarla doğrudan aynı değere set edilir, yeniden çözülmez.
+- Ama vücut key'leri kıyafetin ölçüsünü de değiştirir (daha büyük göğüslü vücuttaki tişört de
+  daha geniştir). Bu etki `govde_etki` alanında taşınır: vücut key'i 0'dan 1'e giderken kıyafet
+  ölçüsünün değişimi (cm). Ürün key'leri çözülürken önce taban vücuda göre kaydırılır:
+
+  ```
+  taban_efektif[olcu] = taban[olcu] + Σ govde_etki[vkey][olcu] × vucut_agirligi[vkey]
+  olcu = taban_efektif[olcu] + Σ etki[key][olcu] × agirlik[key]
+  ```
+
+  Ölçüm (#41): 27 durumda ortalama hata vücut etkisi yok sayılınca 6,8 cm, bu formülle 3,2 cm.
+  `en` için vücut key'lerinin toplam etkisi (32,5 cm) `width` key'inin aralığının 2,5 katı.
 
 Pantolon ve etek için bu üç key yetmiyor: beden tablosunda `bel_cm`, `kalca_cm` ve
 `ic_bacak_cm` da var. `sablon_pantolon` için `waist`, `hip`, `inseam` key'leri gerekiyor.
@@ -222,6 +233,17 @@ Payların cm cinsinden eşikleri ayrı issue'da belirlenecek.
 | sol yarı (u 0–0.5, v 0.27–1) | ön |
 | sağ yarı (u 0.5–1, v 0.27–1) | arka |
 | alt şerit (v 0–0.25) | kollar / paçalar |
+
+Tablodaki v, Blender'ın UV ekseninde (v yukarı). GLB'de dışa aktarıcı v'yi ters çevirir
+(glTF: 0,0 sol üst köşe), yani GLB'deki `TEXCOORD_0` için gövde v 0–0,73, kollar v 0,75–1'dir.
+
+Tişörtte (`sablon_tisort.glb`) yönler:
+
+- Gövde: u = sağ yan (0) → ön orta (0,25) → sol yan (0,5) → arka orta (0,75) → sağ yan (1).
+  Ön, karşıdan bakınca göründüğü gibi; arka, arkadan bakınca göründüğü gibi durur.
+  v etekten (0,27) yakaya (1) çıkar.
+- Kollar: sağ kol u 0–0,5, sol kol u 0,5–1. Her kolda u = koltuk altı → ön → üst → arka;
+  v omuzdan (0,25) manşete (0) iner.
 
 ## Anahtar noktalar (yapay zekâ ↔ şablon)
 
