@@ -15,7 +15,9 @@
 3. Çalış, küçük ve anlamlı commit'ler at
 4. `git push -u origin a/yeni-is`
 5. GitHub'da Pull Request aç, ilgili issue'yu bağla (`Closes #12`)
-6. En az bir arkadaş inceler ve onaylar, sonra `main`'e birleştirilir
+6. PR'ı `main`'e birleştir — **onay beklenmez**, ekip hızlı ilerlemek için böyle karar verdi.
+   Değişiklik başkasının alanına giriyorsa PR'da o kişiyi etiketle ve neye bakması gerektiğini
+   yaz; birleştirmek için cevabını bekleme, ama haberi olsun.
 
 ## Commit mesajları
 

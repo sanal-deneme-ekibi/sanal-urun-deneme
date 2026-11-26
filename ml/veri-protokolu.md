@@ -205,7 +205,13 @@ Nitelik (attribute):
 
 - CVAT şekli: **Skeleton** (7 nokta)
 - Yalnızca `tisort` için (1. dönem). Diğer türler 2. dönemde eklenir.
-- Nokta sırası GLB sözleşmesiyle **birebir aynı olmalı**, yoksa desen bükme yanlış yere oturur:
+- **Noktalar isimle eşleştirilir, sırayla değil.** Dışa aktarma dosyası nokta adlarını da
+  taşıdığı için eğitim ve çıkarım kodu noktayı adına bakarak bulur; "ikinci eleman sol
+  omuzdur" gibi konuma dayalı varsayım yapılmaz. CVAT, iskeleti çizerken kullanılan noktalama
+  sırasını yazıyor ve bu aşağıdaki sırayla aynı olmak zorunda değil. `dogrula.py` yedi ismin
+  tam olarak bulunduğunu denetler; sıra farklıysa yalnızca uyarır.
+- Aşağıdaki sıra sözleşmenin kanonik sırasıdır; `docs/glb-sozlesmesi.md` ile aynıdır ve
+  dosyadan okunan adlar bu listeye eşlenir:
 
 | # | Ad | Nerede |
 |---|---|---|
@@ -220,6 +226,13 @@ Nitelik (attribute):
 **Sol/sağ, görsele bakanın değil, kıyafeti giyen kişinin solu ve sağıdır.** Düz serili bir tişörtte bakanın solundaki kol, giyenin sağ koludur.
 
 Görünmeyen nokta (örn. kol arkada kalmış) `occluded` işaretlenir, silinmez — Model 3 nokta sayısını sabit bekler.
+
+**Her iskelet, ait olduğu maskeyle aynı gruba alınır** (şekilleri seçip <kbd>G</kbd>). Bir
+görselde birden çok kıyafet varsa gruplama olmadan hangi noktaların hangi maskeye ait olduğu
+belirlenemez; `birlestir.py` o durumda hata verir (bölüm 6.3).
+
+Nokta sırası CVAT'ta değişirse sorun olmaz: `birlestir.py` noktaları **isimle** eşleştirir,
+sırayla değil. Yine de şemayı kurarken yukarıdaki sırada tanımlayın.
 
 ---
 
@@ -244,15 +257,47 @@ Görünmeyen nokta (örn. kol arkada kalmış) `occluded` işaretlenir, silinmez
 
 ## 6. Dışa aktarma
 
-- CVAT'tan format: **COCO 1.0**. Skeleton (anahtar nokta) bu formatta çıkmazsa
-  **COCO Keypoints 1.0** kullanılır; CVAT sürümüne göre değişiyor.
-- İlk 50 görsel etiketlenir etiketlenmez **deneme dışa aktarma** yapılır: maske ve 7 nokta aynı
-  dosyada geliyor mu, nokta sırası korunuyor mu. Bu denenmeden toplu etiketlemeye geçilmez;
-  yanlış formatla 1000 görsel etiketlenirse hepsi yeniden dışa aktarılır.
-- Maske ve anahtar nokta ayrı dosyalara düşerse `ml/scripts/birlestir.py` ikisini `urun_id`
-  üzerinden birleştirir.
-- Dışa aktarılan dosya: `etiketli/<bolum>/annotations.json`
-- Her dışa aktarma sonrası `ml/scripts/dogrula.py` çalıştırılır: tür adları listeye uyuyor mu, her tişört maskesinin 7 noktası var mı, poligonlar kapalı mı.
+CVAT'tan format: **Datumaro 1.0**. COCO değil — sebebi aşağıda ölçülmüş durumda.
+
+### 6.1 Neden COCO değil
+
+25.11.2026'da `deneme-format-kontrolu` görevinde (3 görsel, maske + 7 nokta + nitelikler
+elle yazıldı) üç biçim de denendi:
+
+| Biçim | maske | 7 nokta | `gorunum` / `kirpik` |
+|---|---|---|---|
+| COCO 1.0 | var | **sessizce düşer** | var |
+| COCO Keypoints 1.0 | yok (`segmentation: []`) | var | yok |
+| **Datumaro 1.0** | **var** | **var** | **var** |
+
+COCO 1.0'ın davranışı tehlikeli: nokta adları `categories` içinde görünür, bu yüzden dosyaya
+bakınca noktalar varmış gibi durur, ama `annotations` içinde tek bir anahtar nokta yoktur.
+Bu denenmeden toplu etiketlemeye geçilseydi kayıp ancak model eğitiminde fark edilirdi.
+
+Sebep şemada bir hata değil: CVAT iskeleti **ayrı bir etiket** olarak tutar
+(`tisort_noktalar`), poligon etiketinin içine nokta gömülemez. İki etiketi birleştirmek
+dışa aktarıcıların değil, bizim işimiz.
+
+### 6.2 Akış
+
+1. CVAT → **Datumaro 1.0** ile dışa aktar (`annotations/default.json`).
+2. `python ml/scripts/birlestir.py <default.json> -o etiketli/<bolum>/annotations.json`
+   — maske, 7 nokta ve nitelikleri tek COCO dosyasında birleştirir. Eğitim tarafı standart
+   COCO okumaya devam eder.
+3. `python ml/scripts/dogrula.py etiketli/<bolum>/annotations.json` — tür adları listeye
+   uyuyor mu, her tişört maskesinin 7 noktası var mı, poligonlar kapalı mı, nitelikler dolu mu.
+
+Dışa aktarılan dosya: `etiketli/<bolum>/annotations.json`
+
+### 6.3 Maske ile noktasını eşleştirme
+
+`birlestir.py` maskeyi kendi iskeletiyle **grup numarasından** eşler; grup Datumaro'da korunur.
+
+- Bir görselde **tek** maske ve tek iskelet varsa gruplama olmasa da eşleşme kesindir.
+- Bir görselde **birden çok** kıyafet varsa gruplama **zorunludur**; gruplanmamışsa betik
+  hata verir ve durur (sessizce yanlış eşleştirmektense durması istenir).
+- Bu yüzden etiketlerken her maske ile iskeleti aynı gruba alınır (CVAT'ta şekilleri seçip
+  <kbd>G</kbd>). Alışkanlık haline gelsin diye tek kıyafetli görsellerde de yapılır.
 
 ---
 

@@ -225,6 +225,16 @@ Payların cm cinsinden eşikleri ayrı issue'da belirlenecek.
 
 ## Anahtar noktalar (yapay zekâ ↔ şablon)
 
-Tişört için 7 nokta, sırası sabit:
+Tişört için 7 nokta. Kanonik sıra:
 `0 yaka_orta, 1 omuz_sol, 2 omuz_sag, 3 kol_sol, 4 kol_sag, 5 etek_sol, 6 etek_sag`
 Her noktanın şablonun UV'sindeki karşılığı `sablon_<tur>.keypoints.json` dosyasında tutulur.
+
+**Noktalar isimle eşleştirilir, dizideki sırayla değil.** Yukarıdaki sıra bu belgenin ve
+`sablon_<tur>.keypoints.json`'un kanonik sırasıdır, ama etiket dosyasından okunan noktalar
+adlarına bakılarak eşlenir. Sebebi: CVAT dışa aktarmada iskeleti çizerken kullanılan noktalama
+sırasını yazıyor ve bu sıra buradakiyle aynı olmak zorunda değil — nitekim değil. Adlar
+dosyada da taşındığı için isimle eşleştirmek hem çalışıyor hem de konuma dayalı varsayımdan
+daha sağlam.
+
+**Sol ve sağ, giyen kişinin solu ve sağıdır**, görsele bakanın değil. Düz serili bir tişörtte
+ekranda solda duran kol `kol_sag`'dır.
