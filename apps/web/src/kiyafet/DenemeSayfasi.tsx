@@ -27,7 +27,7 @@ const KUMAS_RENKLERI = ['#e8e8e8', '#1f2937', '#1d4ed8', '#b91c1c', '#15803d', '
 export default function DenemeSayfasi() {
   const { model, sonuc } = useOlculer()
   const { urun } = useUrun()
-  const doku = useUrunDokusu(urun)
+  const doku = useUrunDokusu(urun, model)
   // Ürünün kendi tablosu; ürün yoksa (veya eski kayıtsa) örnek tablo
   const bedenler = urun?.bedenler?.length ? urun.bedenler : ORNEK_BEDENLER.tisort
   const ornekTablo = !urun?.bedenler?.length
@@ -53,7 +53,7 @@ export default function DenemeSayfasi() {
       <div style={{ flex: '999 1 320px', minWidth: 0, minHeight: 360 }}>
         <Viewer>
           <Suspense fallback={null}>
-            <Avatar model={model} agirliklar={sonuc.agirliklar} />
+            <Avatar model={model} agirliklar={sonuc.agirliklar} kiyafetAltinda kumasRengi={urun?.zeminRengi ?? renk} />
             <Kiyafet model={model} vucut={sonuc.agirliklar} urun={urunSekli.agirliklar} doku={doku} renk={renk} />
           </Suspense>
         </Viewer>

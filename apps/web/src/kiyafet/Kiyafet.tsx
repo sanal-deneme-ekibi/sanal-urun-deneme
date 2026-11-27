@@ -18,8 +18,9 @@ type Props = {
   renk?: string
 }
 
-// Metre. Şablonun ölçüleri bu kadar şişmez; ölçüler kalibrasyondan gelir, bu yalnızca görüntü.
-const KUMAS_KALINLIGI_M = 0.012
+// Metre. Yalnızca görüntü: ölçüler ve uygunluk kalibrasyondan gelir, bu kaydırmadan etkilenmez.
+// Kumaşın altında kalan ten Avatar'da içeri çekildiği için (kiyafet/ortu.ts) kumaş vücuda yakın kalabilir.
+const KUMAS_KALINLIGI_M = 0.01
 
 // Tişört şablonu (assets/models/sablon_tisort_<model>.glb). Mesh adı sözleşmede: Garment.
 export default function Kiyafet({ model, vucut, urun, doku, renk = '#e8e8e8' }: Props) {

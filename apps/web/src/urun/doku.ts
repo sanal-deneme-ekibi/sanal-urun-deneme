@@ -1,28 +1,10 @@
 // Ürün fotoğrafından tişört şablonunun dokusunu üretir.
 //
-// Şablonun UV düzeni (docs/glb-sozlesmesi.md, GLB ekseni: 0,0 sol üst):
-//   ön    u 0–0,5   v 0–0,73   (u 0 = giyenin sağ yanı, yani karşıdan bakınca sol; v 0 = yaka)
-//   arka  u 0,5–1   v 0–0,73   (arkadan bakınca göründüğü gibi)
-//   kollar             v 0,75–1
-// Düz serili tişört fotoğrafı karşıdan çekildiği için kırpılan gövde ön bölgeye olduğu gibi oturur.
+// Renk ve zemin yardımcıları. Fotoğrafın şablonun UV'sine bükülmesi bukme.ts'de.
 
 export type Kirpma = { x: number; y: number; w: number; h: number } // 0–1, görsele göre
 
 export const DOKU_BOYUTU = 1024
-export const ON_BOLGE = { u0: 0, u1: 0.5, v0: 0, v1: 0.73 }
-export const ARKA_BOLGE = { u0: 0.5, u1: 1, v0: 0, v1: 0.73 }
-
-export const VARSAYILAN_KIRPMA: Kirpma = { x: 0.2, y: 0.12, w: 0.6, h: 0.78 }
-const EN_KUCUK = 0.05
-
-/** Kırpma dikdörtgenini görselin içinde ve anlamlı boyutta tutar. */
-export function kirpmaSinirla(k: Kirpma): Kirpma {
-  const w = Math.min(1, Math.max(EN_KUCUK, k.w))
-  const h = Math.min(1, Math.max(EN_KUCUK, k.h))
-  const x = Math.min(1 - w, Math.max(0, k.x))
-  const y = Math.min(1 - h, Math.max(0, k.y))
-  return { x, y, w, h }
-}
 
 /**
  * Baskın renk: pikseller kanal başına 4 bite indirgenip en kalabalık kutu seçilir, sonra o
@@ -46,31 +28,6 @@ export function baskinRenk(rgba: ArrayLike<number>): string {
   if (!en) return '#e8e8e8'
   const hex = (v: number) => Math.round(v / en!.n).toString(16).padStart(2, '0')
   return `#${hex(en.r)}${hex(en.g)}${hex(en.b)}`
-}
-
-type Bolge = { u0: number; u1: number; v0: number; v1: number }
-
-function bolgeyeCiz(ctx: CanvasRenderingContext2D, gorsel: CanvasImageSource, gw: number, gh: number, k: Kirpma, b: Bolge) {
-  const S = ctx.canvas.width
-  ctx.drawImage(gorsel, k.x * gw, k.y * gh, k.w * gw, k.h * gh, b.u0 * S, b.v0 * S, (b.u1 - b.u0) * S, (b.v1 - b.v0) * S)
-}
-
-/** Dokuyu verilen tuvale çizer. Tuval kare olmalı (DOKU_BOYUTU). */
-export function dokuCiz(
-  ctx: CanvasRenderingContext2D,
-  gorsel: CanvasImageSource,
-  gorselBoyut: { w: number; h: number },
-  kirpma: Kirpma,
-  zeminRengi: string,
-  arkaAyni: boolean,
-) {
-  const S = ctx.canvas.width
-  // Önce her yer zemin rengi: arka (desen kopyalanmıyorsa), kollar ve UV adaları arasındaki boşluklar.
-  // Boşlukların da renkli olması, mipmap'te dikiş yerlerinde beyaz çizgi çıkmasını önler.
-  ctx.fillStyle = zeminRengi
-  ctx.fillRect(0, 0, S, S)
-  bolgeyeCiz(ctx, gorsel, gorselBoyut.w, gorselBoyut.h, kirpma, ON_BOLGE)
-  if (arkaAyni) bolgeyeCiz(ctx, gorsel, gorselBoyut.w, gorselBoyut.h, kirpma, ARKA_BOLGE)
 }
 
 function hexRgb(hex: string): [number, number, number] {

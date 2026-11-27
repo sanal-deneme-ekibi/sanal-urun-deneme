@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { baskinRenk, kirpmaSinirla, zeminiTemizle } from './doku'
+import { baskinRenk, zeminiTemizle } from './doku'
 
 function pikseller(renkler: [number, number, number, number][]) {
   return Uint8ClampedArray.from(renkler.flat())
@@ -33,15 +33,6 @@ describe('baskinRenk', () => {
 
   it('boş görselde varsayılan kumaş rengi', () => {
     expect(baskinRenk(new Uint8ClampedArray(0))).toBe('#e8e8e8')
-  })
-})
-
-describe('kirpmaSinirla', () => {
-  it('taşan dikdörtgeni görselin içine iter', () => {
-    expect(kirpmaSinirla({ x: 0.9, y: -0.2, w: 0.3, h: 0.5 })).toEqual({ x: 0.7, y: 0, w: 0.3, h: 0.5 })
-  })
-  it('çok küçük ve çok büyük boyutları sınırlar', () => {
-    expect(kirpmaSinirla({ x: 0, y: 0, w: 0, h: 2 })).toEqual({ x: 0, y: 0, w: 0.05, h: 1 })
   })
 })
 
