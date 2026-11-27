@@ -49,8 +49,10 @@ VUCUT_KEYLER = ["height", "chest", "waist", "hip", "weight", "arm_length", "leg_
 URUN = {
     # Etek hizası: 0 = bel hizası (kısa), 1 = kasığın URUN_ETEK_KASIK_ALTI × boy altı (uzun)
     "length": (0.0, 1.0),
-    # Göğüs çevresine eklenen bolluk payı (cm): 0 = dar, 1 = çok bol
-    "width": (4.0, 30.0),
+    # Göğüs çevresine eklenen bolluk payı (cm): 0 = vücuda oturan, 1 = çok bol. Sabit ten boşluğu
+    # (EN_AZ_PAY_M, ≈ 5 cm çevre) bunun üstüne eklenir; 0'da toplam ≈ vücut + 4,5 cm. Eskiden 0'da
+    # +4 cm'den başlıyordu ve S/M bedenler avatarda bol görünüyordu (#52 notu).
+    "width": (-0.5, 30.0),
     # Kol boyu, omuz dikişinden manşete, boyun oranı olarak: 0 = kısa kol, 1 = bilek
     "sleeve": (0.08, 0.33),
 }
