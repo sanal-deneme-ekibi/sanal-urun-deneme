@@ -10,7 +10,8 @@ Yöntem:
   2. Taban vücut ≤ 20.000 üçgene sadeleştirilir. Sade mesh'in her köşesi tam çözünürlüklü
      yüzeydeki bir üçgene bağlanır (MakeHuman proxy'leri gibi).
   3. Aynı bağ diğer vücutlara uygulanır; böylece hepsi aynı topolojide shape key olur.
-  4. Sade mesh ölçülür, kalibrasyon dosyası yazılır, GLB dışa aktarılır.
+  4. Sade mesh ölçülür, kalibrasyon dosyası yazılır.
+  5. Cilt dokusuna iç çamaşırı çizilir (ic_camasir.py), GLB dışa aktarılır.
 
 Kurallar docs/glb-sozlesmesi.md içinde. Ayarlar aşağıdaki MODELLER sözlüğünde.
 """
@@ -31,6 +32,7 @@ BETIK_KLASORU = Path(__file__).resolve().parent
 REPO = BETIK_KLASORU.parents[1]
 sys.path.insert(0, str(BETIK_KLASORU))
 
+import ic_camasir  # noqa: E402
 import olcum  # noqa: E402
 from bl_ext.blender_org.mpfb.services import HumanService, TargetService  # noqa: E402
 
@@ -114,7 +116,8 @@ UYUM_SAYISI = 40  # taban ve etkiyi bulan en küçük kareler uyumundaki rastgel
 
 def model_sec(ad):
     """Betiğin geri kalanının kullandığı model ayarlarını seçer."""
-    global MODEL, GLB_YOLU, KALIB_YOLU, TABAN, KEYLER, YUMUSATMA, YOGUNLUK
+    global AD, MODEL, GLB_YOLU, KALIB_YOLU, TABAN, KEYLER, YUMUSATMA, YOGUNLUK
+    AD = ad
     MODEL = f"avatar_{ad}"
     GLB_YOLU = REPO / "assets" / "models" / f"{MODEL}.glb"
     KALIB_YOLU = REPO / "assets" / "models" / f"{MODEL}.calib.json"
@@ -241,16 +244,6 @@ def bagi_uygula(bag, sade_koseler, tam_taban, tam_hedef, tam_ucgenler):
         x, y, z = (Vector(tam_hedef[j]) for j in tam_ucgenler[u])
         sonuc[i] = barycentric_transform(Vector(k), a, b, c, x, y, z)
     return sonuc
-
-
-def malzeme_ekle(nesne):
-    malzeme = bpy.data.materials.new("Cilt")
-    malzeme.use_nodes = True
-    bsdf = malzeme.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (0.80, 0.62, 0.52, 1.0)
-    bsdf.inputs["Roughness"].default_value = 0.6
-    nesne.data.materials.clear()
-    nesne.data.materials.append(malzeme)
 
 
 def kalibrasyon(taban_k, deltalar, sade_ucgen):
@@ -380,7 +373,7 @@ def main():
     print(f"      doğrusal model ortalama hatası (ölçü başına): {hata}")
 
     print("[5/5] GLB dışa aktarılıyor")
-    malzeme_ekle(nesne)
+    ic_camasir.uygula(nesne, AD)  # cilt dokusu: iç çamaşırlı (kadında sütyen + külot, erkekte boxer)
     disa_aktar(nesne)
     print(f"      {GLB_YOLU.relative_to(REPO)} ({GLB_YOLU.stat().st_size / 1024:.0f} KB)")
 

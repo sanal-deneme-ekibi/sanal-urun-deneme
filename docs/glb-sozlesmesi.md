@@ -16,7 +16,11 @@
 
 - Dosya adları: `assets/models/avatar_kadin.glb`, `assets/models/avatar_erkek.glb`
 - Mesh adı: `Avatar`
-- Görünüm: vitrin mankeni (anatomik ayrıntılar yumuşatılmış, tek renk mat)
+- Görünüm: vitrin mankeni (anatomik ayrıntılar yumuşatılmış, mat)
+- İç çamaşırlı: kadında sütyen + üçgen külot, erkekte boxer (koyu gri). Çamaşır ayrı mesh değil,
+  `Cilt` malzemesinin renk dokusuna (2048 px PNG, `baseColorTexture`) çizilidir; shape key'lerle
+  birlikte gerilir, ölçüleri etkilemez. Uygulamada malzemenin rengi değiştirilmemeli (doku kaybolur);
+  çizen betik `blender/scripts/ic_camasir.py`.
 - Vücut shape key'leri (0–1 arası, varsayılan 0, bu sırayla):
 
 | Shape key | Anlamı | Ölçü | Kadın: 0 → 1 (yalnız bu key) | Erkek: 0 → 1 |
