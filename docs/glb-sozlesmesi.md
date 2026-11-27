@@ -274,6 +274,9 @@ Tişörtte (`sablon_tisort_kadin.glb`, `sablon_tisort_erkek.glb`) yönler:
   v etekten (0,27) yakaya (1) çıkar.
 - Kollar: sağ kol u 0–0,5, sol kol u 0,5–1. Her kolda u = koltuk altı → ön → üst → arka;
   v omuzdan (0,25) manşete (0) iner.
+- Kollar gövdeye dikilidir: gövdede koltuk altı ile omuz arasında bir kol ağzı vardır ve kolun
+  v = 0,25 kenarı (GLB'de 0,75) bu kol ağzının kenarıdır. Mesh'te açık kenar yalnızca yaka, etek
+  ve iki manşettir.
 
 ## Anahtar noktalar (yapay zekâ ↔ şablon)
 
