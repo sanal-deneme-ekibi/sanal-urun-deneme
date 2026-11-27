@@ -23,7 +23,7 @@ export default function OlculerSayfasi() {
         <div style={{ padding: '20px 20px 0' }}>
           <ModelSecici />
         </div>
-        <OlcuPaneli olculer={olculer} sonuc={sonuc} degisti={(ad, cm) => olcuDegistir(ad, cm)} />
+        <OlcuPaneli olculer={olculer} sonuc={sonuc} degisti={olcuDegistir} />
         {/* Beden önerisi, kullanıcının yazdığı hedefi değil avatarın ulaştığı ölçüyü kullanır. */}
         <UygunlukPaneli
           vucut={{ gogus: sonuc.ulasilan.gogus, bel: sonuc.ulasilan.bel, kalca: sonuc.ulasilan.kalca }}
