@@ -4,9 +4,10 @@
 //   Ürün ölçüleri DÜZ SERİLİ GENİŞLİKTİR, vücut ölçüleri ÇEVREDİR.
 //   Karşılaştırma: urun_cm × 2 − vucut_cm = pay.
 //
-// Yalnızca çevre karşılığı olan ölçüler değerlendirilir. Ürünün boyu, kol boyu ve iç bacak
-// uzunluğu beden tablosunda var ama `measurements` tablosunda karşılığı yok (kol uzunluğu ve
-// bacak uzunluğu toplamıyoruz), bu yüzden bunlar "karşılaştırılamadı" olarak dönüyor.
+// Beden seçimi yalnızca çevre ölçüleriyle yapılır (dar / uygun / bol). İç bacak, kullanıcı
+// Ölçülerim'de girdiyse ayrıca karşılaştırılır (kısa / uygun / uzun) ama bedeni değiştirmez:
+// pantolonda bedeni bel ve kalça belirler, uzunluk paça ya da boy seçeneğiyle çözülür.
+// Ürünün boyu ve kol boyunun vücutta karşılığı yok; bunlar "karşılaştırılamadı" olarak döner.
 
 export type UrunTuru = 'tisort' | 'pantolon' | 'gomlek' | 'elbise' | 'etek'
 
@@ -26,6 +27,8 @@ export type VucutOlculeri = {
   gogus: number
   bel: number
   kalca: number
+  /** Yalnızca kullanıcı iç bacağını girdiyse (isteğe bağlı ölçü); uzunluk, çevre gibi ikiyle çarpılmaz */
+  ic_bacak?: number
 }
 
 export type Durum = 'dar' | 'uygun' | 'bol'
@@ -39,11 +42,23 @@ export type OlcuDegerlendirmesi = {
   payCm: number
 }
 
+export type UzunlukDurumu = 'kisa' | 'uygun' | 'uzun'
+
+export type UzunlukDegerlendirmesi = {
+  sutun: 'ic_bacak_cm'
+  etiket: string
+  durum: UzunlukDurumu
+  /** Ürün uzunluğu − vücut uzunluğu. Eksi değer ürünün kısa olduğunu söyler. */
+  farkCm: number
+}
+
 export type UygunlukSonucu = {
   beden: string
   /** En kötü ölçünün durumu: bir yeri dar olan ürün dar sayılır. */
   durum: Durum
   olculer: OlcuDegerlendirmesi[]
+  /** Bilgi amaçlı uzunluk karşılaştırmaları; `durum`a ve beden seçimine girmez */
+  uzunluklar: UzunlukDegerlendirmesi[]
   /** Beden tablosunda değeri olmadığı için bakılamayan sütunlar */
   eksikSutunlar: string[]
   /** Vücut karşılığı olmadığı için hiç değerlendirilemeyen sütunlar (boy, kol, iç bacak) */
@@ -72,7 +87,22 @@ const KARSILIGI_YOK: Record<UrunTuru, string[]> = {
   etek: ['boy_cm'],
 }
 
-const SUTUN_VUCUT: Record<OlcuDegerlendirmesi['sutun'], keyof VucutOlculeri> = {
+// İç bacak farkı eşikleri (cm, ürün − vücut). Pantolon iç bacağı genelde vücuttan biraz uzun
+// tutulur (ayakkabı, paça kırığı). İlk değerler; gerçek ürünlerle ayarlanacak (#32).
+export const UZUNLUK_ESIKLERI = { kisa: -3, uzun: 5 } as const
+
+// Türe göre bakılan uzunluk sütunları
+const UZUNLUK_KARSILASTIRMALARI: Partial<Record<UrunTuru, UzunlukDegerlendirmesi['sutun'][]>> = {
+  pantolon: ['ic_bacak_cm'],
+}
+
+export function uzunlukDurumu(farkCm: number): UzunlukDurumu {
+  if (farkCm < UZUNLUK_ESIKLERI.kisa - TOLERANS_CM) return 'kisa'
+  if (farkCm > UZUNLUK_ESIKLERI.uzun + TOLERANS_CM) return 'uzun'
+  return 'uygun'
+}
+
+const SUTUN_VUCUT: Record<OlcuDegerlendirmesi['sutun'], 'gogus' | 'bel' | 'kalca'> = {
   en_cm: 'gogus',
   bel_cm: 'bel',
   kalca_cm: 'kalca',
@@ -117,6 +147,23 @@ export function uygunlukHesapla(tur: UrunTuru, beden: BedenSatiri, vucut: VucutO
     olculer.push({ sutun, etiket: SUTUN_ETIKET[sutun], durum: durumBul(payCm), payCm })
   }
 
+  // Uzunluk: vücut ölçüsü yoksa (kullanıcı girmediyse) karşılaştırılamayanlar listesinde kalır
+  const uzunluklar: UzunlukDegerlendirmesi[] = []
+  const karsilastirilamayan = [...KARSILIGI_YOK[tur]]
+  const icBacak = vucut.ic_bacak
+  if (icBacak !== undefined) {
+    for (const sutun of UZUNLUK_KARSILASTIRMALARI[tur] ?? []) {
+      karsilastirilamayan.splice(karsilastirilamayan.indexOf(sutun), 1)
+      const deger = beden[sutun]
+      if (deger === undefined || deger === null) {
+        eksikSutunlar.push(sutun)
+        continue
+      }
+      const farkCm = deger - icBacak
+      uzunluklar.push({ sutun, etiket: 'İç bacak', durum: uzunlukDurumu(farkCm), farkCm })
+    }
+  }
+
   // En kötü durum kazanır: bir yeri dar olan ürün dar, hiçbir yeri dar değilse en bolu.
   // Hiç ölçü değerlendirilemediyse "uygun" demek yanıltıcı olurdu; çağıran olculer.length'e bakmalı.
   const durum = olculer.length
@@ -127,8 +174,9 @@ export function uygunlukHesapla(tur: UrunTuru, beden: BedenSatiri, vucut: VucutO
     beden: beden.beden,
     durum,
     olculer,
+    uzunluklar,
     eksikSutunlar,
-    karsilastirilamayan: KARSILIGI_YOK[tur],
+    karsilastirilamayan,
   }
 }
 
@@ -155,6 +203,15 @@ export function enUygunBeden(
     if (sUygunMu !== enUygunMu) return sUygunMu ? s : en
     return sapma(s) < sapma(en) - TOLERANS_CM ? s : en
   })
+}
+
+const UZUNLUK_ADI: Record<Exclude<UzunlukDurumu, 'uygun'>, string> = { kisa: 'kısa', uzun: 'uzun' }
+
+/** "İç bacak 3 cm kısa" gibi; fark eşiğin ötesindeki kısımdır, çevre ölçüleriyle aynı mantık. */
+export function uzunluguAnlat(u: UzunlukDegerlendirmesi): string {
+  if (u.durum === 'uygun') return `${u.etiket} uygun`
+  const miktar = Math.abs(u.durum === 'kisa' ? UZUNLUK_ESIKLERI.kisa - u.farkCm : u.farkCm - UZUNLUK_ESIKLERI.uzun)
+  return `${u.etiket} ${Math.max(1, Math.round(miktar))} cm ${UZUNLUK_ADI[u.durum]}`
 }
 
 /** Kullanıcıya gösterilecek kısa cümle: "Göğüs 4 cm dar" gibi. */
