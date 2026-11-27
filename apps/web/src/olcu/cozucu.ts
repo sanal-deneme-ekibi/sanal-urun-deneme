@@ -1,11 +1,11 @@
-import { CM_OLCULERI, KEY_ADLARI, OLCU_ADLARI } from './kalibrasyon'
+import { CM_OLCULERI, ISTEGE_BAGLI, KEY_ADLARI, OLCU_ADLARI } from './kalibrasyon'
 import type { Agirliklar, HedefOlculer, Kalibrasyon, KeyAdi, OlcuAdi, Olculer } from './kalibrasyon'
 
 // Ölçü çözücü — docs/glb-sozlesmesi.md → "Ölçü çözücü" bölümündeki girdi/çıktıya birebir uyar.
 // Yöntem: ağırlıklı, sınırlı en küçük kareler (projected gradient).
 //   ölçü = taban + Σ etki[key][ölçü] × ağırlık[key],   0 ≤ ağırlık ≤ 1
-// Beş ölçü birlikte çözülür, çünkü key'ler birbirini etkiler: boy key'i çevreleri de büyütür,
-// weight key'i ise çevrelerin en büyük kaynağıdır (göğüs +20, bel +27, kalça +30 cm).
+// Bütün ölçüler birlikte çözülür, çünkü key'ler birbirini etkiler: boy key'i çevreleri, kolu ve
+// bacağı da büyütür; weight key'i ise çevrelerin en büyük kaynağıdır (göğüs +20, bel +27, kalça +30 cm).
 
 export type CozucuSonucu = {
   agirliklar: Agirliklar
@@ -23,7 +23,7 @@ const YINELEME = 6000
 // bir çevreyi yakalamak için boyu değiştirmesin.
 // Kilo kg cinsinden; verildiğinde çevreleri bozmasın diye düşük tutulur. Denemede 0,3'ün
 // üstüne çıkarmak çevre hatasını üç katına çıkarıp kiloyu ancak 1–2 kg düzeltiyor.
-const ONEM: Olculer = { boy: 10, gogus: 1, bel: 1, kalca: 1, kilo: 0.3 }
+const ONEM: Olculer = { boy: 10, gogus: 1, bel: 1, kalca: 1, kilo: 0.3, kol_boyu: 1, ic_bacak: 1 }
 
 export function tahminEt(agirliklar: Agirliklar, kalib: Kalibrasyon): Olculer {
   const sonuc = { ...kalib.taban }
@@ -45,17 +45,24 @@ export function olcuCozucu(hedef: HedefOlculer, kalib: Kalibrasyon): CozucuSonuc
     throw new Error(`Kalibrasyonda eksik key: ${eksikKey.join(', ')}`)
   }
 
-  // Kilo isteğe bağlı: verilmemişse hedefe girmez, weight key'i kalan ölçülerden çözülür.
+  // Kilo, kol boyu ve iç bacak isteğe bağlı: verilmemişse hedefe girmez, key'leri kalan
+  // ölçülerden çözülür.
   const onem = { ...ONEM }
-  if (hedef.kilo === undefined) onem.kilo = 0
-  const tam = { ...hedef, kilo: hedef.kilo ?? kalib.taban.kilo } as Olculer
+  const tam = { ...hedef } as Olculer
+  const verilen = OLCU_ADLARI.filter((o) => hedef[o as keyof HedefOlculer] !== undefined)
+  for (const o of ISTEGE_BAGLI) {
+    if (hedef[o] === undefined) {
+      onem[o] = 0
+      tam[o] = kalib.taban[o]
+    }
+  }
 
   // Adım boyu: Lipschitz sabitinin üst sınırı (2 × önem × etki katsayılarının kareleri toplamı)
   let kareToplam = 0
   for (const k of KEY_ADLARI) for (const o of OLCU_ADLARI) kareToplam += onem[o] * kalib.etki[k][o] ** 2
   const adim = 1 / (2 * kareToplam)
 
-  const w: Agirliklar = { height: 0.5, chest: 0.5, waist: 0.5, hip: 0.5, weight: 0.5 }
+  const w = Object.fromEntries(KEY_ADLARI.map((k) => [k, 0.5])) as Agirliklar
   for (let i = 0; i < YINELEME; i++) {
     const tahmin = tahminEt(w, kalib)
     for (const k of KEY_ADLARI) {
@@ -70,9 +77,10 @@ export function olcuCozucu(hedef: HedefOlculer, kalib: Kalibrasyon): CozucuSonuc
   const fark = {} as Olculer
   for (const o of OLCU_ADLARI) fark[o] = ulasilan[o] - tam[o]
 
-  // Ortalama hata yalnızca cm cinsinden ölçülerden; kg ile cm aynı ortalamaya girmez.
-  const cmHatasi = CM_OLCULERI.reduce((toplam: number, o: OlcuAdi) => toplam + Math.abs(fark[o]), 0)
+  // Ortalama hata yalnızca verilmiş cm ölçülerinden; kg ile cm aynı ortalamaya girmez.
+  const cmVerilen = CM_OLCULERI.filter((o) => verilen.includes(o))
+  const cmHatasi = cmVerilen.reduce((toplam: number, o: OlcuAdi) => toplam + Math.abs(fark[o]), 0)
   const sinirda = KEY_ADLARI.filter((k) => w[k] <= 1e-3 || w[k] >= 1 - 1e-3)
 
-  return { agirliklar: w, ulasilan, fark, ortalamaHataCm: cmHatasi / CM_OLCULERI.length, sinirda }
+  return { agirliklar: w, ulasilan, fark, ortalamaHataCm: cmHatasi / cmVerilen.length, sinirda }
 }

@@ -5,6 +5,7 @@
   "tarih": "2026-11-27",
   "birim": "cm",
   "birim_kilo": "kg",
+  "yogunluk_kg_l": 1.06,
   "keyler": [
     "height",
     "chest",
@@ -24,77 +25,77 @@
     "ic_bacak"
   ],
   "taban": {
-    "boy": 137.5,
-    "gogus": 66.9,
-    "bel": 48.3,
-    "kalca": 78.9,
-    "kilo": 28.3,
-    "kol_boyu": 39.5,
-    "ic_bacak": 58.3
+    "boy": 133.5,
+    "gogus": 67.4,
+    "bel": 48.5,
+    "kalca": 76.2,
+    "kilo": 23.6,
+    "kol_boyu": 40.0,
+    "ic_bacak": 54.4
   },
   "etki": {
     "height": {
       "boy": 43.0,
-      "gogus": 14.1,
-      "bel": 11.4,
-      "kalca": 15.2,
-      "kilo": 25.8,
-      "kol_boyu": 15.2,
+      "gogus": 13.6,
+      "bel": 11.9,
+      "kalca": 14.6,
+      "kilo": 34.6,
+      "kol_boyu": 14.9,
       "ic_bacak": 25.7
     },
     "chest": {
       "boy": 0.0,
-      "gogus": 30.7,
-      "bel": 0.4,
-      "kalca": 0.0,
-      "kilo": 5.9,
-      "kol_boyu": -0.6,
-      "ic_bacak": 0.0
+      "gogus": 30.2,
+      "bel": 1.2,
+      "kalca": -0.5,
+      "kilo": 8.8,
+      "kol_boyu": -1.0,
+      "ic_bacak": -0.0
     },
     "waist": {
       "boy": 0.0,
-      "gogus": 2.0,
-      "bel": 23.1,
-      "kalca": 0.3,
-      "kilo": 4.8,
-      "kol_boyu": 0.0,
-      "ic_bacak": 0.0
+      "gogus": 1.5,
+      "bel": 26.8,
+      "kalca": 1.3,
+      "kilo": 7.6,
+      "kol_boyu": -0.1,
+      "ic_bacak": -0.0
     },
     "hip": {
-      "boy": 0.0,
-      "gogus": 0.0,
-      "bel": 0.1,
-      "kalca": 22.2,
-      "kilo": 4.3,
-      "kol_boyu": 0.0,
+      "boy": -0.0,
+      "gogus": -0.6,
+      "bel": -0.1,
+      "kalca": 25.2,
+      "kilo": 7.2,
+      "kol_boyu": 0.2,
       "ic_bacak": 0.0
     },
     "weight": {
       "boy": 0.0,
-      "gogus": 21.0,
-      "bel": 27.1,
-      "kalca": 29.8,
-      "kilo": 24.2,
-      "kol_boyu": 0.5,
-      "ic_bacak": -1.3
+      "gogus": 20.1,
+      "bel": 26.4,
+      "kalca": 29.7,
+      "kilo": 33.0,
+      "kol_boyu": -2.0,
+      "ic_bacak": -1.0
     },
     "arm_length": {
       "boy": 0.0,
-      "gogus": 0.0,
-      "bel": 0.0,
-      "kalca": 0.0,
-      "kilo": 0.9,
-      "kol_boyu": 15.7,
-      "ic_bacak": 0.0
+      "gogus": -0.3,
+      "bel": -0.2,
+      "kalca": -0.5,
+      "kilo": 1.7,
+      "kol_boyu": 15.1,
+      "ic_bacak": -0.0
     },
     "leg_length": {
-      "boy": 19.2,
-      "gogus": 0.0,
-      "bel": 0.0,
-      "kalca": -0.4,
-      "kilo": 3.3,
-      "kol_boyu": -0.1,
-      "ic_bacak": 18.9
+      "boy": 28.7,
+      "gogus": -0.3,
+      "bel": 0.2,
+      "kalca": -0.9,
+      "kilo": 7.3,
+      "kol_boyu": -0.2,
+      "ic_bacak": 28.4
     }
   },
   "ornekler": [
@@ -109,13 +110,13 @@
         "leg_length": 0.89
       },
       "olculen": {
-        "boy": 182.1,
-        "gogus": 92.7,
-        "bel": 81.7,
-        "kalca": 115.1,
-        "kilo": 77.7,
+        "boy": 186.6,
+        "gogus": 92.9,
+        "bel": 83.0,
+        "kalca": 112.4,
+        "kilo": 83.6,
         "kol_boyu": 58.5,
-        "ic_bacak": 90.7
+        "ic_bacak": 95.4
       }
     },
     {
@@ -129,13 +130,13 @@
         "leg_length": 0.2
       },
       "olculen": {
-        "boy": 145.2,
+        "boy": 143.1,
         "gogus": 91.3,
-        "bel": 64.5,
-        "kalca": 99.8,
-        "kilo": 46.9,
+        "bel": 64.6,
+        "kalca": 97.3,
+        "kilo": 48.5,
         "kol_boyu": 40.7,
-        "ic_bacak": 63.8
+        "ic_bacak": 61.8
       }
     },
     {
@@ -149,13 +150,13 @@
         "leg_length": 0.81
       },
       "olculen": {
-        "boy": 181.0,
+        "boy": 184.7,
         "gogus": 109.1,
-        "bel": 83.1,
-        "kalca": 126.0,
-        "kilo": 85.7,
-        "kol_boyu": 47.7,
-        "ic_bacak": 89.3
+        "bel": 84.1,
+        "kalca": 124.5,
+        "kilo": 92.2,
+        "kol_boyu": 48.0,
+        "ic_bacak": 93.3
       }
     },
     {
@@ -169,13 +170,13 @@
         "leg_length": 0.1
       },
       "olculen": {
-        "boy": 169.6,
+        "boy": 166.5,
         "gogus": 94.0,
-        "bel": 69.4,
-        "kalca": 121.3,
-        "kilo": 65.7,
-        "kol_boyu": 50.3,
-        "ic_bacak": 77.8
+        "bel": 70.2,
+        "kalca": 121.1,
+        "kilo": 68.8,
+        "kol_boyu": 50.4,
+        "ic_bacak": 74.8
       }
     },
     {
@@ -189,13 +190,13 @@
         "leg_length": 0.38
       },
       "olculen": {
-        "boy": 181.4,
-        "gogus": 108.3,
-        "bel": 91.4,
-        "kalca": 124.2,
-        "kilo": 88.0,
-        "kol_boyu": 65.5,
-        "ic_bacak": 86.7
+        "boy": 181.0,
+        "gogus": 108.4,
+        "bel": 95.4,
+        "kalca": 123.2,
+        "kilo": 94.4,
+        "kol_boyu": 65.4,
+        "ic_bacak": 86.5
       }
     },
     {
@@ -209,13 +210,13 @@
         "leg_length": 0.05
       },
       "olculen": {
-        "boy": 162.1,
-        "gogus": 111.9,
-        "bel": 85.0,
-        "kalca": 123.9,
-        "kilo": 75.9,
-        "kol_boyu": 56.5,
-        "ic_bacak": 72.6
+        "boy": 158.6,
+        "gogus": 112.0,
+        "bel": 88.1,
+        "kalca": 123.4,
+        "kilo": 80.1,
+        "kol_boyu": 57.4,
+        "ic_bacak": 69.4
       }
     },
     {
@@ -229,13 +230,13 @@
         "leg_length": 0.64
       },
       "olculen": {
-        "boy": 159.7,
-        "gogus": 80.9,
-        "bel": 55.7,
-        "kalca": 89.7,
-        "kilo": 41.5,
-        "kol_boyu": 47.8,
-        "ic_bacak": 76.2
+        "boy": 161.8,
+        "gogus": 81.0,
+        "bel": 56.1,
+        "kalca": 87.3,
+        "kilo": 43.9,
+        "kol_boyu": 46.8,
+        "ic_bacak": 78.3
       }
     },
     {
@@ -249,13 +250,13 @@
         "leg_length": 0.61
       },
       "olculen": {
-        "boy": 164.7,
-        "gogus": 102.5,
-        "bel": 82.8,
-        "kalca": 118.1,
-        "kilo": 74.5,
+        "boy": 166.5,
+        "gogus": 102.6,
+        "bel": 83.8,
+        "kalca": 115.6,
+        "kilo": 79.2,
         "kol_boyu": 52.8,
-        "ic_bacak": 77.9
+        "ic_bacak": 79.9
       }
     },
     {
@@ -269,13 +270,13 @@
         "leg_length": 0.56
       },
       "olculen": {
-        "boy": 155.6,
+        "boy": 156.9,
         "gogus": 111.8,
-        "bel": 81.5,
-        "kalca": 119.3,
-        "kilo": 71.8,
-        "kol_boyu": 49.0,
-        "ic_bacak": 72.0
+        "bel": 82.2,
+        "kalca": 117.1,
+        "kilo": 76.1,
+        "kol_boyu": 48.9,
+        "ic_bacak": 73.7
       }
     },
     {
@@ -289,13 +290,13 @@
         "leg_length": 0.27
       },
       "olculen": {
-        "boy": 171.9,
-        "gogus": 103.1,
-        "bel": 75.7,
-        "kalca": 94.7,
-        "kilo": 59.2,
-        "kol_boyu": 54.4,
-        "ic_bacak": 80.9
+        "boy": 170.5,
+        "gogus": 103.2,
+        "bel": 79.8,
+        "kalca": 92.3,
+        "kilo": 63.0,
+        "kol_boyu": 54.3,
+        "ic_bacak": 79.5
       }
     },
     {
@@ -309,13 +310,13 @@
         "leg_length": 0.91
       },
       "olculen": {
-        "boy": 164.0,
-        "gogus": 112.2,
-        "bel": 89.3,
-        "kalca": 108.1,
-        "kilo": 69.7,
-        "kol_boyu": 47.5,
-        "ic_bacak": 80.1
+        "boy": 168.7,
+        "gogus": 112.3,
+        "bel": 93.6,
+        "kalca": 105.6,
+        "kilo": 76.1,
+        "kol_boyu": 47.2,
+        "ic_bacak": 85.0
       }
     },
     {
@@ -329,13 +330,13 @@
         "leg_length": 0.9
       },
       "olculen": {
-        "boy": 174.5,
+        "boy": 179.1,
         "gogus": 86.5,
-        "bel": 66.6,
-        "kalca": 105.6,
-        "kilo": 57.1,
+        "bel": 67.8,
+        "kalca": 104.0,
+        "kilo": 61.7,
         "kol_boyu": 54.3,
-        "ic_bacak": 86.9
+        "ic_bacak": 91.5
       }
     }
   ]
