@@ -93,3 +93,25 @@ export function urunCozucu(
   for (const o of verilen) fark[o] = ulasilan[o] - (hedef[o] as number)
   return { agirliklar: w, ulasilan, fark }
 }
+
+// Şablonun bir ölçüye ulaşamadığı farkın gözle görülür sayıldığı eşik (cm, düz serili)
+export const GORUNUR_FARK_CM = 1
+
+const OLCU_ADI: Record<UrunOlcu, string> = { boy: 'boyuna', en: 'enine', kol: 'kol boyuna' }
+
+/**
+ * Şablonun tablodaki ölçüye ulaşamadığı yerler için kullanıcıya gösterilecek notlar.
+ * fark = şablonun ulaştığı − tablodaki: artı ise şablon o kadar küçülemiyor, eksi ise o kadar büyüyemiyor.
+ */
+export function sablonNotlari(sonuc: Pick<UrunSonucu, 'fark' | 'ulasilan'>): string[] {
+  const notlar: string[] = []
+  for (const o of ['boy', 'en', 'kol'] as UrunOlcu[]) {
+    const f = sonuc.fark[o]
+    const u = sonuc.ulasilan[o].toFixed(0)
+    if (f >= GORUNUR_FARK_CM)
+      notlar.push(`Şablon bu bedenin ${OLCU_ADI[o]} kadar küçülemiyor (en az ${u} cm); avatarda biraz ${o === 'en' ? 'bol' : 'uzun'} görünür.`)
+    else if (f <= -GORUNUR_FARK_CM)
+      notlar.push(`Şablon bu bedenin ${OLCU_ADI[o]} kadar büyüyemiyor (en fazla ${u} cm); avatarda biraz ${o === 'en' ? 'dar' : 'kısa'} görünür.`)
+  }
+  return notlar
+}

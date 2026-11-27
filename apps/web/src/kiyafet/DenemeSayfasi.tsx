@@ -9,7 +9,7 @@ import Avatar from '../avatar/Avatar'
 import Kiyafet from './Kiyafet'
 import ModelSecici from '../bilesenler/ModelSecici'
 import { useOlculer } from '../olcu/OlcuBaglami'
-import { TISORT_KALIBRASYON, urunCozucu } from './sablonKalibrasyon'
+import { TISORT_KALIBRASYON, sablonNotlari, urunCozucu } from './sablonKalibrasyon'
 import { enUygunBeden, olcuyuAnlat, uygunlukHesapla } from '../uygunluk/uygunluk'
 import type { Durum } from '../uygunluk/uygunluk'
 import { ORNEK_BEDENLER } from '../uygunluk/ornekBedenler'
@@ -24,14 +24,13 @@ const DURUM_RENGI: Record<Durum, { yazi: string; zemin: string; cerceve: string;
 
 const KUMAS_RENKLERI = ['#e8e8e8', '#1f2937', '#1d4ed8', '#b91c1c', '#15803d', '#f5d0a9']
 
-// Şablonun bir ürün ölçüsüne ulaşamadığı farkın gözle görülür sayıldığı eşik (cm, düz serili)
-const GORUNUR_FARK_CM = 1
-
 export default function DenemeSayfasi() {
   const { model, sonuc } = useOlculer()
   const { urun } = useUrun()
   const doku = useUrunDokusu(urun)
-  const bedenler = ORNEK_BEDENLER.tisort
+  // Ürünün kendi tablosu; ürün yoksa (veya eski kayıtsa) örnek tablo
+  const bedenler = urun?.bedenler?.length ? urun.bedenler : ORNEK_BEDENLER.tisort
+  const ornekTablo = !urun?.bedenler?.length
   const vucutCevre = { gogus: sonuc.ulasilan.gogus, bel: sonuc.ulasilan.bel, kalca: sonuc.ulasilan.kalca }
 
   const oneri = useMemo(() => enUygunBeden('tisort', bedenler, vucutCevre), [bedenler, vucutCevre.gogus, vucutCevre.bel, vucutCevre.kalca]) // eslint-disable-line
@@ -46,8 +45,8 @@ export default function DenemeSayfasi() {
     [beden, kalib, sonuc.agirliklar],
   )
   const uygunluk = uygunlukHesapla('tisort', beden, vucutCevre)
-  // Ürün şablonun en dar halinden de darsa avatarda en dar hali gösterilir (görüntü biraz bol kalır)
-  const enDarGosteriliyor = urunSekli.fark.en >= GORUNUR_FARK_CM
+  // Şablonun tablodaki ölçüye ulaşamadığı yerler (avatarda gösterilen hal tablodan farklı)
+  const notlar = sablonNotlari(urunSekli)
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%' }}>
@@ -65,8 +64,15 @@ export default function DenemeSayfasi() {
         <h2 style={{ margin: 0, fontSize: 20 }}>Tişört dene</h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ fontSize: 14, color: '#444' }}>Beden</span>
-          <div role="group" aria-label="Beden" style={{ display: 'flex', gap: 8 }}>
+          <span style={{ fontSize: 14, color: '#444' }}>
+            Beden
+            {ornekTablo ? (
+              <small style={{ color: '#8a8a8f' }}> · örnek tablo</small>
+            ) : (
+              <small style={{ color: '#8a8a8f' }}> · ürünün tablosu</small>
+            )}
+          </span>
+          <div role="group" aria-label="Beden" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {bedenler.map((b) => {
               const d = uygunlukHesapla('tisort', b, vucutCevre).durum
               const secili = b.beden === beden.beden
@@ -77,7 +83,7 @@ export default function DenemeSayfasi() {
                   aria-pressed={secili}
                   onClick={() => setSecilen(b.beden)}
                   style={{
-                    flex: 1,
+                    flex: '1 0 56px',
                     minHeight: 48,
                     borderRadius: 10,
                     border: `2px solid ${secili ? '#1b1b1f' : DURUM_RENGI[d].cerceve}`,
@@ -115,12 +121,24 @@ export default function DenemeSayfasi() {
               <small>Önerimiz: {oneri.beden}</small>
             </>
           )}
-          {enDarGosteriliyor && (
-            <>
+          <br />
+          <small>
+            Tablo: boy {beden.boy_cm ?? '–'} · en {beden.en_cm ?? '–'} · kol {beden.kol_cm ?? '–'} cm
+            {urun && (
+              <>
+                {' · '}
+                <Link to="/kiyafet/ekle" style={{ color: 'inherit' }}>
+                  düzenle
+                </Link>
+              </>
+            )}
+          </small>
+          {notlar.map((n) => (
+            <span key={n}>
               <br />
-              <small>Şablon bu bedenin enine kadar daralamıyor; avatarda tişört gerçekte olduğundan biraz bol görünür.</small>
-            </>
-          )}
+              <small>{n}</small>
+            </span>
+          ))}
         </div>
 
         {urun ? (

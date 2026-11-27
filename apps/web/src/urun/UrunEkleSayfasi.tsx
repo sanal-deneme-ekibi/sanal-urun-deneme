@@ -7,6 +7,10 @@ import { VARSAYILAN_KIRPMA } from './doku'
 import type { Kirpma } from './doku'
 import { dosyayiKucult, gorselYukle, kirpmaRengi } from './gorsel'
 import { useUrun } from './UrunBaglami'
+import BedenTablosuGirisi from './BedenTablosuGirisi'
+import { metindenOku, metneCevir, tabloDenetle, tabloTemizle } from './bedenTablosu'
+import type { MetinSatiri } from './bedenTablosu'
+import { ORNEK_BEDENLER } from '../uygunluk/ornekBedenler'
 
 const TURLER = [
   { ad: 'Tişört', hazir: true },
@@ -48,6 +52,10 @@ export default function UrunEkleSayfasi() {
   const [arkaAyni, setArkaAyni] = useState(urun?.arkaAyni ?? false)
   const [zeminTemizle, setZeminTemizle] = useState(urun?.zeminTemizle ?? true)
   const [hata, setHata] = useState<string | null>(null)
+  const [tablo, setTablo] = useState<MetinSatiri[]>(() => metneCevir(urun?.bedenler ?? ORNEK_BEDENLER.tisort))
+  const bedenler = tabloTemizle(metindenOku(tablo))
+  const uyarilar = tabloDenetle(bedenler)
+  const tabloEngelli = uyarilar.some((u) => u.engel)
   const [img, setImg] = useState<HTMLImageElement | null>(null)
 
   useEffect(() => {
@@ -80,8 +88,8 @@ export default function UrunEkleSayfasi() {
   }
 
   const kaydet = () => {
-    if (!foto) return
-    urunKaydet({ foto, kirpma, zeminRengi, arkaAyni, zeminTemizle })
+    if (!foto || tabloEngelli) return
+    urunKaydet({ foto, kirpma, zeminRengi, arkaAyni, zeminTemizle, bedenler })
     git('/kiyafet')
   }
 
@@ -214,10 +222,23 @@ export default function UrunEkleSayfasi() {
           </>
         )}
 
+        <BedenTablosuGirisi
+          satirlar={tablo}
+          degisti={setTablo}
+          uyarilar={uyarilar}
+          ornekYukle={() => setTablo(metneCevir(ORNEK_BEDENLER.tisort))}
+        />
+
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <button type="button" style={{ ...birincilDugme, opacity: foto ? 1 : 0.4 }} disabled={!foto} onClick={kaydet}>
-            Avatarda dene
+          <button
+            type="button"
+            style={{ ...birincilDugme, opacity: foto && !tabloEngelli ? 1 : 0.4 }}
+            disabled={!foto || tabloEngelli}
+            onClick={kaydet}
+          >
+            {urun ? 'Kaydet ve avatarda dene' : 'Avatarda dene'}
           </button>
+          {!foto && <small style={{ color: '#666', textAlign: 'center' }}>Önce ürün fotoğrafı ekleyin.</small>}
           {urun && (
             <button
               type="button"
