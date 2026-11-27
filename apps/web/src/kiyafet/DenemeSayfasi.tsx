@@ -3,6 +3,7 @@
 // aynı vücut ağırlıklarını taşıdığı için vücutla birlikte büyür.
 
 import { Suspense, useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import Viewer from '../viewer/Viewer'
 import Avatar from '../avatar/Avatar'
 import Kiyafet from './Kiyafet'
@@ -12,6 +13,8 @@ import { TISORT_KALIBRASYON, urunCozucu } from './sablonKalibrasyon'
 import { enUygunBeden, olcuyuAnlat, uygunlukHesapla } from '../uygunluk/uygunluk'
 import type { Durum } from '../uygunluk/uygunluk'
 import { ORNEK_BEDENLER } from '../uygunluk/ornekBedenler'
+import { useUrun } from '../urun/UrunBaglami'
+import { useUrunDokusu } from '../urun/useUrunDokusu'
 
 const DURUM_RENGI: Record<Durum, { yazi: string; zemin: string; cerceve: string; etiket: string }> = {
   dar: { yazi: '#7f1d1d', zemin: '#fef2f2', cerceve: '#fecaca', etiket: 'Dar' },
@@ -26,6 +29,8 @@ const GORUNUR_FARK_CM = 1
 
 export default function DenemeSayfasi() {
   const { model, sonuc } = useOlculer()
+  const { urun } = useUrun()
+  const doku = useUrunDokusu(urun)
   const bedenler = ORNEK_BEDENLER.tisort
   const vucutCevre = { gogus: sonuc.ulasilan.gogus, bel: sonuc.ulasilan.bel, kalca: sonuc.ulasilan.kalca }
 
@@ -36,13 +41,13 @@ export default function DenemeSayfasi() {
   const [teknik, setTeknik] = useState(false)
 
   const kalib = TISORT_KALIBRASYON[model]
-  const urun = useMemo(
+  const urunSekli = useMemo(
     () => urunCozucu({ boy: beden.boy_cm, en: beden.en_cm, kol: beden.kol_cm }, kalib, sonuc.agirliklar),
     [beden, kalib, sonuc.agirliklar],
   )
   const uygunluk = uygunlukHesapla('tisort', beden, vucutCevre)
   // Ürün şablonun en dar halinden de darsa avatarda en dar hali gösterilir (görüntü biraz bol kalır)
-  const enDarGosteriliyor = urun.fark.en >= GORUNUR_FARK_CM
+  const enDarGosteriliyor = urunSekli.fark.en >= GORUNUR_FARK_CM
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%' }}>
@@ -50,7 +55,7 @@ export default function DenemeSayfasi() {
         <Viewer>
           <Suspense fallback={null}>
             <Avatar model={model} agirliklar={sonuc.agirliklar} />
-            <Kiyafet model={model} vucut={sonuc.agirliklar} urun={urun.agirliklar} renk={renk} />
+            <Kiyafet model={model} vucut={sonuc.agirliklar} urun={urunSekli.agirliklar} doku={doku} renk={renk} />
           </Suspense>
         </Viewer>
       </div>
@@ -118,29 +123,48 @@ export default function DenemeSayfasi() {
           )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ fontSize: 14, color: '#444' }}>Kumaş rengi</span>
-          <div role="group" aria-label="Kumaş rengi" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {KUMAS_RENKLERI.map((r) => (
-              <button
-                key={r}
-                type="button"
-                aria-label={`Renk ${r}`}
-                aria-pressed={r === renk}
-                onClick={() => setRenk(r)}
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: r,
-                  border: r === renk ? '3px solid #1b1b1f' : '1px solid #cbd5e1',
-                  cursor: 'pointer',
-                }}
-              />
-            ))}
+        {urun ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, border: '1px solid #e2e2e0', borderRadius: 10, padding: 10 }}>
+            <img src={urun.foto} alt="Denenen ürün" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }} />
+            <div style={{ flex: 1, fontSize: 14, lineHeight: 1.4 }}>
+              <b>Ürününüz</b>
+              <br />
+              <small style={{ color: '#666' }}>Tişört · fotoğraftan</small>
+            </div>
+            <Link to="/kiyafet/ekle" style={{ fontSize: 14, color: '#1d4ed8' }}>
+              Değiştir
+            </Link>
           </div>
-          <small style={{ color: '#666' }}>Ürün fotoğrafından desen yakında.</small>
-        </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Link
+              to="/kiyafet/ekle"
+              style={{ minHeight: 48, borderRadius: 10, background: '#1b1b1f', color: '#fff', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+            >
+              Ürün fotoğrafı ekle
+            </Link>
+            <span style={{ fontSize: 14, color: '#444', marginTop: 6 }}>veya düz renk dene</span>
+            <div role="group" aria-label="Kumaş rengi" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {KUMAS_RENKLERI.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  aria-label={`Renk ${r}`}
+                  aria-pressed={r === renk}
+                  onClick={() => setRenk(r)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: r,
+                    border: r === renk ? '3px solid #1b1b1f' : '1px solid #cbd5e1',
+                    cursor: 'pointer',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div style={{ borderTop: '1px solid #e2e2e0', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#444' }}>
@@ -149,13 +173,13 @@ export default function DenemeSayfasi() {
           </label>
           {teknik && (
             <small style={{ color: '#666', lineHeight: 1.6, fontFamily: 'monospace' }}>
-              length = {urun.agirliklar.length.toFixed(2)} · width = {urun.agirliklar.width.toFixed(2)} · sleeve ={' '}
-              {urun.agirliklar.sleeve.toFixed(2)}
+              length = {urunSekli.agirliklar.length.toFixed(2)} · width = {urunSekli.agirliklar.width.toFixed(2)} · sleeve ={' '}
+              {urunSekli.agirliklar.sleeve.toFixed(2)}
               <br />
               tablo: boy {beden.boy_cm ?? '–'} · en {beden.en_cm ?? '–'} · kol {beden.kol_cm ?? '–'} cm
               <br />
-              şablon: boy {urun.ulasilan.boy.toFixed(1)} · en {urun.ulasilan.en.toFixed(1)} · kol{' '}
-              {urun.ulasilan.kol.toFixed(1)} cm
+              şablon: boy {urunSekli.ulasilan.boy.toFixed(1)} · en {urunSekli.ulasilan.en.toFixed(1)} · kol{' '}
+              {urunSekli.ulasilan.kol.toFixed(1)} cm
             </small>
           )}
         </div>

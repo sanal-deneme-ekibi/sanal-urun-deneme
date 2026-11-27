@@ -22,7 +22,7 @@ export default function AltMenu() {
         <NavLink
           key={s.yol}
           to={s.yol}
-          end
+          end={s.yol === '/'} // Kıyafet sekmesi /kiyafet/ekle'de de seçili görünsün
           style={({ isActive }) => ({
             flex: 1,
             minHeight: 56,
