@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, ContactShadows } from '@react-three/drei'
+import { OrbitControls, ContactShadows, Loader } from '@react-three/drei'
 
 // Model verilmezse gösterilen basit manken (ölçüler metre, +Y yukarı)
 function YerTutucuManken() {
@@ -26,7 +26,10 @@ function YerTutucuManken() {
 }
 
 export default function Viewer({ children }: { children?: ReactNode }) {
+  // Yükleme göstergesi Canvas'ın dışında (DOM'da): Suspense fallback'inde <Html> kullanmak
+  // model değişirken React'te removeChild hatasına yol açıyordu.
   return (
+    <>
     <Canvas camera={{ position: [0, 1.1, 3.2], fov: 40 }}>
       <ambientLight intensity={0.5} />
       <directionalLight position={[2, 4, 3]} intensity={1.2} />
@@ -43,5 +46,7 @@ export default function Viewer({ children }: { children?: ReactNode }) {
         maxDistance={5}
       />
     </Canvas>
+    <Loader dataInterpolation={(p) => `Yükleniyor… %${p.toFixed(0)}`} />
+    </>
   )
 }

@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import avatarUrl from '../../../../assets/models/avatar_kadin.glb?url'
 import { agirliklariUygula, meshBul } from './agirlik'
-import type { Agirliklar } from '../olcu/kalibrasyon'
+import { AVATAR_URL, DRACO_YOLU } from './modeller'
+import type { Agirliklar, Model } from '../olcu/kalibrasyon'
 
-// Tuğçe'nin avatarı (assets/models/avatar_kadin.glb). Draco sıkıştırmasını useGLTF kendisi açar.
-export default function Avatar({ agirliklar }: { agirliklar: Agirliklar }) {
-  const { scene } = useGLTF(avatarUrl)
+// Tuğçe'nin avatarları (assets/models/avatar_<model>.glb)
+export default function Avatar({ model, agirliklar }: { model: Model; agirliklar: Agirliklar }) {
+  const { scene } = useGLTF(AVATAR_URL[model], DRACO_YOLU)
   const mesh = useMemo(() => meshBul(scene, 'Avatar'), [scene])
 
   useEffect(() => {
@@ -16,4 +16,4 @@ export default function Avatar({ agirliklar }: { agirliklar: Agirliklar }) {
   return <primitive object={scene} />
 }
 
-useGLTF.preload(avatarUrl)
+useGLTF.preload(AVATAR_URL.kadin, DRACO_YOLU)
