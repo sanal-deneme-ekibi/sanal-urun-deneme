@@ -60,10 +60,16 @@ URUN_ETEK_KASIK_ALTI = 0.13
 
 GOVDE_SATIR = 40
 GOVDE_CEYREK = 16  # gövde halkası 4 çeyrek × 16 nokta
-KOL_SATIR = 14
+# Gövde satırları üç bölgede: etek → koltuk altı (0–KOLTUK_SATIR), koltuk altı → omuz (kol ağzı),
+# omuz → yaka. Böylece kol ağzı her vücutta ve her etek boyunda aynı satırlara düşer.
+KOLTUK_SATIR = 24
+OMUZ_SATIR = 32
+KOL_AGZI_YARIM = 4  # kol ağzı yan dikişin iki yanına 4'er sütun: kenarı 4·4 + 2·8 = 32 nokta
+KOL_SATIR = 14  # kol halkaları; ilki gövdedeki kol ağzının kenarı
 KOL_CEYREK = 8
-KOL_BINDIRME_M = 0.04  # kol, kol yuvasını kapatmak için gövdenin içinden başlar
+KOL_BAS_M = 0.03  # kolun ilk kendi halkası, omuz dikişinden bu kadar dışarıda
 KOL_REF_M = 0.14  # bu noktaya kadar kol kesiti sabit alınır (omuzda kesit gövdeye karışır)
+KOL_BASI_GENISLEME = 0.4  # omuzda kol kesiti bu oranda geniş başlar, deltoid kumaştan taşmasın
 EN_AZ_PAY_M = 0.008  # kumaş ile ten arası sabit boşluk; key'ler karışınca göğüs dışarı taşmasın
 KOL_EN_AZ_PAY_M = 0.012  # kol ekseni dirsekte kıvrıldığı için kolda daha geniş tutulur
 ORNEK_SAYISI = 6
@@ -214,11 +220,12 @@ def isaretler(k, u):
             break
         z_ust = z
 
-    # Omuz dikişi: kesitin kol yuvası sınırına hâlâ uzandığı en yüksek yer
+    # Omuz dikişi (kol ağzının üstü): kesitin kol yuvası sınırına hâlâ uzandığı en yüksek yer
     z_omuz = z_koltuk
     for z in np.arange(z_koltuk, z_ust, adim):
         if np.abs(govde_kesiti(k, u, z)[:, 0]).max() >= x_sinir:
             z_omuz = z
+    z_omuz = min(max(z_omuz, z_koltuk + 0.04), z_ust - 0.03)  # kol ağzı ve omuz bandı yok olmasın
 
     return {"boy": boy, "kasik": z_kasik, "bel": z_bel, "gogus": z_gogus, "koltuk": z_koltuk,
             "omuz": z_omuz, "ust": z_ust, "x_sinir": x_sinir}
@@ -258,13 +265,22 @@ def etek_hizasi(isr, length):
     return bel + length * (uyluk - bel)
 
 
+def satir_yuksekligi(i, z_etek, isr):
+    """i. gövde satırının yüksekliği: etek–koltuk, koltuk–omuz (kol ağzı), omuz–yaka bölgeleri."""
+    for bas, son, z0, z1 in ((0, KOLTUK_SATIR, z_etek, isr["koltuk"]),
+                             (KOLTUK_SATIR, OMUZ_SATIR, isr["koltuk"], isr["omuz"]),
+                             (OMUZ_SATIR, GOVDE_SATIR - 1, isr["omuz"], isr["ust"])):
+        if i <= son:
+            return z0 + (z1 - z0) * (i - bas) / (son - bas)
+
+
 def govde(k, u, isr, urun):
     """(GOVDE_SATIR, 64, 3) gövde noktaları, etekten yakaya."""
     z_etek = etek_hizasi(isr, urun["length"])
     gogus_xy = kirp(govde_kesiti(k, u, isr["gogus"]), isr["x_sinir"])
     satirlar = []
     for i in range(GOVDE_SATIR):
-        z = z_etek + (isr["ust"] - z_etek) * i / (GOVDE_SATIR - 1)
+        z = satir_yuksekligi(i, z_etek, isr)
         halka = govde_halkasi(k, u, z, isr, urun["width"], gogus_xy)
         satirlar.append(np.column_stack([halka, np.full(len(halka), z)]))
     return np.array(satirlar), z_etek
@@ -341,7 +357,7 @@ KOL_YONLER = [(0, -1), (1, 0), (0, 1), (-1, 0)]  # koltuk altı → ön → üst
 
 
 def kol(k, u, isr, urun, isaret):
-    """(KOL_SATIR, 32, 3) kol noktaları, omuzdan manşete."""
+    """(KOL_SATIR − 1, 32, 3) kol noktaları, omuzdan manşete; ilk halka gövdedeki kol ağzıdır."""
     hat, yaricap = kol_hatti(k, u, isr, isaret)
     pay = max(KOL_EN_AZ_PAY_M, 0.4 * govde_payi(isr["koltuk"], isr, urun["width"]) + 0.004)
     son = min(urun["sleeve"] * isr["boy"], hat[-1][0])
@@ -354,16 +370,18 @@ def kol(k, u, isr, urun, isaret):
         on, yukari = duzlem_cercevesi(d)
         ab = np.column_stack([(kesit - merkez) @ on, (kesit - merkez) @ yukari])
         cokgen = ote(olcum.zarf(ab), pay)
-        if s < KOL_REF_M:  # omuz başı: referans kesit, kol yuvasını örtecek kadar genişletilmiş
-            cokgen = cokgen * (1 + 0.12 * (KOL_REF_M - s) / (KOL_REF_M + KOL_BINDIRME_M))
+        if s < KOL_REF_M:
+            # Omuz başı: kol kesiti burada gövdeye karıştığı için referans kesit alınır; deltoid
+            # ondan geniş olduğu için kesit omuza doğru KOL_BASI_GENISLEME kadar büyütülür.
+            cokgen = cokgen * (1 + KOL_BASI_GENISLEME * (KOL_REF_M - s) / KOL_REF_M)
             merkez, d = hat[0][1] + hat[0][2] * s, hat[0][2]
             on, yukari = duzlem_cercevesi(d)
         ab = yeniden_orn(cokgen, np.zeros(2), KOL_YONLER, KOL_CEYREK)
         return merkez + ab[:, :1] * on + ab[:, 1:] * yukari, d
 
     satirlar = []
-    for j in range(KOL_SATIR):
-        s = -KOL_BINDIRME_M + (son + KOL_BINDIRME_M) * j / (KOL_SATIR - 1)
+    for j in range(KOL_SATIR - 1):
+        s = KOL_BAS_M + (son - KOL_BAS_M) * j / (KOL_SATIR - 2)
         satirlar.append(halka(s)[0])
     return np.array(satirlar), son, hat[0][2]
 
@@ -395,29 +413,26 @@ def sablon(k, u, agirliklar):
     return np.concatenate([g.reshape(-1, 3), kol_sol.reshape(-1, 3), kol_sag.reshape(-1, 3)]), olculer, (d_sol, d_sag)
 
 
-def izgara(satir, sutun, bas, ters):
-    """satir × sutun noktalı kapalı tüpün dörtgenleri (her satırın son sütunu ilkine bağlanır)."""
-    yuzler = []
-    for i in range(satir - 1):
-        for j in range(sutun):
-            a, b = bas + i * sutun + j, bas + i * sutun + (j + 1) % sutun
-            c, e = b + sutun, a + sutun
-            yuzler.append((a, e, c, b) if ters else (a, b, c, e))
-    return yuzler
+def kol_agzi(merkez, on):
+    """Gövdedeki kol ağzının kenarı: 32 köşe indisi, kol halkasıyla aynı sırada.
+
+    Kol halkası koltuk altı → ön → üst → arka diye döner; kenar da alt ortadan başlayıp ön kenarı,
+    omuzu (üst) ve arka kenarı dolaşır. merkez: yan dikiş sütunu; on: öne doğru sütun yönü (±1).
+    """
+    gc, w, r1, r2 = 4 * GOVDE_CEYREK, KOL_AGZI_YARIM, KOLTUK_SATIR, OMUZ_SATIR
+    nokta = [(r1, merkez + on * j) for j in range(w)]
+    nokta += [(r1 + i, merkez + on * w) for i in range(r2 - r1)]
+    nokta += [(r2, merkez + on * (w - j)) for j in range(2 * w)]
+    nokta += [(r2 - i, merkez - on * w) for i in range(r2 - r1)]
+    nokta += [(r1, merkez - on * (w - j)) for j in range(w)]
+    return [i * gc + j % gc for i, j in nokta]
 
 
-def uv_izgara(satir, sutun, u_aralik, v_aralik, ters_v):
-    """Her dörtgenin köşe UV'leri; dikiş sütunu u'nun iki ucunda ayrı UV alır."""
-    uvler = []
-    for i in range(satir - 1):
-        for j in range(sutun):
-            def uv(ii, jj):
-                u = u_aralik[0] + (u_aralik[1] - u_aralik[0]) * jj / sutun
-                t = ii / (satir - 1)
-                v = v_aralik[0] + (v_aralik[1] - v_aralik[0]) * ((1 - t) if ters_v else t)
-                return (u, v)
-            uvler.append([uv(i, j), uv(i, j + 1), uv(i + 1, j + 1), uv(i + 1, j)])
-    return uvler
+def uv_kose(u_aralik, v_aralik, i, j, satir, sutun, ters_v):
+    """Izgaranın (i, j) köşesinin UV'si; dikiş sütunu u'nun iki ucunda ayrı UV alır."""
+    u = u_aralik[0] + (u_aralik[1] - u_aralik[0]) * j / sutun
+    t = i / (satir - 1)
+    return (u, v_aralik[0] + (v_aralik[1] - v_aralik[0]) * ((1 - t) if ters_v else t))
 
 
 def mesh_kur(koseler, d_sol):
@@ -426,20 +441,41 @@ def mesh_kur(koseler, d_sol):
     on, yukari = duzlem_cercevesi(d_sol)
     sol_ters = np.cross(on, yukari) @ d_sol < 0  # kol halkasının dönüş yönü sağ ve sol kolda ters
 
-    yuzler = izgara(gs, gc, 0, False)
-    yuzler += izgara(ks, kc, gs * gc, sol_ters)
-    yuzler += izgara(ks, kc, gs * gc + ks * kc, not sol_ters)
+    # Gövde: kol ağızlarının dörtgenleri atlanır. UV'de u = sağ yan (0) → ön → sol yan (0,5) → arka
+    # → sağ yan (1); v etekten yakaya.
+    agiz = {(i, j % gc) for merkez in (0, gc // 2) for i in range(KOLTUK_SATIR, OMUZ_SATIR)
+            for j in range(merkez - KOL_AGZI_YARIM, merkez + KOL_AGZI_YARIM)}
+    yuzler, uvler = [], []
+    for i in range(gs - 1):
+        for j in range(gc):
+            if (i, j) in agiz:
+                continue
+            a, b = i * gc + j, i * gc + (j + 1) % gc
+            yuzler.append((a, b, b + gc, a + gc))
+            uvler.append([uv_kose((0.0, 1.0), GOVDE_V, ii, jj, gs, gc, False)
+                          for ii, jj in ((i, j), (i, j + 1), (i + 1, j + 1), (i + 1, j))])
 
-    # UV: gövdede u = sağ yan (0) → ön → sol yan (0,5) → arka → sağ yan (1); v etekten yakaya.
-    # Kollarda u = koltuk altı → ön → üst → arka; sağ kol 0–0,5, sol kol 0,5–1; v omuzdan (0,25) manşete (0).
-    def kol_uv(u_aralik, ters):
-        # Ters sargılı kolda dörtgenin köşe sırası (a, e, c, b) olur; UV'ler de aynı sırayla
-        return [[a, e, c, b] if ters else [a, b, c, e]
-                for a, b, c, e in uv_izgara(ks, kc, u_aralik, KOL_V, True)]
+    # Kollar: ilk halka gövdedeki kol ağzı (kol gövdeye dikili), diğerleri kolun kendi halkaları.
+    # UV'de u = koltuk altı → ön → üst → arka (sağ kol 0–0,5, sol kol 0,5–1); v omuzdan (0,25)
+    # manşete (0).
+    def kol_yuzleri(agiz_kenari, bas, u_aralik, ters):
+        halkalar = [agiz_kenari] + [list(range(bas + t * kc, bas + (t + 1) * kc)) for t in range(ks - 1)]
+        for t in range(ks - 1):
+            for j in range(kc):
+                a, b = halkalar[t][j], halkalar[t][(j + 1) % kc]
+                c, e = halkalar[t + 1][(j + 1) % kc], halkalar[t + 1][j]
+                kose = [uv_kose(u_aralik, KOL_V, ii, jj, ks, kc, True)
+                        for ii, jj in ((t, j), (t, j + 1), (t + 1, j + 1), (t + 1, j))]
+                if ters:
+                    yuzler.append((a, e, c, b))
+                    uvler.append([kose[0], kose[3], kose[2], kose[1]])
+                else:
+                    yuzler.append((a, b, c, e))
+                    uvler.append(kose)
 
-    uvler = uv_izgara(gs, gc, (0.0, 1.0), GOVDE_V, False)
-    uvler += kol_uv((0.5, 1.0), sol_ters)
-    uvler += kol_uv((0.0, 0.5), not sol_ters)
+    kol_bas = gs * gc
+    kol_yuzleri(kol_agzi(gc // 2, -1), kol_bas, (0.5, 1.0), sol_ters)
+    kol_yuzleri(kol_agzi(0, +1), kol_bas + (ks - 1) * kc, (0.0, 0.5), not sol_ters)
 
     mesh = bpy.data.meshes.new("Garment")
     mesh.from_pydata(koseler.tolist(), [], yuzler)
@@ -456,8 +492,7 @@ def mesh_kur(koseler, d_sol):
 
 def anahtar_noktalar(isr):
     """Sözleşmedeki 7 noktanın UV'si; GLB'deki gibi (glTF: sol üst köşe 0,0, v aşağı)."""
-    t_omuz = (isr["omuz"] - isr["etek"]) / (isr["ust"] - isr["etek"])
-    v_omuz = GOVDE_V[0] + (GOVDE_V[1] - GOVDE_V[0]) * t_omuz
+    v_omuz = GOVDE_V[0] + (GOVDE_V[1] - GOVDE_V[0]) * OMUZ_SATIR / (GOVDE_SATIR - 1)  # kol ağzının üstü
     blender = {
         "yaka_orta": (0.25, GOVDE_V[1]),
         "omuz_sol": (0.5, v_omuz),
@@ -505,7 +540,6 @@ def main():
     print("[2/5] Taban şablon kuruluyor")
     taban, taban_olcu, (d_sol, _) = sablon(vucut["taban"], u, {})
     isr = isaretler(vucut["taban"], u)
-    isr["etek"] = etek_hizasi(isr, 0.0)
     print(f"      {len(taban)} köşe · ölçüler {taban_olcu}")
 
     nesne = mesh_kur(taban, d_sol)
