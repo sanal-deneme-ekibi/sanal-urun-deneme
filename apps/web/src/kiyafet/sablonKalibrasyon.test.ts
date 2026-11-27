@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TISORT_KALIBRASYON, tabanEfektif, urunCozucu, urunTahmin } from './sablonKalibrasyon'
+import { TISORT_KALIBRASYON, sablonNotlari, tabanEfektif, urunCozucu, urunTahmin } from './sablonKalibrasyon'
 import type { Agirliklar } from '../olcu/kalibrasyon'
 
 const SIFIR: Agirliklar = { height: 0, chest: 0, waist: 0, hip: 0, weight: 0, arm_length: 0, leg_length: 0 }
@@ -33,5 +33,20 @@ describe.each(['kadin', 'erkek'] as const)('tişört şablonu (%s)', (model) => 
   it('verilmeyen ölçü hesaba girmez', () => {
     const sonuc = urunCozucu({ en: null, boy: undefined }, kalib, ORTA)
     expect(sonuc.fark).toEqual({ boy: 0, en: 0, kol: 0 })
+  })
+})
+
+describe('sablonNotlari', () => {
+  const sifir = { boy: 0, en: 0, kol: 0 }
+  it('ulaşılan ölçüde not yok', () => {
+    expect(sablonNotlari({ fark: sifir, ulasilan: { boy: 67, en: 48, kol: 19 } })).toEqual([])
+  })
+  it('uzayamayan boyu ve daralamayan eni söyler', () => {
+    const n = sablonNotlari({ fark: { boy: -18.5, en: 2.2, kol: 0 }, ulasilan: { boy: 76.5, en: 50.2, kol: 19 } })
+    expect(n).toHaveLength(2)
+    expect(n[0]).toContain('boyuna kadar büyüyemiyor (en fazla 77 cm)')
+    expect(n[0]).toContain('kısa')
+    expect(n[1]).toContain('enine kadar küçülemiyor')
+    expect(n[1]).toContain('bol')
   })
 })

@@ -4,6 +4,7 @@
 import { createContext, useContext, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Kirpma } from './doku'
+import type { BedenSatiri } from '../uygunluk/uygunluk'
 
 export type Urun = {
   /** Küçültülmüş fotoğraf (JPEG data URL, en uzun kenar 1600 px) */
@@ -15,6 +16,8 @@ export type Urun = {
   arkaAyni: boolean
   /** Kırpmaya kaçan fotoğraf zemini kumaş rengine boyansın mı (eski kayıtlarda yok: açık sayılır) */
   zeminTemizle?: boolean
+  /** Ürünün beden tablosu (düz serili cm). Eski kayıtlarda yok: örnek tablo kullanılır. */
+  bedenler?: BedenSatiri[]
 }
 
 const ANAHTAR = 'sanal-urun-deneme.urun.v1'
