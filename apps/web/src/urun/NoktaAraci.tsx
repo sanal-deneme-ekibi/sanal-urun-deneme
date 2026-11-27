@@ -53,14 +53,15 @@ export default function NoktaAraci({ src, noktalar, degisti }: Props) {
       onPointerMove={hareket}
       onPointerUp={bitir}
       onPointerCancel={bitir}
-      style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', touchAction: 'none', userSelect: 'none', lineHeight: 0 }}
+      // Kutu görselin boyutunda: görsel hem genişliğe hem yüksekliğe sığar, noktalar hep görünür
+      style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', touchAction: 'none', userSelect: 'none', lineHeight: 0 }}
     >
       <img
         src={src}
         alt="Yüklenen ürün fotoğrafı"
         draggable={false}
         onLoad={(e) => setOran(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight || 1)}
-        style={{ width: '100%', display: 'block' }}
+        style={{ display: 'block', width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: 'var(--foto-en-yuksek, 70vh)', borderRadius: 10 }}
       />
       <svg
         viewBox={`0 0 ${oran} 1`}

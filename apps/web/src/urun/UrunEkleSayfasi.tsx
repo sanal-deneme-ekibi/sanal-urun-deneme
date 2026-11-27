@@ -78,7 +78,7 @@ export default function UrunEkleSayfasi() {
       <section className="sahne calisma" aria-label="Ürün fotoğrafı">
         {foto ? (
           <>
-            <div style={{ width: '100%', maxWidth: 560 }}>
+            <div className="foto-cerceve">
               <NoktaAraci src={foto} noktalar={noktalar} degisti={setNoktalar} />
             </div>
             <p style={{ margin: 0, maxWidth: 560, fontSize: 14, lineHeight: 1.5, color: '#3d3e44' }}>
@@ -220,7 +220,8 @@ export default function UrunEkleSayfasi() {
           ornekYukle={() => setTablo(metneCevir(ORNEK_BEDENLER.tisort))}
         />
 
-        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {/* Kaydet düğmesi panelin altına yapışık: tablo uzasa da hep görünür */}
+        <div className="panel-alt">
           <button
             type="button"
             className="dugme"
