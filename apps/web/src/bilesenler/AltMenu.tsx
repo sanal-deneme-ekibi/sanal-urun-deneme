@@ -17,25 +17,12 @@ const SEKMELER = [
 
 export default function AltMenu() {
   return (
-    <nav aria-label="Ana menü" style={{ display: 'flex', borderTop: '1px solid #d6d6d3', background: '#fff' }}>
+    <nav aria-label="Ana menü" className="alt-menu">
       {SEKMELER.map((s) => (
         <NavLink
           key={s.yol}
           to={s.yol}
           end={s.yol === '/'} // Kıyafet sekmesi /kiyafet/ekle'de de seçili görünsün
-          style={({ isActive }) => ({
-            flex: 1,
-            minHeight: 56,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            fontSize: 12,
-            textDecoration: 'none',
-            color: isActive ? '#1b1b1f' : '#6b6b70',
-            fontWeight: isActive ? 700 : 400,
-          })}
         >
           {s.simge}
           {s.ad}

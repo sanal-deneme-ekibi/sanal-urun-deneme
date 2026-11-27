@@ -16,11 +16,7 @@ import { ORNEK_BEDENLER } from '../uygunluk/ornekBedenler'
 import { useUrun } from '../urun/UrunBaglami'
 import { useUrunDokusu } from '../urun/useUrunDokusu'
 
-const DURUM_RENGI: Record<Durum, { yazi: string; zemin: string; cerceve: string; etiket: string }> = {
-  dar: { yazi: '#7f1d1d', zemin: '#fef2f2', cerceve: '#fecaca', etiket: 'Dar' },
-  uygun: { yazi: '#14532d', zemin: '#f0fdf4', cerceve: '#bbf7d0', etiket: 'Uygun' },
-  bol: { yazi: '#78350f', zemin: '#fffbeb', cerceve: '#fde68a', etiket: 'Bol' },
-}
+const DURUM_ETIKETI: Record<Durum, string> = { dar: 'Dar', uygun: 'Uygun', bol: 'Bol' }
 
 const KUMAS_RENKLERI = ['#e8e8e8', '#1f2937', '#1d4ed8', '#b91c1c', '#15803d', '#f5d0a9']
 
@@ -49,159 +45,122 @@ export default function DenemeSayfasi() {
   const notlar = sablonNotlari(urunSekli)
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%' }}>
-      <div style={{ flex: '999 1 320px', minWidth: 0, minHeight: 360 }}>
-        <Viewer>
+    <div className="duzen">
+      <section className="sahne" aria-label="Avatarda deneme">
+        <Viewer boy={sonuc.ulasilan.boy / 100} etiket={`Tişört · ${beden.beden}`}>
           <Suspense fallback={null}>
             <Avatar model={model} agirliklar={sonuc.agirliklar} kiyafetAltinda kumasRengi={urun?.zeminRengi ?? renk} />
             <Kiyafet model={model} vucut={sonuc.agirliklar} urun={urunSekli.agirliklar} doku={doku} renk={renk} />
           </Suspense>
         </Viewer>
-      </div>
+      </section>
 
-      <div style={{ flex: '1 1 280px', background: '#fff', overflowY: 'auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <ModelSecici />
-        <h2 style={{ margin: 0, fontSize: 20 }}>Tişört dene</h2>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ fontSize: 14, color: '#444' }}>
-            Beden
-            {ornekTablo ? (
-              <small style={{ color: '#8a8a8f' }}> · örnek tablo</small>
-            ) : (
-              <small style={{ color: '#8a8a8f' }}> · ürünün tablosu</small>
-            )}
-          </span>
-          <div role="group" aria-label="Beden" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {bedenler.map((b) => {
-              const d = uygunlukHesapla('tisort', b, vucutCevre).durum
-              const secili = b.beden === beden.beden
-              return (
-                <button
-                  key={b.beden}
-                  type="button"
-                  aria-pressed={secili}
-                  onClick={() => setSecilen(b.beden)}
-                  style={{
-                    flex: '1 0 56px',
-                    minHeight: 48,
-                    borderRadius: 10,
-                    border: `2px solid ${secili ? '#1b1b1f' : DURUM_RENGI[d].cerceve}`,
-                    background: DURUM_RENGI[d].zemin,
-                    color: DURUM_RENGI[d].yazi,
-                    fontWeight: secili ? 700 : 500,
-                    fontSize: 15,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {b.beden}
-                  <br />
-                  <small style={{ fontSize: 12 }}>{DURUM_RENGI[d].etiket}</small>
-                </button>
-              )
-            })}
+      <aside className="panel">
+        <div className="panel-ic">
+          <div className="panel-baslik">
+            <h1>Tişört dene</h1>
+            <ModelSecici />
           </div>
-        </div>
 
-        <div
-          role="status"
-          style={{
-            background: DURUM_RENGI[uygunluk.durum].zemin,
-            border: `1px solid ${DURUM_RENGI[uygunluk.durum].cerceve}`,
-            color: DURUM_RENGI[uygunluk.durum].yazi,
-            borderRadius: 10,
-            padding: '10px 12px',
-            lineHeight: 1.5,
-          }}
-        >
-          <b>{beden.beden}</b> beden: {uygunluk.olculer.map(olcuyuAnlat).join(' · ') || 'karşılaştırılacak ölçü yok'}
-          {oneri && oneri.beden !== beden.beden && (
-            <>
-              <br />
-              <small>Önerimiz: {oneri.beden}</small>
-            </>
+          {urun ? (
+            <div className="urun-kart">
+              <img src={urun.foto} alt="Denenen ürün" />
+              <div>
+                <b>Ürününüz</b>
+                <br />
+                <small style={{ color: 'var(--soluk)' }}>Tişört · fotoğraftan</small>
+              </div>
+              <Link to="/kiyafet/ekle" className="dugme-metin">
+                Değiştir
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <Link to="/kiyafet/ekle" className="dugme">
+                Ürün fotoğrafı ekle
+              </Link>
+              <span className="etiket">veya düz renk dene</span>
+              <div role="group" aria-label="Kumaş rengi" className="renkler">
+                {KUMAS_RENKLERI.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    aria-label={`Renk ${r}`}
+                    aria-pressed={r === renk}
+                    onClick={() => setRenk(r)}
+                    style={{ background: r }}
+                  />
+                ))}
+              </div>
+            </div>
           )}
-          <br />
-          <small>
-            Tablo: boy {beden.boy_cm ?? '–'} · en {beden.en_cm ?? '–'} · kol {beden.kol_cm ?? '–'} cm
-            {urun && (
-              <>
-                {' · '}
-                <Link to="/kiyafet/ekle" style={{ color: 'inherit' }}>
-                  düzenle
-                </Link>
-              </>
-            )}
-          </small>
-          {notlar.map((n) => (
-            <span key={n}>
-              <br />
-              <small>{n}</small>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span className="etiket">Beden</span>
+              <small style={{ color: 'var(--soluk)' }}>{ornekTablo ? 'örnek tablo' : 'ürünün tablosu'}</small>
             </span>
-          ))}
-        </div>
-
-        {urun ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, border: '1px solid #e2e2e0', borderRadius: 10, padding: 10 }}>
-            <img src={urun.foto} alt="Denenen ürün" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }} />
-            <div style={{ flex: 1, fontSize: 14, lineHeight: 1.4 }}>
-              <b>Ürününüz</b>
-              <br />
-              <small style={{ color: '#666' }}>Tişört · fotoğraftan</small>
-            </div>
-            <Link to="/kiyafet/ekle" style={{ fontSize: 14, color: '#1d4ed8' }}>
-              Değiştir
-            </Link>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Link
-              to="/kiyafet/ekle"
-              style={{ minHeight: 48, borderRadius: 10, background: '#1b1b1f', color: '#fff', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
-            >
-              Ürün fotoğrafı ekle
-            </Link>
-            <span style={{ fontSize: 14, color: '#444', marginTop: 6 }}>veya düz renk dene</span>
-            <div role="group" aria-label="Kumaş rengi" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {KUMAS_RENKLERI.map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  aria-label={`Renk ${r}`}
-                  aria-pressed={r === renk}
-                  onClick={() => setRenk(r)}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    background: r,
-                    border: r === renk ? '3px solid #1b1b1f' : '1px solid #cbd5e1',
-                    cursor: 'pointer',
-                  }}
-                />
-              ))}
+            <div role="group" aria-label="Beden" className="bedenler">
+              {bedenler.map((b) => {
+                const d = uygunlukHesapla('tisort', b, vucutCevre).durum
+                return (
+                  <button
+                    key={b.beden}
+                    type="button"
+                    className="beden"
+                    data-durum={d}
+                    aria-pressed={b.beden === beden.beden}
+                    onClick={() => setSecilen(b.beden)}
+                  >
+                    {b.beden}
+                    <small>{DURUM_ETIKETI[d]}</small>
+                  </button>
+                )
+              })}
             </div>
           </div>
-        )}
 
-        <div style={{ borderTop: '1px solid #e2e2e0', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#444' }}>
-            <input type="checkbox" checked={teknik} onChange={(e) => setTeknik(e.target.checked)} />
-            Teknik ayrıntılar
-          </label>
-          {teknik && (
-            <small style={{ color: '#666', lineHeight: 1.6, fontFamily: 'monospace' }}>
-              length = {urunSekli.agirliklar.length.toFixed(2)} · width = {urunSekli.agirliklar.width.toFixed(2)} · sleeve ={' '}
-              {urunSekli.agirliklar.sleeve.toFixed(2)}
-              <br />
-              tablo: boy {beden.boy_cm ?? '–'} · en {beden.en_cm ?? '–'} · kol {beden.kol_cm ?? '–'} cm
-              <br />
-              şablon: boy {urunSekli.ulasilan.boy.toFixed(1)} · en {urunSekli.ulasilan.en.toFixed(1)} · kol{' '}
-              {urunSekli.ulasilan.kol.toFixed(1)} cm
+          <div role="status" className="sonuc" data-durum={uygunluk.durum}>
+            <span className="sonuc-baslik">
+              {beden.beden} beden · {DURUM_ETIKETI[uygunluk.durum].toLocaleLowerCase('tr')}
+            </span>
+            <span>{uygunluk.olculer.map(olcuyuAnlat).join(' · ') || 'Karşılaştırılacak ölçü yok'}</span>
+            {oneri && oneri.beden !== beden.beden && <b>Önerimiz: {oneri.beden}</b>}
+            <small>
+              Tablo: boy {beden.boy_cm ?? '–'} · en {beden.en_cm ?? '–'} · kol {beden.kol_cm ?? '–'} cm
+              {urun && (
+                <>
+                  {' · '}
+                  <Link to="/kiyafet/ekle" style={{ color: 'inherit' }}>
+                    düzenle
+                  </Link>
+                </>
+              )}
             </small>
-          )}
+            {notlar.map((n) => (
+              <small key={n}>{n}</small>
+            ))}
+          </div>
+
+          <div className="bolum" style={{ gap: 8 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--metin)' }}>
+              <input type="checkbox" checked={teknik} onChange={(e) => setTeknik(e.target.checked)} />
+              Teknik ayrıntılar
+            </label>
+            {teknik && (
+              <div className="teknik">
+                length = {urunSekli.agirliklar.length.toFixed(2)} · width = {urunSekli.agirliklar.width.toFixed(2)} · sleeve ={' '}
+                {urunSekli.agirliklar.sleeve.toFixed(2)}
+                <br />
+                tablo: boy {beden.boy_cm ?? '–'} · en {beden.en_cm ?? '–'} · kol {beden.kol_cm ?? '–'} cm
+                <br />
+                şablon: boy {urunSekli.ulasilan.boy.toFixed(1)} · en {urunSekli.ulasilan.en.toFixed(1)} · kol{' '}
+                {urunSekli.ulasilan.kol.toFixed(1)} cm
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </aside>
     </div>
   )
 }
