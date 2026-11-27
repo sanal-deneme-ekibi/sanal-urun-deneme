@@ -1,2 +1,527 @@
-html, body, #root { margin: 0; height: 100%; }
-body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1b1b1f; }
+/* Sanal Ürün Deneme · arayüz tokenları
+   Arayüz Şablonu'ndaki dil: IBM Plex, mürekkep siyahı, tek vurgu mavisi, kâğıt beji zemin.
+   Düzen: geniş ekranda solda 3B sahne + sağda sabit genişlikte panel; telefonda üstte sahne,
+   altında yukarı doğru açılan bir sayfa (sheet). */
+:root {
+  --murekkep: #1b1b1f;
+  --metin: #3d3e44;
+  --soluk: #6b6b72;
+  --cizgi: #e3e2dc;
+  --kagit: #f4f3ef;
+  --yuzey: #ffffff;
+  --yuzey-2: #f8f7f4;
+  --vurgu: #1d4ed8;
+  --vurgu-acik: #e8eefc;
+  --sahne-ust: #f1f0eb;
+  --sahne-alt: #dfdcd3;
+
+  --dar: #9f1239;
+  --dar-zemin: #fff1f2;
+  --uygun: #166534;
+  --uygun-zemin: #ecfdf3;
+  --bol: #92400e;
+  --bol-zemin: #fffbeb;
+
+  --yazi: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --panel-genislik: 400px;
+  --yaricap: 12px;
+  --golge: 0 1px 2px rgba(27, 27, 31, 0.06), 0 8px 24px rgba(27, 27, 31, 0.06);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--yazi);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--murekkep);
+  background: var(--kagit);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+h2 {
+  font-size: 18px;
+  font-weight: 650;
+}
+h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+small {
+  font-size: 13px;
+}
+
+code,
+.mono {
+  font-family: var(--mono);
+}
+
+a {
+  color: var(--vurgu);
+}
+
+:focus-visible {
+  outline: 2px solid var(--vurgu);
+  outline-offset: 2px;
+}
+
+/* --- Form denetimleri: bileşenler kendi satır içi stilini verse de temel görünüm buradan --- */
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type='range'] {
+  width: 100%;
+  accent-color: var(--murekkep);
+  height: 24px;
+  margin: 0;
+}
+
+input[type='checkbox'] {
+  accent-color: var(--murekkep);
+  width: 16px;
+  height: 16px;
+}
+
+select,
+input[type='text'],
+input:not([type]),
+input[inputmode] {
+  min-height: 38px;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+  background: var(--yuzey);
+  padding: 0 10px;
+}
+
+select:focus,
+input:focus {
+  border-color: var(--vurgu);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--vurgu-acik);
+}
+
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Uygulama kabuğu --- */
+
+.kabuk {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--kagit);
+}
+
+.kabuk-icerik {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.alt-menu {
+  display: flex;
+  background: var(--yuzey);
+  border-top: 1px solid var(--cizgi);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.alt-menu a {
+  position: relative;
+  flex: 1;
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--soluk);
+}
+
+.alt-menu a.active {
+  color: var(--murekkep);
+  font-weight: 600;
+}
+
+.alt-menu a.active::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 30%;
+  right: 30%;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--vurgu);
+}
+
+/* --- Sahne + panel düzeni --- */
+
+.duzen {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--panel-genislik);
+}
+
+.sahne {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background: radial-gradient(120% 90% at 50% 20%, var(--sahne-ust) 0%, var(--sahne-ust) 40%, var(--sahne-alt) 100%);
+}
+
+.sahne-etiket {
+  position: absolute;
+  top: 16px;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soluk);
+  pointer-events: none;
+}
+
+.sahne-ipucu {
+  position: absolute;
+  top: 12px;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--metin);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--cizgi);
+  border-radius: 999px;
+  padding: 4px 12px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.panel {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--yuzey);
+  border-left: 1px solid var(--cizgi);
+}
+
+.panel-ic {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  padding-bottom: 28px;
+}
+
+.panel-baslik {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bolum {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cizgi);
+}
+
+/* Çocuk bileşenlerin kendi dış boşluğu panelin boşluğuyla çakışmasın */
+.panel-ic > .gomulu > div {
+  padding: 0 !important;
+  border-top: 0 !important;
+}
+
+.etiket {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soluk);
+}
+
+/* Kadın / Erkek gibi iki-üç seçenekli anahtar */
+.segment {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--yuzey-2);
+  border: 1px solid var(--cizgi);
+  border-radius: 999px;
+}
+
+.segment button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--metin);
+  font-size: 14px;
+}
+
+.segment button[aria-pressed='true'] {
+  background: var(--murekkep);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Telefon: sahne üstte, panel altta yukarı kayan bir sayfa gibi */
+@media (max-width: 820px) {
+  .duzen {
+    display: flex;
+    flex-direction: column;
+  }
+  .sahne {
+    flex: 0 0 auto;
+    height: 54dvh;
+    min-height: 300px;
+    /* Alttaki sayfa sahnenin 18 px üstüne biniyor: avatar o kısmın üstüne sığdırılır */
+    padding-bottom: 18px;
+  }
+  .panel {
+    flex: 1;
+    border-left: 0;
+    border-radius: 18px 18px 0 0;
+    margin-top: -18px;
+    position: relative;
+    box-shadow: 0 -6px 20px rgba(27, 27, 31, 0.08);
+  }
+  .panel::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--cizgi);
+    margin: 8px auto 0;
+  }
+  .panel-ic {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Ölçülerim: OlcuPaneli'nin kendi "Ölçülerim" başlığı sayfa başlığıyla aynı, gizlenir */
+.olcu-gomulu > div > h2:first-child {
+  display: none;
+}
+
+/* --- Düğmeler --- */
+.dugme {
+  min-height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--murekkep);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  text-decoration: none;
+}
+.dugme:hover {
+  background: #33333a;
+}
+.dugme:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.dugme-ikincil {
+  min-height: 44px;
+  border: 1px solid var(--murekkep);
+  border-radius: 10px;
+  background: var(--yuzey);
+  color: var(--murekkep);
+  font-size: 15px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  text-decoration: none;
+}
+.dugme-ikincil:hover {
+  background: var(--yuzey-2);
+}
+.dugme-metin {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--vurgu);
+  font-size: 14px;
+}
+
+/* --- Kıyafet: ürün kartı, beden düğmeleri, sonuç --- */
+.urun-kart {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--cizgi);
+  border-radius: var(--yaricap);
+  background: var(--yuzey-2);
+}
+.urun-kart img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--yuzey);
+}
+.urun-kart > div {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.bedenler {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 8px;
+}
+.beden {
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid var(--cizgi);
+  background: var(--yuzey);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--murekkep);
+}
+.beden small {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.beden[data-durum='dar'] small { color: var(--dar); }
+.beden[data-durum='uygun'] small { color: var(--uygun); }
+.beden[data-durum='bol'] small { color: var(--bol); }
+.beden[aria-pressed='true'] {
+  border: 2px solid var(--murekkep);
+  box-shadow: var(--golge);
+}
+
+.sonuc {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--yaricap);
+  border: 1px solid transparent;
+}
+.sonuc[data-durum='dar'] { background: var(--dar-zemin); color: var(--dar); border-color: #fecdd3; }
+.sonuc[data-durum='uygun'] { background: var(--uygun-zemin); color: var(--uygun); border-color: #bbf7d0; }
+.sonuc[data-durum='bol'] { background: var(--bol-zemin); color: var(--bol); border-color: #fde68a; }
+.sonuc-baslik {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.sonuc small {
+  color: var(--metin);
+}
+
+.renkler {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.renkler button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(27, 27, 31, 0.15);
+}
+.renkler button[aria-pressed='true'] {
+  box-shadow: 0 0 0 2px var(--yuzey), 0 0 0 4px var(--murekkep);
+}
+
+.teknik {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--soluk);
+}
+
+/* Ürün ekle: sahne yerine fotoğrafla çalışılan alan */
+.sahne.calisma {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px max(16px, env(safe-area-inset-left, 0px));
+  background: var(--kagit);
+}
+@media (max-width: 820px) {
+  .sahne.calisma {
+    height: auto;
+    min-height: 0;
+    max-height: 62dvh;
+    justify-content: flex-start;
+    padding-bottom: 36px;
+  }
+}

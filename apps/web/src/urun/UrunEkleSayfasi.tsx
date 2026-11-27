@@ -20,27 +20,6 @@ const TURLER = [
   { ad: 'Elbise', hazir: false },
 ]
 
-const birincilDugme: React.CSSProperties = {
-  minHeight: 48,
-  borderRadius: 10,
-  border: 'none',
-  background: '#1b1b1f',
-  color: '#fff',
-  fontSize: 15,
-  fontWeight: 600,
-  cursor: 'pointer',
-}
-const ikincilDugme: React.CSSProperties = {
-  minHeight: 44,
-  borderRadius: 10,
-  border: '2px solid #1b1b1f',
-  background: '#fff',
-  color: '#1b1b1f',
-  fontSize: 15,
-  fontWeight: 500,
-  cursor: 'pointer',
-}
-
 export default function UrunEkleSayfasi() {
   const { urun, urunKaydet } = useUrun()
   const git = useNavigate()
@@ -95,8 +74,8 @@ export default function UrunEkleSayfasi() {
   }
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', minHeight: '100%' }}>
-      <div style={{ flex: '999 1 320px', minWidth: 0, padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+    <div className="duzen">
+      <section className="sahne calisma" aria-label="Ürün fotoğrafı">
         {foto ? (
           <>
             <div style={{ width: '100%', maxWidth: 560 }}>
@@ -109,7 +88,7 @@ export default function UrunEkleSayfasi() {
               <button
                 type="button"
                 onClick={() => setNoktalar(VARSAYILAN_NOKTALAR)}
-                style={{ border: 'none', background: 'none', color: '#1d4ed8', padding: 0, fontSize: 14, cursor: 'pointer' }}
+                style={{ border: 'none', background: 'none', color: 'var(--vurgu)', padding: 0, fontSize: 14 }}
               >
                 Noktaları sıfırla
               </button>
@@ -143,13 +122,16 @@ export default function UrunEkleSayfasi() {
             <small style={{ color: '#6b6b70' }}>Düz zemine serilmiş, karşıdan çekilmiş tişört en iyi sonucu verir</small>
           </button>
         )}
-      </div>
+      </section>
 
-      <div style={{ flex: '1 1 280px', background: '#fff', padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <h2 style={{ margin: 0, fontSize: 20 }}>Ürün ekle</h2>
+      <aside className="panel">
+      <div className="panel-ic" style={{ minHeight: '100%' }}>
+        <div className="panel-baslik">
+          <h1>Ürün ekle</h1>
+        </div>
 
         <input ref={dosyaGirdisi} type="file" accept="image/*" onChange={dosyaSecildi} hidden />
-        <button type="button" style={ikincilDugme} onClick={() => dosyaGirdisi.current?.click()}>
+        <button type="button" className="dugme-ikincil" onClick={() => dosyaGirdisi.current?.click()}>
           {foto ? 'Başka fotoğraf seç' : 'Fotoğraf yükle / çek'}
         </button>
         {hata && (
@@ -159,7 +141,7 @@ export default function UrunEkleSayfasi() {
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ fontSize: 14, color: '#444' }}>Tür</span>
+          <span className="etiket">Tür</span>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {TURLER.map((t) => (
               <span
@@ -241,7 +223,7 @@ export default function UrunEkleSayfasi() {
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
             type="button"
-            style={{ ...birincilDugme, opacity: foto && !tabloEngelli ? 1 : 0.4 }}
+            className="dugme"
             disabled={!foto || tabloEngelli}
             onClick={kaydet}
           >
@@ -251,7 +233,8 @@ export default function UrunEkleSayfasi() {
           {urun && (
             <button
               type="button"
-              style={{ ...ikincilDugme, border: 'none', color: '#7f1d1d', minHeight: 36, fontSize: 14 }}
+              className="dugme-metin"
+              style={{ color: 'var(--dar)', alignSelf: 'center', minHeight: 36 }}
               onClick={() => {
                 urunKaydet(null)
                 git('/kiyafet')
@@ -262,6 +245,7 @@ export default function UrunEkleSayfasi() {
           )}
         </div>
       </div>
+      </aside>
     </div>
   )
 }

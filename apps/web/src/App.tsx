@@ -13,8 +13,8 @@ export default function App() {
     <BrowserRouter>
       <OlcuSaglayici>
       <UrunSaglayici>
-      <div style={{ width: '100%', height: '100dvh', display: 'flex', flexDirection: 'column', background: '#eef2f6' }}>
-        <main style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      <div className="kabuk">
+        <main className="kabuk-icerik">
           <Routes>
             <Route path="/" element={<OlculerSayfasi />} />
             <Route path="/kiyafet" element={<DenemeSayfasi />} />

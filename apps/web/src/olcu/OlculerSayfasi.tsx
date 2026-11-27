@@ -11,30 +11,38 @@ export default function OlculerSayfasi() {
   const { model, olculer, sonuc, olcuDegistir } = useOlculer()
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%' }}>
-      <div style={{ flex: '999 1 320px', minWidth: 0, minHeight: 360 }}>
-        <Viewer>
+    <div className="duzen">
+      <section className="sahne" aria-label="Avatar">
+        <Viewer boy={sonuc.ulasilan.boy / 100} etiket="Avatarın">
           <Suspense fallback={null}>
             <Avatar model={model} agirliklar={sonuc.agirliklar} />
           </Suspense>
         </Viewer>
-      </div>
-      <div style={{ flex: '1 1 280px', background: '#fff', overflowY: 'auto' }}>
-        <div style={{ padding: '20px 20px 0' }}>
-          <ModelSecici />
+      </section>
+      <aside className="panel">
+        <div className="panel-ic">
+          <div className="panel-baslik">
+            <h1>Ölçülerim</h1>
+            <ModelSecici />
+          </div>
+          {/* OlcuPaneli kendi başlığını da çiziyor; burada sayfa başlığı var, onunki gizlenir */}
+          <div className="gomulu olcu-gomulu">
+            <OlcuPaneli olculer={olculer} sonuc={sonuc} degisti={olcuDegistir} />
+          </div>
+          {/* Beden önerisi, kullanıcının yazdığı hedefi değil avatarın ulaştığı ölçüyü kullanır. */}
+          <div className="gomulu bolum">
+            <UygunlukPaneli
+              vucut={{
+                gogus: sonuc.ulasilan.gogus,
+                bel: sonuc.ulasilan.bel,
+                kalca: sonuc.ulasilan.kalca,
+                // İç bacak yalnızca kullanıcı girdiyse: girmediyse avatarın tahmini, gerçek ölçü değil
+                ic_bacak: olculer.ic_bacak !== undefined ? sonuc.ulasilan.ic_bacak : undefined,
+              }}
+            />
+          </div>
         </div>
-        <OlcuPaneli olculer={olculer} sonuc={sonuc} degisti={olcuDegistir} />
-        {/* Beden önerisi, kullanıcının yazdığı hedefi değil avatarın ulaştığı ölçüyü kullanır. */}
-        <UygunlukPaneli
-          vucut={{
-            gogus: sonuc.ulasilan.gogus,
-            bel: sonuc.ulasilan.bel,
-            kalca: sonuc.ulasilan.kalca,
-            // İç bacak yalnızca kullanıcı girdiyse: girmediyse avatarın tahmini, gerçek ölçü değil
-            ic_bacak: olculer.ic_bacak !== undefined ? sonuc.ulasilan.ic_bacak : undefined,
-          }}
-        />
-      </div>
+      </aside>
     </div>
   )
 }
