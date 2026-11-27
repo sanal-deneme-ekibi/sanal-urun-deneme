@@ -3,7 +3,7 @@ import type { Agirliklar } from '../olcu/kalibrasyon'
 
 // Ağırlıkları shape key ADINA göre uygular (GLB sözleşmesi: height, chest, waist, hip).
 // Avatarda da kıyafet şablonlarında da aynı fonksiyon kullanılacak.
-export function agirliklariUygula(mesh: THREE.Mesh, agirliklar: Partial<Agirliklar>) {
+export function agirliklariUygula(mesh: THREE.Mesh, agirliklar: Partial<Agirliklar> | Record<string, number>) {
   const sozluk = mesh.morphTargetDictionary
   const etkiler = mesh.morphTargetInfluences
   if (!sozluk || !etkiler) return

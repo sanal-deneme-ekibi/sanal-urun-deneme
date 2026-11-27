@@ -79,8 +79,8 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
         </label>
         {teknik && (
           <small style={{ color: '#666', lineHeight: 1.5 }}>
-            Kaydırıcıdaki cm değerleri ölçü çözücüyle shape key ağırlıklarına (0–1) çevrilir. Dört ölçü birlikte
-            çözülür. Ortalama sapma: <b>{sonuc.ortalamaHataCm.toFixed(1)} cm</b>
+            Kaydırıcıdaki cm değerleri ölçü çözücüyle shape key ağırlıklarına (0–1) çevrilir. Bütün ölçüler
+            birlikte çözülür. Ortalama sapma: <b>{sonuc.ortalamaHataCm.toFixed(1)} cm</b>
             {sonuc.sinirda.length > 0 && <> · sınıra dayanan key'ler: {sonuc.sinirda.join(', ')}</>}
           </small>
         )}

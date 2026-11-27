@@ -3,6 +3,7 @@
 // (height, chest, waist, hip, weight, arm_length, leg_length). Hepsi kalibrasyon dosyasındakiyle
 // birebir aynı olmalı: eksik bırakılan key hesaba girmez ve avatar hedef ölçüye ulaşamaz.
 import avatarKadinKalib from '../../../../assets/models/avatar_kadin.calib.json'
+import avatarErkekKalib from '../../../../assets/models/avatar_erkek.calib.json'
 
 export type OlcuAdi = 'boy' | 'gogus' | 'bel' | 'kalca' | 'kilo' | 'kol_boyu' | 'ic_bacak'
 export type KeyAdi = 'height' | 'chest' | 'waist' | 'hip' | 'weight' | 'arm_length' | 'leg_length'
@@ -31,6 +32,15 @@ export type Kalibrasyon = {
 
 // Tuğçe'nin ölçüm betiğinin ürettiği kalibrasyon (assets/models)
 export const AVATAR_KALIBRASYON = avatarKadinKalib as Kalibrasyon
+
+// Avatar modeli: kadın ve erkek avatarının ayrı GLB'si ve ayrı kalibrasyonu var.
+export type Model = 'kadin' | 'erkek'
+export const MODELLER: Model[] = ['kadin', 'erkek']
+export const MODEL_ETIKETLERI: Record<Model, string> = { kadin: 'Kadın', erkek: 'Erkek' }
+export const KALIBRASYONLAR: Record<Model, Kalibrasyon> = {
+  kadin: avatarKadinKalib as Kalibrasyon,
+  erkek: avatarErkekKalib as Kalibrasyon,
+}
 
 export const OLCU_ADLARI: OlcuAdi[] = ['boy', 'gogus', 'bel', 'kalca', 'kilo', 'kol_boyu', 'ic_bacak']
 export const KEY_ADLARI: KeyAdi[] = ['height', 'chest', 'waist', 'hip', 'weight', 'arm_length', 'leg_length']
