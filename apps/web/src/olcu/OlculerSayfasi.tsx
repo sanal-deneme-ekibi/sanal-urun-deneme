@@ -26,7 +26,13 @@ export default function OlculerSayfasi() {
         <OlcuPaneli olculer={olculer} sonuc={sonuc} degisti={olcuDegistir} />
         {/* Beden önerisi, kullanıcının yazdığı hedefi değil avatarın ulaştığı ölçüyü kullanır. */}
         <UygunlukPaneli
-          vucut={{ gogus: sonuc.ulasilan.gogus, bel: sonuc.ulasilan.bel, kalca: sonuc.ulasilan.kalca }}
+          vucut={{
+            gogus: sonuc.ulasilan.gogus,
+            bel: sonuc.ulasilan.bel,
+            kalca: sonuc.ulasilan.kalca,
+            // İç bacak yalnızca kullanıcı girdiyse: girmediyse avatarın tahmini, gerçek ölçü değil
+            ic_bacak: olculer.ic_bacak !== undefined ? sonuc.ulasilan.ic_bacak : undefined,
+          }}
         />
       </div>
     </div>

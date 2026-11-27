@@ -4,7 +4,7 @@
 // (`sonuc.ulasilan`): kullanıcı avatarda ne görüyorsa beden önerisi de ona göre çıkmalı.
 
 import { useMemo, useState } from 'react'
-import { enUygunBeden, olcuyuAnlat, uygunlukHesapla } from './uygunluk'
+import { enUygunBeden, olcuyuAnlat, uygunlukHesapla, uzunluguAnlat } from './uygunluk'
 import type { BedenSatiri, Durum, UrunTuru, VucutOlculeri } from './uygunluk'
 import { ORNEK_BEDENLER, SUTUN_ETIKETLERI, TUR_ETIKETLERI, TURLER } from './ornekBedenler'
 
@@ -85,7 +85,7 @@ export default function UygunlukPaneli({ vucut }: Props) {
           Size <b>{oneri.beden}</b> bedeni öneriyoruz
           {oneri.durum !== 'uygun' && <> — ama {oneri.durum === 'dar' ? 'dar' : 'bol'} gelebilir</>}.
           <br />
-          <small>{oneri.olculer.map(olcuyuAnlat).join(' · ')}</small>
+          <small>{[...oneri.olculer.map(olcuyuAnlat), ...oneri.uzunluklar.map(uzunluguAnlat)].join(' · ')}</small>
         </div>
       ) : (
         <div style={{ fontSize: 14, color: '#666' }}>
@@ -171,6 +171,14 @@ export default function UygunlukPaneli({ vucut }: Props) {
                     ) : (
                       <small style={{ color: '#888' }}>ölçü yok</small>
                     )}
+                    {/* Uzunluk bedeni değiştirmez, yalnızca not düşülür */}
+                    {s.uzunluklar
+                      .filter((u) => u.durum !== 'uygun')
+                      .map((u) => (
+                        <small key={u.sutun} style={{ display: 'block', color: '#666', whiteSpace: 'nowrap' }}>
+                          {uzunluguAnlat(u)}
+                        </small>
+                      ))}
                   </td>
                 </tr>
               )
@@ -190,6 +198,12 @@ export default function UygunlukPaneli({ vucut }: Props) {
             </b>{' '}
             için vücutta karşılık ölçmüyoruz, bu yüzden uygunluğa girmiyor.
           </>
+        )}
+        {bakilamayan.includes('ic_bacak_cm') && (
+          <> İç bacağını Ölçülerim'deki isteğe bağlı ölçülere eklersen pantolonun boyuna da bakarız.</>
+        )}
+        {sonuclar.some((r) => r.uzunluklar.length > 0) && (
+          <> İç bacak bedeni değiştirmez; kısa ya da uzun gelecekse not olarak gösterilir.</>
         )}{' '}
         Örnek tablolar; gerçek ürün tabloları Supabase'den gelecek.
       </small>

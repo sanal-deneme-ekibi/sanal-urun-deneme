@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { ESIKLER, cevreyeCevir, durumBul, enUygunBeden, olcuyuAnlat, uygunlukHesapla } from './uygunluk'
+import {
+  ESIKLER,
+  UZUNLUK_ESIKLERI,
+  cevreyeCevir,
+  durumBul,
+  enUygunBeden,
+  olcuyuAnlat,
+  uygunlukHesapla,
+  uzunlukDurumu,
+  uzunluguAnlat,
+} from './uygunluk'
 import type { BedenSatiri, VucutOlculeri } from './uygunluk'
 
 // Göğüs 92, bel 70, kalça 96 cm çevre.
@@ -94,8 +104,52 @@ describe('pantolon', () => {
     expect(dar.durum).toBe('dar')
   })
 
-  it('iç bacak karşılaştırılamaz', () => {
-    expect(uygunlukHesapla('pantolon', beden, VUCUT).karsilastirilamayan).toContain('ic_bacak_cm')
+  it('iç bacak girilmemişse karşılaştırılamaz', () => {
+    const sonuc = uygunlukHesapla('pantolon', beden, VUCUT)
+    expect(sonuc.karsilastirilamayan).toContain('ic_bacak_cm')
+    expect(sonuc.uzunluklar).toEqual([])
+  })
+})
+
+describe('iç bacak (isteğe bağlı)', () => {
+  const beden: BedenSatiri = { beden: '38', bel_cm: 38, kalca_cm: 52, ic_bacak_cm: 78 }
+
+  it('girildiyse karşılaştırılır, düz uzunluk olarak (ikiyle çarpılmaz)', () => {
+    const sonuc = uygunlukHesapla('pantolon', beden, { ...VUCUT, ic_bacak: 76 })
+
+    expect(sonuc.uzunluklar).toEqual([{ sutun: 'ic_bacak_cm', etiket: 'İç bacak', durum: 'uygun', farkCm: 2 }])
+    expect(sonuc.karsilastirilamayan).toEqual(['boy_cm'])
+  })
+
+  it('kısa ve uzun eşikleri', () => {
+    expect(uzunlukDurumu(UZUNLUK_ESIKLERI.kisa)).toBe('uygun')
+    expect(uzunlukDurumu(UZUNLUK_ESIKLERI.kisa - 0.1)).toBe('kisa')
+    expect(uzunlukDurumu(UZUNLUK_ESIKLERI.uzun)).toBe('uygun')
+    expect(uzunlukDurumu(UZUNLUK_ESIKLERI.uzun + 0.1)).toBe('uzun')
+  })
+
+  it('kısa pantolon bedeni değiştirmez, yalnızca not düşülür', () => {
+    // 78 − 86 = −8 cm: kısa; bel ve kalça uygun kaldığı için ürün hâlâ uygun
+    const sonuc = uygunlukHesapla('pantolon', beden, { ...VUCUT, ic_bacak: 86 })
+
+    expect(sonuc.uzunluklar[0].durum).toBe('kisa')
+    expect(sonuc.durum).toBe('uygun')
+    expect(uzunluguAnlat(sonuc.uzunluklar[0])).toBe('İç bacak 5 cm kısa') // eşiğin (−3) ötesindeki kısım
+    expect(enUygunBeden('pantolon', [beden], { ...VUCUT, ic_bacak: 86 })?.beden).toBe('38')
+  })
+
+  it('tabloda iç bacak yoksa eksik sütun sayılır', () => {
+    const sonuc = uygunlukHesapla('pantolon', { beden: '38', bel_cm: 38, kalca_cm: 52 }, { ...VUCUT, ic_bacak: 80 })
+
+    expect(sonuc.uzunluklar).toEqual([])
+    expect(sonuc.eksikSutunlar).toEqual(['ic_bacak_cm'])
+  })
+
+  it('tişörtte iç bacağa bakılmaz', () => {
+    const sonuc = uygunlukHesapla('tisort', { beden: 'M', en_cm: 50 }, { ...VUCUT, ic_bacak: 80 })
+
+    expect(sonuc.uzunluklar).toEqual([])
+    expect(sonuc.karsilastirilamayan).toEqual(['boy_cm', 'kol_cm'])
   })
 })
 
