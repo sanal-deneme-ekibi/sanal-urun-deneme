@@ -60,34 +60,18 @@ export function kenarRengi(img: HTMLImageElement): string {
 }
 
 /**
- * Kırpılan gövdeyi verilen boyutta ayrı bir tuvale çizer. temizle açıksa önce fotoğrafın kenarına
- * bağlı zemin kumaş rengine boyanır (bütün görselde, böylece dolgu kırpmanın kenarından değil
- * fotoğrafın kenarından başlar ve tişörtün içine giren çizgilere daha zor sızar).
+ * Fotoğrafın kenarına bağlı zemini kumaş rengine boyanmış bir kopyası (bütün görsel üzerinde;
+ * dolgu fotoğrafın kenarından başlar, tişörtün içindeki aynı renkteki baskıya sızmaz).
  */
-export function temizKirpma(
-  img: HTMLImageElement,
-  k: Kirpma,
-  w: number,
-  h: number,
-  kumasRengi: string,
-  temizle: boolean,
-): HTMLCanvasElement {
+export function zeminiTemizlenmis(img: HTMLImageElement, kumasRengi: string): HTMLCanvasElement {
   const gw = img.naturalWidth, gh = img.naturalHeight
-  let kaynak: CanvasImageSource = img
-  if (temizle) {
-    const tam = document.createElement('canvas')
-    tam.width = gw
-    tam.height = gh
-    const c = tam.getContext('2d', { willReadFrequently: true })!
-    c.drawImage(img, 0, 0)
-    const veri = c.getImageData(0, 0, gw, gh)
-    zeminiTemizle(veri.data, gw, gh, kenarRengi(img), kumasRengi)
-    c.putImageData(veri, 0, 0)
-    kaynak = tam
-  }
-  const tuval = document.createElement('canvas')
-  tuval.width = w
-  tuval.height = h
-  tuval.getContext('2d')!.drawImage(kaynak, k.x * gw, k.y * gh, k.w * gw, k.h * gh, 0, 0, w, h)
-  return tuval
+  const tam = document.createElement('canvas')
+  tam.width = gw
+  tam.height = gh
+  const c = tam.getContext('2d', { willReadFrequently: true })!
+  c.drawImage(img, 0, 0)
+  const veri = c.getImageData(0, 0, gw, gh)
+  zeminiTemizle(veri.data, gw, gh, kenarRengi(img), kumasRengi)
+  c.putImageData(veri, 0, 0)
+  return tam
 }

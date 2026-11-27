@@ -4,12 +4,16 @@
 import { createContext, useContext, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Kirpma } from './doku'
+import type { Noktalar } from './bukme'
 import type { BedenSatiri } from '../uygunluk/uygunluk'
 
 export type Urun = {
   /** Küçültülmüş fotoğraf (JPEG data URL, en uzun kenar 1600 px) */
   foto: string
-  kirpma: Kirpma
+  /** Tişörtün 7 anahtar noktası (görsele göre 0–1) */
+  noktalar?: Noktalar
+  /** Eski kayıtlar: dikdörtgen kırpma (noktalar yoksa bundan türetilir) */
+  kirpma?: Kirpma
   /** Arka ve kolların rengi; varsayılanı fotoğrafın baskın rengi */
   zeminRengi: string
   /** Desen arkaya da kopyalansın mı (her yeri desenli kumaşlar için) */

@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import KirpmaAraci from './KirpmaAraci'
-import { VARSAYILAN_KIRPMA } from './doku'
-import type { Kirpma } from './doku'
+import NoktaAraci from './NoktaAraci'
+import { VARSAYILAN_NOKTALAR, govdeKutusu } from './bukme'
+import type { Noktalar } from './bukme'
+import { urunNoktalari } from './useUrunDokusu'
 import { dosyayiKucult, gorselYukle, kirpmaRengi } from './gorsel'
 import { useUrun } from './UrunBaglami'
 import BedenTablosuGirisi from './BedenTablosuGirisi'
@@ -46,7 +47,7 @@ export default function UrunEkleSayfasi() {
   const dosyaGirdisi = useRef<HTMLInputElement>(null)
 
   const [foto, setFoto] = useState<string | null>(urun?.foto ?? null)
-  const [kirpma, setKirpma] = useState<Kirpma>(urun?.kirpma ?? VARSAYILAN_KIRPMA)
+  const [noktalar, setNoktalar] = useState<Noktalar>(urun ? urunNoktalari(urun) : VARSAYILAN_NOKTALAR)
   const [zeminRengi, setZeminRengi] = useState(urun?.zeminRengi ?? '#e8e8e8')
   const [renkElle, setRenkElle] = useState(Boolean(urun))
   const [arkaAyni, setArkaAyni] = useState(urun?.arkaAyni ?? false)
@@ -69,8 +70,8 @@ export default function UrunEkleSayfasi() {
 
   // Kullanıcı rengi kendisi seçmediyse, kırpma değiştikçe baskın rengi yeniden bul
   useEffect(() => {
-    if (img && !renkElle) setZeminRengi(kirpmaRengi(img, kirpma))
-  }, [img, kirpma, renkElle])
+    if (img && !renkElle) setZeminRengi(kirpmaRengi(img, govdeKutusu(noktalar)))
+  }, [img, noktalar, renkElle])
 
   const dosyaSecildi = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const dosya = e.target.files?.[0]
@@ -80,7 +81,7 @@ export default function UrunEkleSayfasi() {
     try {
       setHata(null)
       setFoto(await dosyayiKucult(dosya))
-      setKirpma(VARSAYILAN_KIRPMA)
+      setNoktalar(VARSAYILAN_NOKTALAR)
       setRenkElle(false)
     } catch {
       setHata('Bu görsel açılamadı. Başka bir fotoğraf deneyin (JPEG veya PNG).')
@@ -89,7 +90,7 @@ export default function UrunEkleSayfasi() {
 
   const kaydet = () => {
     if (!foto || tabloEngelli) return
-    urunKaydet({ foto, kirpma, zeminRengi, arkaAyni, zeminTemizle, bedenler })
+    urunKaydet({ foto, noktalar, zeminRengi, arkaAyni, zeminTemizle, bedenler })
     git('/kiyafet')
   }
 
@@ -99,11 +100,19 @@ export default function UrunEkleSayfasi() {
         {foto ? (
           <>
             <div style={{ width: '100%', maxWidth: 560 }}>
-              <KirpmaAraci src={foto} kirpma={kirpma} degisti={setKirpma} />
+              <NoktaAraci src={foto} noktalar={noktalar} degisti={setNoktalar} />
             </div>
             <p style={{ margin: 0, maxWidth: 560, fontSize: 14, lineHeight: 1.5, color: '#3d3e44' }}>
-              Çerçeveyi tişörtün gövdesine oturtun: üst kenar yakada, alt kenar etekte, yanlar koltuk altlarında.
-              Kesikli çizgi tişörtün ortasına gelsin.
+              Mavi noktaları tişörtün üstüne sürükleyin: yaka ortası, iki omuz dikişi, iki kol ucunun ortası ve eteğin
+              iki köşesi. Sağ ve sol, tişörtü giyenin sağı ve soludur (fotoğrafta sağ omuz solda durur).
+              <br />
+              <button
+                type="button"
+                onClick={() => setNoktalar(VARSAYILAN_NOKTALAR)}
+                style={{ border: 'none', background: 'none', color: '#1d4ed8', padding: 0, fontSize: 14, cursor: 'pointer' }}
+              >
+                Noktaları sıfırla
+              </button>
             </p>
           </>
         ) : (
