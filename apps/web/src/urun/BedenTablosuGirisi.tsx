@@ -24,11 +24,11 @@ const hucre: CSSProperties = {
   minWidth: 0,
   boxSizing: 'border-box',
   height: 40,
-  border: '1px solid #cbd5e1',
+  border: '1px solid var(--cizgi)',
   borderRadius: 8,
   padding: '0 8px',
   fontSize: 15,
-  background: '#fff',
+  background: 'var(--kart)',
 }
 
 export default function BedenTablosuGirisi({ satirlar, degisti, uyarilar, ornekYukle }: Props) {
@@ -47,14 +47,14 @@ export default function BedenTablosuGirisi({ satirlar, degisti, uyarilar, ornekY
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <span style={{ fontSize: 14, color: '#444' }}>Beden tablosu (cm, düz serili)</span>
-        <button type="button" onClick={ornekYukle} style={{ border: 'none', background: 'none', color: '#1d4ed8', fontSize: 13, cursor: 'pointer', padding: 0 }}>
+        <span style={{ fontSize: 14, color: 'var(--metin)' }}>Beden tablosu (cm, düz serili)</span>
+        <button type="button" onClick={ornekYukle} style={{ border: 'none', background: 'none', color: 'var(--vurgu-yumusak)', fontSize: 13, cursor: 'pointer', padding: 0 }}>
           Örnek tablo
         </button>
       </div>
 
       <div role="table" aria-label="Beden tablosu" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <div role="row" style={{ display: 'grid', gridTemplateColumns: kolonlar, gap: 6, fontSize: 13, fontWeight: 600, color: '#3d3e44' }}>
+        <div role="row" style={{ display: 'grid', gridTemplateColumns: kolonlar, gap: 6, fontSize: 13, fontWeight: 600, color: 'var(--metin)' }}>
           <span role="columnheader">Beden</span>
           {TISORT_SUTUNLARI.map((k) => (
             <span role="columnheader" key={k} title={ACIKLAMA[k]}>
@@ -69,7 +69,7 @@ export default function BedenTablosuGirisi({ satirlar, degisti, uyarilar, ornekY
               aria-label={`${i + 1}. satır beden adı`}
               value={s.beden}
               onChange={(e) => hucreDegisti(i, 'beden', e.target.value)}
-              style={{ ...hucre, fontWeight: 600, borderColor: hataliSatirlar.has(i) ? '#f59e0b' : '#cbd5e1' }}
+              style={{ ...hucre, fontWeight: 600, borderColor: hataliSatirlar.has(i) ? 'var(--bol)' : 'var(--cam-cizgi)' }}
             />
             {TISORT_SUTUNLARI.map((k) => (
               <input
@@ -86,7 +86,7 @@ export default function BedenTablosuGirisi({ satirlar, degisti, uyarilar, ornekY
               type="button"
               aria-label={`${s.beden || i + 1} bedenini sil`}
               onClick={() => sil(i)}
-              style={{ width: 36, height: 40, border: 'none', background: 'none', color: '#8a8a8f', fontSize: 20, cursor: 'pointer', padding: 0 }}
+              style={{ width: 36, height: 40, border: 'none', background: 'none', color: 'var(--soluk)', fontSize: 20, cursor: 'pointer', padding: 0 }}
             >
               ×
             </button>
@@ -97,19 +97,19 @@ export default function BedenTablosuGirisi({ satirlar, degisti, uyarilar, ornekY
       <button
         type="button"
         onClick={ekle}
-        style={{ minHeight: 40, border: '1px dashed #8a8a8f', borderRadius: 8, background: '#fff', color: '#3d3e44', fontSize: 14, cursor: 'pointer' }}
+        style={{ minHeight: 40, border: '1px dashed var(--cam-cizgi)', borderRadius: 8, background: 'var(--kart)', color: 'var(--metin)', fontSize: 14, cursor: 'pointer' }}
       >
         + Beden ekle
       </button>
 
-      <small style={{ color: '#666', lineHeight: 1.5 }}>
+      <small style={{ color: 'var(--soluk)', lineHeight: 1.5 }}>
         En: tişört düz serilmişken {ACIKLAMA.en_cm} (çevrenin yarısı). Boy: {ACIKLAMA.boy_cm}. Kol: {ACIKLAMA.kol_cm}.
       </small>
 
       {uyarilar.length > 0 && (
-        <ul role="status" style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.5, color: '#78350f' }}>
+        <ul role="status" style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.5, color: 'var(--bol)' }}>
           {uyarilar.map((u, i) => (
-            <li key={i} style={{ color: u.engel ? '#7f1d1d' : '#78350f' }}>
+            <li key={i} style={{ color: u.engel ? 'var(--dar)' : 'var(--bol)' }}>
               {u.mesaj}
             </li>
           ))}

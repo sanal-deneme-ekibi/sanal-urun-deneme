@@ -28,9 +28,9 @@ const ikincilDugme = {
   fontSize: 13,
   padding: '4px 10px',
   borderRadius: 8,
-  border: '1px solid #d4d4d0',
-  background: '#fff',
-  color: '#333',
+  border: '1px solid var(--cizgi)',
+  background: 'var(--kart)',
+  color: 'var(--metin)',
   cursor: 'pointer',
 } as const
 
@@ -72,9 +72,9 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
             style={{
               fontSize: 13,
               lineHeight: 1.4,
-              color: '#7c2d12',
-              background: '#fff7ed',
-              border: '1px solid #fed7aa',
+              color: 'var(--bol)',
+              background: 'var(--bol-zemin)',
+              border: '1px solid var(--bol-cizgi)',
               borderRadius: 8,
               padding: '6px 10px',
             }}
@@ -87,7 +87,7 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
           </span>
         )}
         {teknik && (
-          <small style={{ color: '#666', fontFamily: 'monospace' }}>
+          <small style={{ color: 'var(--soluk)', fontFamily: 'var(--mono)' }}>
             {key} = {sonuc.agirliklar[key].toFixed(2)} · avatar {sonuc.ulasilan[ad].toFixed(1)} {birim}
           </small>
         )}
@@ -107,10 +107,10 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
 
       {ZORUNLU_ADLAR.map((ad) => satir(ad, olculer[ad as keyof HedefOlculer] as number, false))}
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: 14, borderTop: '1px solid #e2e2e0', paddingTop: 14 }}>
+      <section style={{ display: 'flex', flexDirection: 'column', gap: 14, borderTop: '1px solid var(--cizgi)', paddingTop: 14 }}>
         <div>
           <h3 style={{ margin: 0, fontSize: 16 }}>İsteğe bağlı ölçüler</h3>
-          <small style={{ color: '#666', lineHeight: 1.5 }}>
+          <small style={{ color: 'var(--soluk)', lineHeight: 1.5 }}>
             Bilmiyorsan boş bırak; avatar bunları diğer ölçülerinden tahmin eder. Girersen avatar sana daha çok benzer.
           </small>
         </div>
@@ -122,25 +122,25 @@ export default function OlcuPaneli({ olculer, sonuc, degisti }: Props) {
                 satir(ad, deger, true)
               ) : (
                 <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                  <span style={{ color: '#444' }}>{OLCU_ETIKETLERI[ad]}</span>
+                  <span style={{ color: 'var(--metin)' }}>{OLCU_ETIKETLERI[ad]}</span>
                   <button type="button" style={ikincilDugme} onClick={() => ekle(ad)}>
                     Ekle
                   </button>
                 </span>
               )}
-              <small style={{ color: '#777', lineHeight: 1.4 }}>{OLCUM_IPUCU[ad]}</small>
+              <small style={{ color: 'var(--soluk)', lineHeight: 1.4 }}>{OLCUM_IPUCU[ad]}</small>
             </div>
           )
         })}
       </section>
 
-      <div style={{ borderTop: '1px solid #e2e2e0', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#444' }}>
+      <div style={{ borderTop: '1px solid var(--cizgi)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--metin)' }}>
           <input type="checkbox" checked={teknik} onChange={(e) => setTeknik(e.target.checked)} />
           Teknik ayrıntılar
         </label>
         {teknik && (
-          <small style={{ color: '#666', lineHeight: 1.5 }}>
+          <small style={{ color: 'var(--soluk)', lineHeight: 1.5 }}>
             Kaydırıcıdaki cm değerleri ölçü çözücüyle shape key ağırlıklarına (0–1) çevrilir. Bütün ölçüler
             birlikte çözülür. Ortalama sapma: <b>{sonuc.ortalamaHataCm.toFixed(1)} cm</b>
             {sonuc.sinirda.length > 0 && <> · sınıra dayanan key'ler: {sonuc.sinirda.join(', ')}</>}

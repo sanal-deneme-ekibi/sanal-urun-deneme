@@ -11,9 +11,9 @@ import { ORNEK_BEDENLER, SUTUN_ETIKETLERI, TUR_ETIKETLERI, TURLER } from './orne
 type Props = { vucut: VucutOlculeri }
 
 const RENK: Record<Durum, { yazi: string; zemin: string; cerceve: string; etiket: string }> = {
-  dar: { yazi: '#7f1d1d', zemin: '#fef2f2', cerceve: '#fecaca', etiket: 'Dar' },
-  uygun: { yazi: '#14532d', zemin: '#f0fdf4', cerceve: '#bbf7d0', etiket: 'Uygun' },
-  bol: { yazi: '#78350f', zemin: '#fffbeb', cerceve: '#fde68a', etiket: 'Bol' },
+  dar: { yazi: 'var(--dar)', zemin: 'var(--dar-zemin)', cerceve: 'var(--dar-cizgi)', etiket: 'Dar' },
+  uygun: { yazi: 'var(--uygun)', zemin: 'var(--uygun-zemin)', cerceve: 'var(--uygun-cizgi)', etiket: 'Uygun' },
+  bol: { yazi: 'var(--bol)', zemin: 'var(--bol-zemin)', cerceve: 'var(--bol-cizgi)', etiket: 'Bol' },
 }
 
 /** Türe göre tabloda gösterilecek sütunlar: o türün satırlarında dolu olanlar. */
@@ -50,17 +50,17 @@ export default function UygunlukPaneli({ vucut }: Props) {
         flexDirection: 'column',
         gap: 14,
         padding: 20,
-        borderTop: '8px solid #eef2f6',
+        borderTop: '1px solid var(--cizgi)',
       }}
     >
       <h2 style={{ margin: 0, fontSize: 20 }}>Beden önerisi</h2>
 
       <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <span style={{ fontSize: 14, color: '#444' }}>Ürün türü</span>
+        <span style={{ fontSize: 14, color: 'var(--metin)' }}>Ürün türü</span>
         <select
           value={tur}
           onChange={(e) => setTur(e.target.value as UrunTuru)}
-          style={{ padding: '6px 8px', fontSize: 15, borderRadius: 8, border: '1px solid #cbd5e1' }}
+          style={{ padding: '6px 8px', fontSize: 15, borderRadius: 8, border: '1px solid var(--cizgi)' }}
         >
           {TURLER.map((t) => (
             <option key={t} value={t}>
@@ -88,7 +88,7 @@ export default function UygunlukPaneli({ vucut }: Props) {
           <small>{[...oneri.olculer.map(olcuyuAnlat), ...oneri.uzunluklar.map(uzunluguAnlat)].join(' · ')}</small>
         </div>
       ) : (
-        <div style={{ fontSize: 14, color: '#666' }}>
+        <div style={{ fontSize: 14, color: 'var(--soluk)' }}>
           Bu tabloda karşılaştırılabilecek ölçü yok; en az bir çevre ölçüsü (en, bel veya kalça) gerekiyor.
         </div>
       )}
@@ -102,20 +102,20 @@ export default function UygunlukPaneli({ vucut }: Props) {
                 style={{
                   textAlign: 'left',
                   padding: '4px 6px',
-                  color: '#444',
+                  color: 'var(--metin)',
                   position: 'sticky',
                   left: 0,
-                  background: '#fff',
+                  background: 'var(--kart)',
                 }}
               >
                 Beden
               </th>
               {sutunlar.map((s) => (
-                <th key={s} style={{ textAlign: 'left', padding: '4px 6px', color: '#444', fontWeight: 500 }}>
+                <th key={s} style={{ textAlign: 'left', padding: '4px 6px', color: 'var(--metin)', fontWeight: 500 }}>
                   {SUTUN_ETIKETLERI[s]}
                 </th>
               ))}
-              <th style={{ textAlign: 'left', padding: '4px 6px', color: '#444' }}>Sonuç</th>
+              <th style={{ textAlign: 'left', padding: '4px 6px', color: 'var(--metin)' }}>Sonuç</th>
             </tr>
           </thead>
           <tbody>
@@ -123,14 +123,14 @@ export default function UygunlukPaneli({ vucut }: Props) {
               const s = sonuclar[i]
               const secili = oneri?.beden === satir.beden
               return (
-                <tr key={satir.beden} style={{ background: secili ? '#f8fafc' : undefined }}>
+                <tr key={satir.beden} style={{ background: secili ? 'var(--vurgu-zemin)' : undefined }}>
                   <td
                     style={{
                       padding: '4px 6px',
                       fontWeight: secili ? 700 : 400,
                       position: 'sticky',
                       left: 0,
-                      background: secili ? '#f8fafc' : '#fff',
+                      background: secili ? 'var(--vurgu-zemin)' : 'transparent',
                     }}
                   >
                     {satir.beden}
@@ -148,7 +148,7 @@ export default function UygunlukPaneli({ vucut }: Props) {
                           padding: '3px 5px',
                           fontSize: 14,
                           borderRadius: 6,
-                          border: '1px solid #cbd5e1',
+                          border: '1px solid var(--cizgi)',
                         }}
                       />
                     </td>
@@ -169,13 +169,13 @@ export default function UygunlukPaneli({ vucut }: Props) {
                         {RENK[s.durum].etiket}
                       </span>
                     ) : (
-                      <small style={{ color: '#888' }}>ölçü yok</small>
+                      <small style={{ color: 'var(--soluk)' }}>ölçü yok</small>
                     )}
                     {/* Uzunluk bedeni değiştirmez, yalnızca not düşülür */}
                     {s.uzunluklar
                       .filter((u) => u.durum !== 'uygun')
                       .map((u) => (
-                        <small key={u.sutun} style={{ display: 'block', color: '#666', whiteSpace: 'nowrap' }}>
+                        <small key={u.sutun} style={{ display: 'block', color: 'var(--soluk)', whiteSpace: 'nowrap' }}>
                           {uzunluguAnlat(u)}
                         </small>
                       ))}
@@ -187,7 +187,7 @@ export default function UygunlukPaneli({ vucut }: Props) {
         </table>
       </div>
 
-      <small style={{ color: '#666', lineHeight: 1.5 }}>
+      <small style={{ color: 'var(--soluk)', lineHeight: 1.5 }}>
         Tablodaki değerler <b>düz serili genişliktir</b> (ürün masaya serilmişken ölçülen en); hesapta ikiyle
         çarpılıp vücut çevresiyle karşılaştırılır. Değerleri değiştirip deneyebilirsiniz.
         {bakilamayan.length > 0 && (
