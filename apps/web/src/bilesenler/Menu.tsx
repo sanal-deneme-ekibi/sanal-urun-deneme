@@ -16,7 +16,7 @@ const TISORT = <path d="M9 3 4 6l2 4 2-1v12h8V9l2 1 2-4-5-3c-.7 1.2-1.8 2-3 2s-2
 const SEKMELER = [
   { yol: '/olculer', ad: 'Ölçülerim', simge: ikon(<><circle cx="12" cy="6" r="3" /><path d="M7 21v-6l-2-5h14l-2 5v6" /></>) },
   { yol: '/kiyafet', ad: 'Kıyafet', simge: ikon(TISORT) },
-  { yol: '/gozluk', ad: 'Gözlük', simge: ikon(<><circle cx="7" cy="14" r="3.5" /><circle cx="17" cy="14" r="3.5" /><path d="M10.5 14h3M3.5 14 2 9M20.5 14 22 9" /></>) },
+  { yol: '/aksesuar', ad: 'Aksesuar', simge: ikon(<><circle cx="12" cy="15" r="6" /><path d="M9.5 6.5 12 4l2.5 2.5L12 9z" /></>) },
   { yol: '/favori', ad: 'Favoriler', simge: ikon(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />) },
 ]
 
