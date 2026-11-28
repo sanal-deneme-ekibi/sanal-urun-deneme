@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import Menu from './bilesenler/Menu'
 import OlculerSayfasi from './olcu/OlculerSayfasi'
-import YuzKup from './yuz/YuzKup'
+import AksesuarSayfasi from './aksesuar/AksesuarSayfasi'
 import YakindaSayfasi from './ekranlar/YakindaSayfasi'
 import KarsilamaSayfasi, { tanitimGoruldu } from './ekranlar/KarsilamaSayfasi'
 import DenemeSayfasi from './kiyafet/DenemeSayfasi'
@@ -28,7 +28,9 @@ export default function App() {
             <Route path="/olculer" element={<OlculerSayfasi />} />
             <Route path="/kiyafet" element={<DenemeSayfasi />} />
             <Route path="/kiyafet/ekle" element={<UrunEkleSayfasi />} />
-            <Route path="/gozluk" element={<YuzKup />} />
+            <Route path="/aksesuar" element={<AksesuarSayfasi />} />
+            {/* Eski adres: yer imleri bozulmasın */}
+            <Route path="/gozluk" element={<Navigate to="/aksesuar?tur=gozluk" replace />} />
             <Route
               path="/favori"
               element={<YakindaSayfasi baslik="Favoriler" aciklama="Kaydedilen ürünler burada listelenecek (2. dönem)." />}
