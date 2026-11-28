@@ -81,7 +81,7 @@ export default function UrunEkleSayfasi() {
             <div className="foto-cerceve">
               <NoktaAraci src={foto} noktalar={noktalar} degisti={setNoktalar} />
             </div>
-            <p style={{ margin: 0, maxWidth: 560, fontSize: 14, lineHeight: 1.5, color: '#3d3e44' }}>
+            <p style={{ margin: 0, maxWidth: 560, fontSize: 14, lineHeight: 1.5, color: 'var(--metin)' }}>
               Mavi noktaları tişörtün üstüne sürükleyin: yaka ortası, iki omuz dikişi, iki kol ucunun ortası ve eteğin
               iki köşesi. Sağ ve sol, tişörtü giyenin sağı ve soludur (fotoğrafta sağ omuz solda durur).
               <br />
@@ -102,10 +102,10 @@ export default function UrunEkleSayfasi() {
               width: '100%',
               maxWidth: 560,
               aspectRatio: '4 / 3',
-              border: '2px dashed #8a8a8f',
+              border: '2px dashed var(--cam-cizgi)',
               borderRadius: 12,
-              background: '#f4f4f1',
-              color: '#3d3e44',
+              background: 'var(--cam)',
+              color: 'var(--metin)',
               fontSize: 16,
               cursor: 'pointer',
               display: 'flex',
@@ -119,12 +119,12 @@ export default function UrunEkleSayfasi() {
               <path d="M9 3 4 6l2 4 2-1v12h8V9l2 1 2-4-5-3c-.7 1.2-1.8 2-3 2s-2.3-.8-3-2z" />
             </svg>
             Ürün fotoğrafı yükleyin veya çekin
-            <small style={{ color: '#6b6b70' }}>Düz zemine serilmiş, karşıdan çekilmiş tişört en iyi sonucu verir</small>
+            <small style={{ color: 'var(--soluk)' }}>Düz zemine serilmiş, karşıdan çekilmiş tişört en iyi sonucu verir</small>
           </button>
         )}
       </section>
 
-      <aside className="panel">
+      <aside className="panel cam">
       <div className="panel-ic" style={{ minHeight: '100%' }}>
         <div className="panel-baslik">
           <h1>Ürün ekle</h1>
@@ -135,7 +135,7 @@ export default function UrunEkleSayfasi() {
           {foto ? 'Başka fotoğraf seç' : 'Fotoğraf yükle / çek'}
         </button>
         {hata && (
-          <p role="alert" style={{ margin: 0, color: '#7f1d1d', fontSize: 14 }}>
+          <p role="alert" style={{ margin: 0, color: 'var(--dar)', fontSize: 14 }}>
             {hata}
           </p>
         )}
@@ -151,9 +151,9 @@ export default function UrunEkleSayfasi() {
                   borderRadius: 999,
                   padding: '5px 12px',
                   fontSize: 13,
-                  border: `1px solid ${t.hazir ? '#1b1b1f' : '#cbd5e1'}`,
-                  background: t.hazir ? '#1b1b1f' : '#fff',
-                  color: t.hazir ? '#fff' : '#8a8a8f',
+                  border: `1px solid ${t.hazir ? 'var(--ters)' : 'var(--cizgi)'}`,
+                  background: t.hazir ? 'var(--ters)' : 'transparent',
+                  color: t.hazir ? 'var(--ters-yazi)' : 'var(--soluk)',
                   fontWeight: t.hazir ? 600 : 400,
                 }}
               >
@@ -167,7 +167,7 @@ export default function UrunEkleSayfasi() {
         {foto && (
           <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <label htmlFor="zemin-rengi" style={{ fontSize: 14, color: '#444' }}>
+              <label htmlFor="zemin-rengi" style={{ fontSize: 14, color: 'var(--metin)' }}>
                 Arka ve kolların rengi
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -179,11 +179,11 @@ export default function UrunEkleSayfasi() {
                     setZeminRengi(e.target.value)
                     setRenkElle(true)
                   }}
-                  style={{ width: 48, height: 40, border: '1px solid #cbd5e1', borderRadius: 8, padding: 2, background: '#fff' }}
+                  style={{ width: 48, height: 40, border: '1px solid var(--cizgi)', borderRadius: 8, padding: 2, background: 'var(--kart)' }}
                 />
-                <small style={{ color: '#666', lineHeight: 1.4 }}>
+                <small style={{ color: 'var(--soluk)', lineHeight: 1.4 }}>
                   {renkElle ? (
-                    <button type="button" onClick={() => setRenkElle(false)} style={{ border: 'none', background: 'none', color: '#1d4ed8', padding: 0, cursor: 'pointer', fontSize: 13 }}>
+                    <button type="button" onClick={() => setRenkElle(false)} style={{ border: 'none', background: 'none', color: 'var(--vurgu-yumusak)', padding: 0, cursor: 'pointer', fontSize: 13 }}>
                       Fotoğraftan bul
                     </button>
                   ) : (
@@ -193,21 +193,21 @@ export default function UrunEkleSayfasi() {
               </div>
             </div>
 
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: '#444', lineHeight: 1.4 }}>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: 'var(--metin)', lineHeight: 1.4 }}>
               <input type="checkbox" checked={zeminTemizle} onChange={(e) => setZeminTemizle(e.target.checked)} style={{ marginTop: 3 }} />
               <span>
                 Fotoğraf zeminini temizle
                 <br />
-                <small style={{ color: '#666' }}>Çerçeveye giren masa veya duvar kumaş rengine boyanır. Açık renkli çizgiler silinirse kapatın.</small>
+                <small style={{ color: 'var(--soluk)' }}>Çerçeveye giren masa veya duvar kumaş rengine boyanır. Açık renkli çizgiler silinirse kapatın.</small>
               </span>
             </label>
 
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: '#444', lineHeight: 1.4 }}>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: 'var(--metin)', lineHeight: 1.4 }}>
               <input type="checkbox" checked={arkaAyni} onChange={(e) => setArkaAyni(e.target.checked)} style={{ marginTop: 3 }} />
               <span>
                 Arkası da aynı desende
                 <br />
-                <small style={{ color: '#666' }}>Çizgili, kareli gibi her yeri desenli kumaşlar için. Önde baskı varsa kapalı bırakın.</small>
+                <small style={{ color: 'var(--soluk)' }}>Çizgili, kareli gibi her yeri desenli kumaşlar için. Önde baskı varsa kapalı bırakın.</small>
               </span>
             </label>
           </>
@@ -230,7 +230,7 @@ export default function UrunEkleSayfasi() {
           >
             {urun ? 'Kaydet ve avatarda dene' : 'Avatarda dene'}
           </button>
-          {!foto && <small style={{ color: '#666', textAlign: 'center' }}>Önce ürün fotoğrafı ekleyin.</small>}
+          {!foto && <small style={{ color: 'var(--soluk)', textAlign: 'center' }}>Önce ürün fotoğrafı ekleyin.</small>}
           {urun && (
             <button
               type="button"
